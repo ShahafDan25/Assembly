@@ -27,6 +27,12 @@ SECTION     .text
 	global  _start
      
 _start:
+;-------------OBJECTIVE--------------
+;take in a string, and reverse it
+
+
+
+
 	;code goes here
 	;---------HELLO---------
 	push welcomeAct
@@ -52,7 +58,7 @@ _start:
 	mov rsi, 0 ;start counter at 0
 	mov rcx, readBuffer.len ;set the length to rcx
 	Loop1:
-		movzx rax, readBuffer[rsi] ;get the rsi'th character from readBuffer, mov it into rax register
+		movzx rax, BYTE [readBuffer + rsi] ;get the rsi'th character from readBuffer, mov it into rax register
 		push rax
 		inc rsi ;increase the counter = counter++;
 	Loop Loop1 ;go back to loop 1	
@@ -66,13 +72,14 @@ _start:
 	
 	Loop2: 
 		pop rax ;move the next item in rax
-		mov readBuffer[rsi], al ;store in a string
+		mov [readBuffer + rsi], al ;store in a string
 		inc rsi ;counter++
 	Loop Loop2
 	
-	mov rdx, [readBuffer] ;move the value of the readBuffer int rdx
+	mov rdx, readBuffer ;move the value of the readBuffer int rdx
 	push rdx
-	call Prtint64bitNumHex ;print the reversed string
+	push readBuffer.len ;pushing the length becaus ethe print text requires the length of the string we want to print
+	call PrintText ;print the reversed string
 	
 	;------GOODBYTE----
 	call Printendl

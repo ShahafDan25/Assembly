@@ -564,15 +564,33 @@
     47 00000034 E8(00000000)            	call Printendl
     48                                  	
     49                                  	
-    50                                  	;------GOODBYTE----
-    51 00000039 68[0E000000]            	push goodbyeAct
-    52 0000003E E8(00000000)            	call PrintString
-    53 00000043 E8(00000000)            	call Printendl
+    50                                  	;------ EQUIVALENT STACK CODE ----
+    51 00000039 6A40                    	push 40h
+    52 0000003B 6A50                    	push 50h
+    53 0000003D 6A60                    	push 60h
     54                                  	
-    55                                  ;
-    56                                  ;Setup the registers for exit and poke the kernel
-    57                                  ;Exit: 
-    58                                  Exit:
-    59 00000048 B83C000000              	mov		rax, 60					;60 = system exit
-    60 0000004D BF00000000              	mov		rdi, 0					;0 = return code
-    61 00000052 0F05                    	syscall							;Poke the kernel
+    55 0000003F 58                      	pop rax
+    56 00000040 6A00                    	push 0h
+    57 00000042 58                      	pop rax
+    58 00000043 58                      	pop rax
+    59                                  	; it does not actually removes that item from the stack, rather points the pointer to the next item in the stacke
+    60 00000044 B964000000              	mov rcx, 100
+    61                                  	loop1:
+    62 00000049 6A00                    		push 0h
+    63 0000004B E8(00000000)            		call Print64bitNumHex ;print rax again
+    64 00000050 E2F7                    	Loop loop1
+    65                                  	
+    66                                  	
+    67                                  	;------GOODBYTE----
+    68 00000052 E8(00000000)            	call Printendl
+    69 00000057 68[0E000000]            	push goodbyeAct
+    70 0000005C E8(00000000)            	call PrintString
+    71 00000061 E8(00000000)            	call Printendl
+    72                                  	
+    73                                  ;
+    74                                  ;Setup the registers for exit and poke the kernel
+    75                                  ;Exit: 
+    76                                  Exit:
+    77 00000066 B83C000000              	mov		rax, 60					;60 = system exit
+    78 0000006B BF00000000              	mov		rdi, 0					;0 = return code
+    79 00000070 0F05                    	syscall							;Poke the kernel

@@ -47,6 +47,23 @@ _start:
 	call Printendl
 	
 	
+	;------ EQUIVALENT STACK CODE ----
+	push 40h
+	push 50h
+	push 60h
+	
+	pop rax
+	push 0h
+	pop rax
+	pop rax
+	; it does not actually removes that item from the stack, rather points the pointer to the next item in the stacke
+	mov rcx, 100
+	loop1:
+		push 0h
+		call Print64bitNumHex ;print rax again
+	Loop loop1
+	
+	
 	;------GOODBYTE----
 	call Printendl
 	push goodbyeAct

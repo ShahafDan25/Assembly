@@ -8,7 +8,8 @@
  
 SECTION .data
 	; put your variables here
-	
+	welcomeAct db "Hello World", 0ah, 0dh, 0h
+	goodbyeAct db "Bye, have  good one", 0ah, 0dh, 0h
 	
 SECTION .bss
 	;reserve memory here
@@ -18,7 +19,13 @@ SECTION     .text
      
 _start:
 	;code goes here
+	push welcomeAct
+	call PrintString 
+	call Printendl
 	
+	push goodbyeAct
+	call PrintString
+	call Printendl
 	
 ;
 ;Setup the registers for exit and poke the kernel

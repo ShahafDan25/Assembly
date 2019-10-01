@@ -528,69 +528,119 @@
     12 00000017 2020676F6F64206F6E-
     12 00000020 650A0D00           
     13                                  	
-    14                                  	
-    15                                  	
-    16                                  SECTION .bss
-    17                                  	;reserve memory here
-    18                                   
-    19                                  SECTION     .text
-    20                                  	global  _start
-    21                                       
-    22                                  _start:
-    23                                  	;code goes here
-    24                                  	;---------HELLO---------
-    25 00000000 68[00000000]            	push welcomeAct
-    26 00000005 E8(00000000)            	call PrintString 
-    27 0000000A E8(00000000)            	call Printendl
-    28                                  	
-    29                                  	;----------STACK CODE --------
-    30 0000000F 6A10                    	push 10h ;push to stack
-    31 00000011 6A20                    	push 20h ;push to stack
-    32 00000013 6A30                    	push 30h ;push to stack
-    33                                  	
-    34 00000015 58                      	pop rax
-    35 00000016 50                      	push rax
-    36 00000017 E8(00000000)            	call Print64bitNumHex ;print the register we pushed
-    37 0000001C E8(00000000)            	call Printendl
-    38                                  	
-    39 00000021 58                      	pop rax
-    40 00000022 50                      	push rax
-    41 00000023 E8(00000000)            	call Print64bitNumHex ;print rax again
-    42 00000028 E8(00000000)            	call Printendl
-    43                                  	
-    44 0000002D 58                      	pop rax
-    45 0000002E 50                      	push rax
-    46 0000002F E8(00000000)            	call Print64bitNumHex ;print rax again
-    47 00000034 E8(00000000)            	call Printendl
-    48                                  	
-    49                                  	
-    50                                  	;------ EQUIVALENT STACK CODE ----
-    51 00000039 6A40                    	push 40h
-    52 0000003B 6A50                    	push 50h
-    53 0000003D 6A60                    	push 60h
-    54                                  	
-    55 0000003F 58                      	pop rax
-    56 00000040 6A00                    	push 0h
-    57 00000042 58                      	pop rax
-    58 00000043 58                      	pop rax
-    59                                  	; it does not actually removes that item from the stack, rather points the pointer to the next item in the stacke
-    60 00000044 B964000000              	mov rcx, 100
-    61                                  	loop1:
-    62 00000049 6A00                    		push 0h
-    63 0000004B E8(00000000)            		call Print64bitNumHex ;print rax again
-    64 00000050 E2F7                    	Loop loop1
-    65                                  	
-    66                                  	
-    67                                  	;------GOODBYTE----
-    68 00000052 E8(00000000)            	call Printendl
-    69 00000057 68[0E000000]            	push goodbyeAct
-    70 0000005C E8(00000000)            	call PrintString
-    71 00000061 E8(00000000)            	call Printendl
+    14                                  	;define an array
+    15 00000024 1020304050              	array1	db	10h, 20h, 30h, 40h, 50h ;5 items in this array. each is a byte
+    16                                  		.len	equ($-array1) ;create accessibility variable to the length of the array - how many items?
+    17                                  		
+    18 00000029 00000000                	aVar dd 0h
+    19                                  		
+    20                                  SECTION .bss
+    21                                  	;reserve memory here
+    22                                   
+    23                                  SECTION     .text
+    24                                  	global  _start
+    25                                       
+    26                                  _start:
+    27                                  	;code goes here
+    28                                  	;---------HELLO---------
+    29 00000000 68[00000000]            	push welcomeAct
+    30 00000005 E8(00000000)            	call PrintString 
+    31 0000000A E8(00000000)            	call Printendl
+    32                                  	
+    33                                  	;----------STACK CODE --------
+    34 0000000F 6A10                    	push 10h ;push to stack
+    35 00000011 6A20                    	push 20h ;push to stack
+    36 00000013 6A30                    	push 30h ;push to stack
+    37                                  	
+    38 00000015 58                      	pop rax
+    39 00000016 50                      	push rax
+    40 00000017 E8(00000000)            	call Print64bitNumHex ;print the register we pushed
+    41 0000001C E8(00000000)            	call Printendl
+    42                                  	
+    43 00000021 58                      	pop rax
+    44 00000022 50                      	push rax
+    45 00000023 E8(00000000)            	call Print64bitNumHex ;print rax again
+    46 00000028 E8(00000000)            	call Printendl
+    47                                  	
+    48 0000002D 58                      	pop rax
+    49 0000002E 50                      	push rax
+    50 0000002F E8(00000000)            	call Print64bitNumHex ;print rax again
+    51 00000034 E8(00000000)            	call Printendl
+    52                                  	
+    53                                  	
+    54                                  	;------ EQUIVALENT STACK CODE ----
+    55 00000039 6A40                    	push 40h
+    56 0000003B 6A50                    	push 50h
+    57 0000003D 6A60                    	push 60h
+    58                                  	
+    59 0000003F 5B                      	pop rbx
+    60 00000040 6A00                    	push 0h
+    61 00000042 5B                      	pop rbx
+    62 00000043 5B                      	pop rbx
+    63                                  	; it does not actually removes that item from the stack, rather points the pointer to the next item in the stacke
+    64 00000044 B964000000              	mov rcx, 100
+    65                                  	loop1:
+    66 00000049 6A00                    		push 0h
+    67 0000004B E8(00000000)            		call Print64bitNumHex ;print rax again ;will print 0h (currently being pointed to)
+    68                                  		;a hundred times
+    69 00000050 E2F7                    	Loop loop1
+    70                                  	
+    71                                  	
     72                                  	
-    73                                  ;
-    74                                  ;Setup the registers for exit and poke the kernel
-    75                                  ;Exit: 
-    76                                  Exit:
-    77 00000066 B83C000000              	mov		rax, 60					;60 = system exit
-    78 0000006B BF00000000              	mov		rdi, 0					;0 = return code
-    79 00000070 0F05                    	syscall							;Poke the kernel
+    73                                  	;------ ARRAY STACK CODE ----
+    74 00000052 B800000000              	mov rax, 0 ;clean rax first
+    75 00000057 E8(00000000)            	call Printendl
+    76 0000005C E8(00000000)            	call Printendl
+    77 00000061 E8(00000000)            	call Printendl
+    78                                  	;push address and array contents onto stack
+    79 00000066 68[24000000]            	push array1 ;push OFFSET array1 in windows
+    80 0000006B 6A05                    	push array1.len ;push the size of the array (LENGTHOF - windows method)
+    81                                  	
+    82                                  	
+    83 0000006D 480FB61425-             	movzx rdx, BYTE [array1] ;push the first value in the array onto the stack
+    83 00000072 [24000000]         
+    84 00000076 52                      	push rdx
+    85                                  	
+    86 00000077 E8(00000000)            	call Print64bitNumHex ;print again value in rax
+    87 0000007C E8(00000000)            	call Printendl
+    88                                  	
+    89 00000081 BA00000000              	mov rdx, 0h	;move 0h into rdx
+    90 00000086 8A0425[24000000]        	mov al, [array1] ;move first element of array1 into al register
+    91 0000008D 52                      	push rdx
+    92 0000008E E8(00000000)            	call Print64bitNumHex
+    93 00000093 E8(00000000)            	call Printendl
+    94                                  	
+    95                                  	;---NESTED LOOPS ---
+    96 00000098 E8(00000000)            	call Printendl
+    97 0000009D E8(00000000)            	call Printendl
+    98 000000A2 B903000000              	mov rcx, 3 ;set an outer loop counter
+    99                                  	OuterLoop:
+   100 000000A7 48890C25[29000000]      		mov [aVar], rcx ;aVar = rcx + 10
+   101 000000AF 830425[29000000]0A      		add DWORD [aVar], 10 ;
+   102 000000B7 48010C25[29000000]      		add [aVar], rcx
+   103 000000BF 51                      		push rcx ;save the outerloop counter
+   104 000000C0 B905000000              		mov rcx, 5 ;set inner loop count to 5 (do it 5 times)
+   105                                  			InnerLoop:
+   106                                  				;do something in this loop
+   107 000000C5 4889CA                  				mov rdx, rcx ;mov value from rcx to rdx
+   108 000000C8 52                      				push rdx
+   109 000000C9 E8(00000000)            				call Print64bitNumHex
+   110 000000CE E8(00000000)            				call Printendl
+   111 000000D3 E2F0                    			Loop InnerLoop
+   112 000000D5 59                      			pop rcx ;restore the value of the outer loop counter
+   113 000000D6 E2CF                    		Loop OuterLoop
+   114                                  	
+   115                                  	
+   116                                  	;------GOODBYTE----
+   117 000000D8 E8(00000000)            	call Printendl
+   118 000000DD 68[0E000000]            	push goodbyeAct
+   119 000000E2 E8(00000000)            	call PrintString
+   120 000000E7 E8(00000000)            	call Printendl
+   121                                  	
+   122                                  ;
+   123                                  ;Setup the registers for exit and poke the kernel
+   124                                  ;Exit: 
+   125                                  Exit:
+   126 000000EC B83C000000              	mov		rax, 60					;60 = system exit
+   127 000000F1 BF00000000              	mov		rdi, 0					;0 = return code
+   128 000000F6 0F05                    	syscall							;Poke the kernel

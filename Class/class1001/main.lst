@@ -521,33 +521,58 @@
    514                              <1> extern		RandomArray
      8                                   
      9                                  SECTION .data
-    10                                  	; put your variables here
+    10                                  	; put your variables below
     11 00000000 48656C6C6F20576F72-     	welcomeAct db "Hello World", 0ah, 0dh, 0h
     11 00000009 6C640A0D00         
     12 0000000E 4279652C2068617665-     	goodbyeAct db "Bye, have  good one", 0ah, 0dh, 0h
     12 00000017 2020676F6F64206F6E-
     12 00000020 650A0D00           
     13                                  	
-    14                                  SECTION .bss
-    15                                  	;reserve memory here
-    16                                   
-    17                                  SECTION     .text
-    18                                  	global  _start
-    19                                       
-    20                                  _start:
-    21                                  	;code goes here
-    22 00000000 68[00000000]            	push welcomeAct
-    23 00000005 E8(00000000)            	call PrintString 
-    24 0000000A E8(00000000)            	call Printendl
-    25                                  	
-    26 0000000F 68[0E000000]            	push goodbyeAct
-    27 00000014 E8(00000000)            	call PrintString
-    28 00000019 E8(00000000)            	call Printendl
-    29                                  	
-    30                                  ;
-    31                                  ;Setup the registers for exit and poke the kernel
-    32                                  ;Exit: 
-    33                                  Exit:
-    34 0000001E B83C000000              	mov		rax, 60					;60 = system exit
-    35 00000023 BF00000000              	mov		rdi, 0					;0 = return code
-    36 00000028 0F05                    	syscall							;Poke the kernel
+    14                                  	
+    15                                  	
+    16                                  SECTION .bss
+    17                                  	;reserve memory here
+    18                                   
+    19                                  SECTION     .text
+    20                                  	global  _start
+    21                                       
+    22                                  _start:
+    23                                  	;code goes here
+    24                                  	;---------HELLO---------
+    25 00000000 68[00000000]            	push welcomeAct
+    26 00000005 E8(00000000)            	call PrintString 
+    27 0000000A E8(00000000)            	call Printendl
+    28                                  	
+    29                                  	;----------STACK CODE --------
+    30 0000000F 6A10                    	push 10h ;push to stack
+    31 00000011 6A20                    	push 20h ;push to stack
+    32 00000013 6A30                    	push 30h ;push to stack
+    33                                  	
+    34 00000015 58                      	pop rax
+    35 00000016 50                      	push rax
+    36 00000017 E8(00000000)            	call Print64bitNumHex ;print the register we pushed
+    37 0000001C E8(00000000)            	call Printendl
+    38                                  	
+    39 00000021 58                      	pop rax
+    40 00000022 50                      	push rax
+    41 00000023 E8(00000000)            	call Print64bitNumHex ;print rax again
+    42 00000028 E8(00000000)            	call Printendl
+    43                                  	
+    44 0000002D 58                      	pop rax
+    45 0000002E 50                      	push rax
+    46 0000002F E8(00000000)            	call Print64bitNumHex ;print rax again
+    47 00000034 E8(00000000)            	call Printendl
+    48                                  	
+    49                                  	
+    50                                  	;------GOODBYTE----
+    51 00000039 68[0E000000]            	push goodbyeAct
+    52 0000003E E8(00000000)            	call PrintString
+    53 00000043 E8(00000000)            	call Printendl
+    54                                  	
+    55                                  ;
+    56                                  ;Setup the registers for exit and poke the kernel
+    57                                  ;Exit: 
+    58                                  Exit:
+    59 00000048 B83C000000              	mov		rax, 60					;60 = system exit
+    60 0000004D BF00000000              	mov		rdi, 0					;0 = return code
+    61 00000052 0F05                    	syscall							;Poke the kernel

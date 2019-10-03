@@ -48,6 +48,8 @@ _start:
 	push readBuffer ;get keyboard input from the user
 	push readBuffer.len	;it is oing to go into readBuffer
 	call ReadText ;built in function to read the text into last pushed variable
+	;read text function returns rax = number of chars entered
+	
 	
 	;reserve the data input (hint: loop from the book)
 	;Print the new reversed string

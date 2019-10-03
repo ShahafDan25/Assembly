@@ -19,11 +19,13 @@ SECTION .data
 		.len	equ($-Array2) ;length of Array2
 		
 	Array4	dd	11BDh, 3453h, 2FF0h, 6370h, 3350h, 1025h
-		.len	equ($-array1) ;length of Array4
+		.len	equ($-Array4) ;length of Array4
 		
-	Array5	dd	10h, 30h, F0h, 20h, 50h, 12h 
-		.len	equ($-array1) ;length of Array5
-	
+	Array5	dd	0FFFh, 0C3Fh, 22FFh, 0EF53h, 400h, 5555h 
+		.len	equ($-Array5) ;length of Array5
+		
+	testAct db "Test", 0ah,0dh,0h
+	;;DO NOT USE MOVZX
 		
 SECTION .bss
 	;reserve memory here
@@ -44,11 +46,23 @@ _start:
 	; 1. loop to move an element from Array1 to a reg
 	; 2. add the rsi'th value from Array2 to that register
 	; 3. add the value from that register, to the Array3
-	mov rax, 0 ;clean rax 
+	mov rcx, Array1.len ;clean rax 
 	mov rsi, 0 ;set rsi (count) to zero
 	L1:
+		mov rax,0 
+		mov rbx,0
+		;movzx rax, BYTE [Array1 + Array1.len - 1 - rsi] ;if we want to add the last element
+		mov al, BYTE [Array1 + rsi] ;if we want to add the last element
+		mov bl, BYTE [Array2 + rsi]
+		add rax, rbx ;add rxb to rax
+		mov [Array3 + rsi], rax
 		
+		inc rsi ;count++
 	Loop L1 ;goto L1 flag
+	
+	
+	;debuggin loops:
+	
 	;------ GOODBYTE ----
 	call Printendl
 	push goodbyeAct

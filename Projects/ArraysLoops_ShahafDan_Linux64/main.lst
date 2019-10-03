@@ -529,45 +529,71 @@
     12 00000020 650A0D00           
     13                                  	
     14                                  	;define an array
-    15 00000024 1030F0205012            	Array1	db	10h, 30h, 0f0h, 20h, 50h, 12h 
+    15 00000024 1030F0205012            	Array1	db	10h, 30h, 0F0h, 20h, 50h, 12h 
     16                                  		.len	equ($-Array1) ;length of Array1
     17                                  		
-    18 0000002A E04022E54055            	Array2	db	0e0h, 40h, 22h, 0e5h, 40h, 55h 
+    18 0000002A E04022E54055            	Array2	db	0E0h, 40h, 22h, 0E5h, 40h, 55h 
     19                                  		.len	equ($-Array2) ;length of Array2
     20                                  		
-    21                                  	
-    22                                  		
-    23                                  SECTION .bss
-    24                                  	;reserve memory here
-    25                                   
-    26                                  SECTION     .text
-    27                                  	global  _start
-    28                                       
-    29                                  _start:
-    30                                  	;code goes here
-    31                                  	;--------- WELCOME ---------
-    32 00000000 E8(00000000)            	call Printendl
-    33 00000005 68[00000000]            	push welcomeAct
-    34 0000000A E8(00000000)            	call PrintString 
-    35 0000000F E8(00000000)            	call Printendl
-    36                                  	
-    37 00000014 480FB60425-             	movzx rax, BYTE [Array1 + 2]
-    37 00000019 [26000000]         
-    38 0000001D 50                      	push rax
-    39 0000001E E8(00000000)            	call Print64bitNumHex
-    40 00000023 E8(00000000)            	call Printendl
-    41                                  	
-    42                                  	
-    43                                  	;------ GOODBYTE ----
-    44 00000028 E8(00000000)            	call Printendl
-    45 0000002D 68[0E000000]            	push goodbyeAct
-    46 00000032 E8(00000000)            	call PrintString
-    47 00000037 E8(00000000)            	call Printendl
-    48                                  	
-    49                                  ;
-    50                                  ;Setup the registers for exit and poke the kernel
-    51                                  ;Exit: 
-    52                                  Exit:
-    53 0000003C B83C000000              	mov		rax, 60					;60 = system exit
-    54 00000041 BF00000000              	mov		rdi, 0					;0 = return code
-    55 00000046 0F05                    	syscall							;Poke the kernel
+    21 00000030 BD11000053340000F0-     	Array4	dd	11BDh, 3453h, 2FF0h, 6370h, 3350h, 1025h
+    21 00000039 2F0000706300005033-
+    21 00000042 000025100000       
+    22                                  		.len	equ($-Array4) ;length of Array4
+    23                                  		
+    24 00000048 FF0F00003F0C0000FF-     	Array5	dd	0FFFh, 0C3Fh, 22FFh, 0EF53h, 400h, 5555h 
+    24 00000051 22000053EF00000004-
+    24 0000005A 000055550000       
+    25                                  		.len	equ($-Array5) ;length of Array5
+    26                                  		
+    27 00000060 546573740A0D00          	testAct db "Test", 0ah,0dh,0h
+    28                                  	;;DO NOT USE MOVZX
+    29                                  		
+    30                                  SECTION .bss
+    31                                  	;reserve memory here
+    32 00000000 <res 00000006>          	Array3 resb 6 ;reservse 6 bytes for Array 3
+    33 00000006 <res 00000018>          	Array6 resb 24 ;reserve (6quadwords * 4 bytes =) 24 bytes for Array6
+    34                                  SECTION     .text
+    35                                  	global  _start
+    36                                       
+    37                                  _start:
+    38                                  	;code goes here
+    39                                  	;--------- WELCOME ---------
+    40 00000000 E8(00000000)            	call Printendl
+    41 00000005 68[00000000]            	push welcomeAct
+    42 0000000A E8(00000000)            	call PrintString 
+    43 0000000F E8(00000000)            	call Printendl
+    44                                  	
+    45                                  	; 0. set rsi and eax to 0, reset both
+    46                                  	; 1. loop to move an element from Array1 to a reg
+    47                                  	; 2. add the rsi'th value from Array2 to that register
+    48                                  	; 3. add the value from that register, to the Array3
+    49 00000014 B906000000              	mov rcx, Array1.len ;clean rax 
+    50 00000019 BE00000000              	mov rsi, 0 ;set rsi (count) to zero
+    51                                  	L1:
+    52 0000001E B800000000              		mov rax,0 
+    53 00000023 BB00000000              		mov rbx,0
+    54                                  		;movzx rax, BYTE [Array1 + Array1.len - 1 - rsi] ;if we want to add the last element
+    55 00000028 8A86[24000000]          		mov al, BYTE [Array1 + rsi] ;if we want to add the last element
+    56 0000002E 8A9E[2A000000]          		mov bl, BYTE [Array2 + rsi]
+    57 00000034 4801D8                  		add rax, rbx ;add rxb to rax
+    58 00000037 488986[00000000]        		mov [Array3 + rsi], rax
+    59                                  		
+    60 0000003E 48FFC6                  		inc rsi ;count++
+    61 00000041 E2DB                    	Loop L1 ;goto L1 flag
+    62                                  	
+    63                                  	
+    64                                  	;debuggin loops:
+    65                                  	
+    66                                  	;------ GOODBYTE ----
+    67 00000043 E8(00000000)            	call Printendl
+    68 00000048 68[0E000000]            	push goodbyeAct
+    69 0000004D E8(00000000)            	call PrintString
+    70 00000052 E8(00000000)            	call Printendl
+    71                                  	
+    72                                  ;
+    73                                  ;Setup the registers for exit and poke the kernel
+    74                                  ;Exit: 
+    75                                  Exit:
+    76 00000057 B83C000000              	mov		rax, 60					;60 = system exit
+    77 0000005C BF00000000              	mov		rdi, 0					;0 = return code
+    78 00000061 0F05                    	syscall							;Poke the kernel

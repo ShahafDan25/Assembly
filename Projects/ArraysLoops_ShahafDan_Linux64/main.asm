@@ -30,6 +30,7 @@ SECTION .data
 SECTION .bss
 	;reserve memory here
 	Array3 resb 6 ;reservse 6 bytes for Array 3
+		.len	equ($-Array3)
 	Array6 resb 24 ;reserve (6quadwords * 4 bytes =) 24 bytes for Array6
 SECTION     .text
 	global  _start
@@ -62,7 +63,17 @@ _start:
 	
 	
 	;debuggin loops:
-	
+	mov rcx, 0
+	mov rcx, Array3.len
+	mov rsi, 0
+	debugLoop:
+		mov rax, [Array3 + rsi]
+		push rax
+		call Print64bitNumHex
+		call Printendl
+		inc rsi
+	Loop debugLoop
+		
 	;------ GOODBYTE ----
 	call Printendl
 	push goodbyeAct

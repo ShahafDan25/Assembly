@@ -553,58 +553,63 @@
     32 00000000 <res 00000006>          	Array3 resb 6 ;reservse 6 bytes for Array 3
     33                                  		.len	equ($-Array3)
     34 00000006 <res 00000018>          	Array6 resb 24 ;reserve (6quadwords * 4 bytes =) 24 bytes for Array6
-    35                                  SECTION     .text
-    36                                  	global  _start
-    37                                       
-    38                                  _start:
-    39                                  	;code goes here
-    40                                  	;--------- WELCOME ---------
-    41 00000000 E8(00000000)            	call Printendl
-    42 00000005 68[00000000]            	push welcomeAct
-    43 0000000A E8(00000000)            	call PrintString 
-    44 0000000F E8(00000000)            	call Printendl
-    45                                  	
-    46                                  	; 0. set rsi and eax to 0, reset both
-    47                                  	; 1. loop to move an element from Array1 to a reg
-    48                                  	; 2. add the rsi'th value from Array2 to that register
-    49                                  	; 3. add the value from that register, to the Array3
-    50 00000014 B906000000              	mov rcx, Array1.len ;clean rax 
-    51 00000019 BE00000000              	mov rsi, 0 ;set rsi (count) to zero
-    52                                  	L1:
-    53 0000001E B800000000              		mov rax,0 
-    54 00000023 BB00000000              		mov rbx,0
-    55                                  		;movzx rax, BYTE [Array1 + Array1.len - 1 - rsi] ;if we want to add the last element
-    56 00000028 8A86[24000000]          		mov al, BYTE [Array1 + rsi] ;if we want to add the last element
-    57 0000002E 8A9E[2A000000]          		mov bl, BYTE [Array2 + rsi]
-    58 00000034 4801D8                  		add rax, rbx ;add rxb to rax
-    59 00000037 488986[00000000]        		mov [Array3 + rsi], rax
-    60                                  		
-    61 0000003E 48FFC6                  		inc rsi ;count++
-    62 00000041 E2DB                    	Loop L1 ;goto L1 flag
-    63                                  	
+    35                                  		.len	equ	($-Array6) ;reserve the length,size of the Array6. current uninitialized
+    36                                  SECTION     .text
+    37                                  	global  _start
+    38                                       
+    39                                  _start:
+    40                                  	;code goes here
+    41                                  	;--------- WELCOME ---------
+    42 00000000 E8(00000000)            	call Printendl
+    43 00000005 68[00000000]            	push welcomeAct
+    44 0000000A E8(00000000)            	call PrintString 
+    45 0000000F E8(00000000)            	call Printendl
+    46                                  	
+    47                                  	; 0. set rsi and eax to 0, reset both
+    48                                  	; 1. loop to move an element from Array1 to a reg
+    49                                  	; 2. add the rsi'th value from Array2 to that register
+    50                                  	; 3. add the value from that register, to the Array3
+    51 00000014 B906000000              	mov rcx, Array1.len ;clean rax 
+    52 00000019 BE00000000              	mov rsi, 0 ;set rsi (count) to zero
+    53                                  	L1:
+    54 0000001E B800000000              		mov rax,0 
+    55 00000023 BB00000000              		mov rbx,0
+    56                                  		;movzx rax, BYTE [Array1 + Array1.len - 1 - rsi] ;if we want to add the last element
+    57 00000028 8A86[24000000]          		mov al, BYTE [Array1 + rsi] ;if we want to add the last element
+    58 0000002E 8A9E[2A000000]          		mov bl, BYTE [Array2 + rsi]
+    59 00000034 4801D8                  		add rax, rbx ;add rxb to rax
+    60 00000037 488986[00000000]        		mov [Array3 + rsi], rax
+    61                                  		
+    62 0000003E 48FFC6                  		inc rsi ;count++
+    63 00000041 E2DB                    	Loop L1 ;goto L1 flag
     64                                  	
-    65                                  	;debuggin loops:
-    66 00000043 B900000000              	mov rcx, 0
-    67 00000048 B906000000              	mov rcx, Array3.len
-    68 0000004D BE00000000              	mov rsi, 0
-    69                                  	debugLoop:
-    70 00000052 488B86[00000000]        		mov rax, [Array3 + rsi]
-    71 00000059 50                      		push rax
-    72 0000005A E8(00000000)            		call Print64bitNumHex
-    73 0000005F E8(00000000)            		call Printendl
-    74 00000064 48FFC6                  		inc rsi
-    75 00000067 E2E9                    	Loop debugLoop
-    76                                  		
-    77                                  	;------ GOODBYTE ----
-    78 00000069 E8(00000000)            	call Printendl
-    79 0000006E 68[0E000000]            	push goodbyeAct
-    80 00000073 E8(00000000)            	call PrintString
-    81 00000078 E8(00000000)            	call Printendl
-    82                                  	
-    83                                  ;
-    84                                  ;Setup the registers for exit and poke the kernel
-    85                                  ;Exit: 
-    86                                  Exit:
-    87 0000007D B83C000000              	mov		rax, 60					;60 = system exit
-    88 00000082 BF00000000              	mov		rdi, 0					;0 = return code
-    89 00000087 0F05                    	syscall							;Poke the kernel
+    65 00000043 488B0425[00000000]      	mov rax, [Array3]
+    66 0000004B 50                      	push rax
+    67 0000004C E8(00000000)            	call Print64bitNumHex
+    68 00000051 E8(00000000)            	call Printendl
+    69                                  	;debuggin loops:
+    70 00000056 B900000000              	mov rcx, 0
+    71 0000005B B906000000              	mov rcx, Array3.len
+    72 00000060 BE00000000              	mov rsi, 0
+    73                                  	;debugLoop:
+    74                                  	;	mov rax, [Array3 + rsi]
+    75                                  	;	inc rsi
+    76                                  	;Loop debugLoop
+    77                                  		
+    78                                  	;testing:
+    79                                  	;push rax
+    80                                  	;call Print64bitNumHex
+    81                                  	;call Printendl
+    82                                  	;------ GOODBYTE ----
+    83 00000065 E8(00000000)            	call Printendl
+    84 0000006A 68[0E000000]            	push goodbyeAct
+    85 0000006F E8(00000000)            	call PrintString
+    86 00000074 E8(00000000)            	call Printendl
+    87                                  	
+    88                                  ;
+    89                                  ;Setup the registers for exit and poke the kernel
+    90                                  ;Exit: 
+    91                                  Exit:
+    92 00000079 B83C000000              	mov		rax, 60					;60 = system exit
+    93 0000007E BF00000000              	mov		rdi, 0					;0 = return code
+    94 00000083 0F05                    	syscall							;Poke the kernel

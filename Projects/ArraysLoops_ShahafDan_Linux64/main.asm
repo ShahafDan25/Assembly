@@ -32,6 +32,7 @@ SECTION .bss
 	Array3 resb 6 ;reservse 6 bytes for Array 3
 		.len	equ($-Array3)
 	Array6 resb 24 ;reserve (6quadwords * 4 bytes =) 24 bytes for Array6
+		.len	equ	($-Array6) ;reserve the length,size of the Array6. current uninitialized
 SECTION     .text
 	global  _start
      
@@ -43,6 +44,8 @@ _start:
 	call PrintString 
 	call Printendl
 	
+	
+	;----- PART B ------
 	; 0. set rsi and eax to 0, reset both
 	; 1. loop to move an element from Array1 to a reg
 	; 2. add the rsi'th value from Array2 to that register
@@ -61,19 +64,15 @@ _start:
 		inc rsi ;count++
 	Loop L1 ;goto L1 flag
 	
+	;---PRINTING ARRAY#3 TO DEBUG ---- works!!
+	mov rax, [Array3]
+	push rax
+	call Print64bitNumHex
+	call Printendl
 	
-	;debuggin loops:
-	mov rcx, 0
-	mov rcx, Array3.len
-	mov rsi, 0
-	debugLoop:
-		mov rax, [Array3 + rsi]
-		push rax
-		call Print64bitNumHex
-		call Printendl
-		inc rsi
-	Loop debugLoop
-		
+	;-----PART 3 ------
+	
+	
 	;------ GOODBYTE ----
 	call Printendl
 	push goodbyeAct

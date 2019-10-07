@@ -528,88 +528,141 @@
     12 00000017 2020676F6F64206F6E-
     12 00000020 650A0D00           
     13                                  	
-    14                                  	;define an array
-    15 00000024 1030F0205012            	Array1	db	10h, 30h, 0F0h, 20h, 50h, 12h 
-    16                                  		.len	equ($-Array1) ;length of Array1
-    17                                  		
-    18 0000002A E04022E54055            	Array2	db	0E0h, 40h, 22h, 0E5h, 40h, 55h 
-    19                                  		.len	equ($-Array2) ;length of Array2
+    14 00000024 416464696E67204172-     	indexedAct db "Adding Array4 and 5 and put it in Array6, INDEXED OPERAND", 0ah,0dh,0h
+    14 0000002D 7261793420616E6420-
+    14 00000036 3520616E6420707574-
+    14 0000003F 20697420696E204172-
+    14 00000048 726179362C20494E44-
+    14 00000051 45584544204F504552-
+    14 0000005A 414E440A0D00       
+    15 00000060 416464696E67204172-     	indirectAct db "Adding Array1 and 2 and put it in Array3, INDIRECT OPERAND", 0ah,0dh,0h
+    15 00000069 7261793120616E6420-
+    15 00000072 3220616E6420707574-
+    15 0000007B 20697420696E204172-
+    15 00000084 726179332C20494E44-
+    15 0000008D 4952454354204F5045-
+    15 00000096 52414E440A0D00     
+    16                                  	
+    17                                  	;define an array
+    18 0000009D 1030F0205012            	Array1	db	10h, 30h, 0F0h, 20h, 50h, 12h 
+    19                                  		.len	equ($-Array1) ;length of Array1
     20                                  		
-    21 00000030 BD11000053340000F0-     	Array4	dd	11BDh, 3453h, 2FF0h, 6370h, 3350h, 1025h
-    21 00000039 2F0000706300005033-
-    21 00000042 000025100000       
-    22                                  		.len	equ($-Array4) ;length of Array4
+    21 000000A3 E04022E54055            	Array2	db	0E0h, 40h, 22h, 0E5h, 40h, 55h 
+    22                                  		.len	equ($-Array2) ;length of Array2
     23                                  		
-    24 00000048 FF0F00003F0C0000FF-     	Array5	dd	0FFFh, 0C3Fh, 22FFh, 0EF53h, 400h, 5555h 
-    24 00000051 22000053EF00000004-
-    24 0000005A 000055550000       
-    25                                  		.len	equ($-Array5) ;length of Array5
+    24 000000A9 BD11000053340000F0-     	Array4	dd	11BDh, 3453h, 2FF0h, 6370h, 3350h, 1025h
+    24 000000B2 2F0000706300005033-
+    24 000000BB 000025100000       
+    25                                  		.len	equ($-Array4) ;length of Array4
     26                                  		
-    27 00000060 546573740A0D00          	testAct db "Test", 0ah,0dh,0h
-    28                                  	;;DO NOT USE MOVZX
+    27 000000C1 FF0F00003F0C0000FF-     	Array5	dd	0FFFh, 0C3Fh, 22FFh, 0EF53h, 400h, 5555h 
+    27 000000CA 22000053EF00000004-
+    27 000000D3 000055550000       
+    28                                  		.len	equ($-Array5) ;length of Array5
     29                                  		
-    30                                  SECTION .bss
-    31                                  	;reserve memory here
-    32 00000000 <res 00000006>          	Array3 resb 6 ;reservse 6 bytes for Array 3
-    33                                  		.len	equ($-Array3)
-    34 00000006 <res 00000018>          	Array6 resb 24 ;reserve (6quadwords * 4 bytes =) 24 bytes for Array6
-    35                                  		.len	equ	($-Array6) ;reserve the length,size of the Array6. current uninitialized
-    36                                  SECTION     .text
-    37                                  	global  _start
-    38                                       
-    39                                  _start:
-    40                                  	;code goes here
-    41                                  	;--------- WELCOME ---------
-    42 00000000 E8(00000000)            	call Printendl
-    43 00000005 68[00000000]            	push welcomeAct
-    44 0000000A E8(00000000)            	call PrintString 
-    45 0000000F E8(00000000)            	call Printendl
-    46                                  	
-    47                                  	; 0. set rsi and eax to 0, reset both
-    48                                  	; 1. loop to move an element from Array1 to a reg
-    49                                  	; 2. add the rsi'th value from Array2 to that register
-    50                                  	; 3. add the value from that register, to the Array3
-    51 00000014 B906000000              	mov rcx, Array1.len ;clean rax 
-    52 00000019 BE00000000              	mov rsi, 0 ;set rsi (count) to zero
-    53                                  	L1:
-    54 0000001E B800000000              		mov rax,0 
-    55 00000023 BB00000000              		mov rbx,0
-    56                                  		;movzx rax, BYTE [Array1 + Array1.len - 1 - rsi] ;if we want to add the last element
-    57 00000028 8A86[24000000]          		mov al, BYTE [Array1 + rsi] ;if we want to add the last element
-    58 0000002E 8A9E[2A000000]          		mov bl, BYTE [Array2 + rsi]
-    59 00000034 4801D8                  		add rax, rbx ;add rxb to rax
-    60 00000037 488986[00000000]        		mov [Array3 + rsi], rax
-    61                                  		
-    62 0000003E 48FFC6                  		inc rsi ;count++
-    63 00000041 E2DB                    	Loop L1 ;goto L1 flag
-    64                                  	
-    65 00000043 488B0425[00000000]      	mov rax, [Array3]
-    66 0000004B 50                      	push rax
-    67 0000004C E8(00000000)            	call Print64bitNumHex
-    68 00000051 E8(00000000)            	call Printendl
-    69                                  	;debuggin loops:
-    70 00000056 B900000000              	mov rcx, 0
-    71 0000005B B906000000              	mov rcx, Array3.len
-    72 00000060 BE00000000              	mov rsi, 0
-    73                                  	;debugLoop:
-    74                                  	;	mov rax, [Array3 + rsi]
-    75                                  	;	inc rsi
-    76                                  	;Loop debugLoop
-    77                                  		
-    78                                  	;testing:
-    79                                  	;push rax
-    80                                  	;call Print64bitNumHex
-    81                                  	;call Printendl
-    82                                  	;------ GOODBYTE ----
-    83 00000065 E8(00000000)            	call Printendl
-    84 0000006A 68[0E000000]            	push goodbyeAct
-    85 0000006F E8(00000000)            	call PrintString
-    86 00000074 E8(00000000)            	call Printendl
-    87                                  	
-    88                                  ;
-    89                                  ;Setup the registers for exit and poke the kernel
-    90                                  ;Exit: 
-    91                                  Exit:
-    92 00000079 B83C000000              	mov		rax, 60					;60 = system exit
-    93 0000007E BF00000000              	mov		rdi, 0					;0 = return code
-    94 00000083 0F05                    	syscall							;Poke the kernel
+    30 000000D9 546573740A0D00          	testAct db "Test", 0ah,0dh,0h
+    31                                  	;;DO NOT USE MOVZX
+    32                                  		
+    33                                  SECTION .bss
+    34                                  	;reserve memory here
+    35 00000000 <res 00000006>          	Array3 resb 6 ;reservse 6 bytes for Array 3
+    36                                  		.len	equ($-Array3)
+    37 00000006 <res 00000040>          	Array6 resb 64 ;reserve (6quadwords * 4 bytes =) 24 bytes for Array6
+    38                                  		.len	equ	($-Array6) ;reserve the length,size of the Array6. current uninitialized
+    39                                  SECTION     .text
+    40                                  	global  _start
+    41                                       
+    42                                  _start:
+    43                                  	;code goes here
+    44                                  	;--------- WELCOME ---------
+    45 00000000 E8(00000000)            	call Printendl
+    46 00000005 68[00000000]            	push welcomeAct
+    47 0000000A E8(00000000)            	call PrintString 
+    48 0000000F E8(00000000)            	call Printendl
+    49                                  	
+    50                                  	
+    51                                  	;----- PART B ------ DID THIS IS THE INDEXED OPERAND WAY
+    52                                  	; 0. set rsi and eax to 0, reset both
+    53                                  	; 1. loop to move an element from Array1 to a reg
+    54                                  	; 2. add the rsi'th value from Array2 to that register
+    55                                  	; 3. add the value from that register, to the Array3
+    56                                  	
+    57                                  	;first, print prompt
+    58 00000014 E8(00000000)            	call Printendl
+    59 00000019 68[60000000]            	push indirectAct
+    60 0000001E E8(00000000)            	call PrintString
+    61 00000023 E8(00000000)            	call Printendl
+    62                                  	
+    63                                  	
+    64 00000028 B906000000              	mov rcx, Array1.len ;clean rax 
+    65 0000002D BE00000000              	mov rsi, 0 ;set rsi (count) to zero
+    66                                  	L1:
+    67 00000032 B800000000              		mov rax,0 
+    68 00000037 BB00000000              		mov rbx,0
+    69                                  		;movzx rax, BYTE [Array1 + Array1.len - 1 - rsi] >>> CANT USE MOVZX/SX
+    70 0000003C 8A86[9D000000]          		mov al, BYTE [Array1 + rsi] ;if we want to add the last element
+    71 00000042 8A9E[A3000000]          		mov bl, BYTE [Array2 + rsi]
+    72 00000048 4801D8                  		add rax, rbx ;add rxb to rax
+    73 0000004B 488986[00000000]        		mov [Array3 + rsi], rax
+    74                                  		
+    75 00000052 48FFC6                  		inc rsi ;count++
+    76 00000055 E2DB                    	Loop L1 ;goto L1 flag
+    77                                  	
+    78                                  	;---print array 3 to check:
+    79 00000057 B900000000              	mov rcx, 0;clean rcx, just in case
+    80 0000005C B906000000              	mov rcx, Array3.len
+    81 00000061 BE00000000              	mov rsi, 0
+    82                                  	Lprint1:
+    83 00000066 B800000000              		mov rax, 0
+    84 0000006B 8A86[00000000]          		mov al, [Array3 + rsi]
+    85 00000071 50                      		push rax
+    86 00000072 48FFC6                  		inc rsi
+    87 00000075 E8(00000000)            		call Print64bitNumHex
+    88 0000007A E8(00000000)            		call PrintComma
+    89 0000007F E2E5                    	Loop Lprint1
+    90                                  	
+    91 00000081 E8(00000000)            	call Printendl
+    92                                  	
+    93                                  	
+    94                                  	;-----PART 3 ------ INDEXED
+    95                                  	;print prompt first:
+    96 00000086 E8(00000000)            	call Printendl
+    97 0000008B 68[24000000]            	push indexedAct
+    98 00000090 E8(00000000)            	call PrintString
+    99 00000095 E8(00000000)            	call Printendl
+   100                                  	
+   101                                  	;coming from the assumption that Array4 and 5 are the same size
+   102 0000009A B900000000              	mov rcx, 0 ;clean rcx, just in case
+   103 0000009F B918000000              	mov rcx, Array4.len
+   104 000000A4 BE00000000              	mov rsi, 0; ;set rsi (count to zero)
+   105                                  	L2:	
+   106 000000A9 B800000000              		mov rax, 0
+   107 000000AE BB00000000              		mov rbx, 0
+   108 000000B3 8B86[A9000000]          		mov eax, DWORD [Array4 + rsi] ;add the last element
+   109 000000B9 8B9E[C1000000]          		mov ebx, DWORD [Array5 + rsi]
+   110                                  		;now we have the rsi'th value stored in the eax from Array1 and in the ebx from Array2
+   111                                  		;we now want to add them together and put it in Array6
+   112 000000BF 4801D8                  		add rax, rbx ;adding the value in rbx, to the one in rax (which is in eax)
+   113 000000C2 488986[06000000]        		mov [Array6 + rsi], rax ;mov that value into the rsi'th position in Array6
+   114 000000C9 48FFC6                  		inc rsi ;counter++;
+   115 000000CC E2DB                    	Loop L2
+   116                                  	
+   117                                  	;---print array6  to check
+   118 000000CE 488B0425[06000000]      	mov rax, [Array6]
+   119 000000D6 50                      	push rax
+   120 000000D7 E8(00000000)            	call Print64bitNumHex
+   121 000000DC E8(00000000)            	call Printendl
+   122                                  	
+   123                                  	;------ GOODBYTE ----
+   124 000000E1 E8(00000000)            	call Printendl
+   125 000000E6 68[0E000000]            	push goodbyeAct
+   126 000000EB E8(00000000)            	call PrintString
+   127 000000F0 E8(00000000)            	call Printendl
+   128                                  	
+   129                                  ;
+   130                                  ;Setup the registers for exit and poke the kernel
+   131                                  ;Exit: 
+   132                                  Exit:
+   133 000000F5 B83C000000              	mov		rax, 60					;60 = system exit
+   134 000000FA BF00000000              	mov		rdi, 0					;0 = return code
+   135 000000FF 0F05                    	syscall							;Poke the kernel

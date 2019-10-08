@@ -14,6 +14,7 @@ SECTION .data
 	indexedAct db "Adding Array4 and 5 and put it in Array6, INDEXED OPERAND", 0ah,0dh,0h
 	indirectAct db "Adding Array1 and 2 and put it in Array3, INDIRECT OPERAND", 0ah,0dh,0h
 	
+	
 	;define an array
 	Array1	db	10h, 30h, 0F0h, 20h, 50h, 12h 
 		.len	equ($-Array1) ;length of Array1
@@ -59,29 +60,30 @@ _start:
 	push indirectAct
 	call PrintString
 	call Printendl
-	
-	
-	mov rcx, Array1.len ;clean rax 
-	mov rsi, 0 ;set rsi (count) to zero
+
+	mov rcx, Array3.len ;clean rax 
+	mov rsi, Array3.len ;set rsi (count) to size-1
+	sub rsi, 1
+	mov rdi, 0
 	L1:
 		mov rax,0 
 		mov rbx,0
 		;movzx rax, BYTE [Array1 + Array1.len - 1 - rsi] >>> CANT USE MOVZX/SX
-		mov al, BYTE [Array1 + rsi] ;if we want to add the last element
-		mov bl, BYTE [Array2 + rsi]
-		add rax, rbx ;add rxb to rax
-		mov [Array3 + rsi], rax
-		
-		inc rsi ;count++
+		mov al, BYTE [Array1 + rsi] ;takes in the last elements from Array1
+		mov bl, BYTE [Array2 + rsi] ; takes in the last element from Array2
+		add al, bl ;add both of them together
+		mov [Array3 + rdi], rax ;store it in the first element in array1
+		inc rdi ;rdi++
+		sub rsi, 1 ;count--
 	Loop L1 ;goto L1 flag
-	
+	call Printendl
 	;---print array 3 to check:
-	mov rcx, 0;clean rcx, just in case
+
 	mov rcx, Array3.len
 	mov rsi, 0
 	Lprint1:
 		mov rax, 0
-		mov al, [Array3 + rsi]
+		mov al, BYTE [Array3 + rsi]
 		push rax
 		inc rsi
 		call Print64bitNumHex
@@ -106,16 +108,15 @@ _start:
 		mov rax, 0
 		mov rbx, 0
 		;mov rdx, 0
-		mov eax, DWORD [Array4 + rdi] ;add the last element
-		add rax, QWORD [Array5 + rsi]
-		
+		mov eax, DWORD [Array4 + rdi] ;add the last element (4
+		add rax, QWORD [Array5 + rsi] ;add the last element to the previously added element (8 bits)
 		mov [Array6 + rsi], rax ;mov that value into the rsi'th position in Array6
-		;increase rsi 8 times
 		add rsi, 8 ;;increase by 8 to traverse through quad words
 		add rdi, 4 ;incre,ent by 4 to traverse through double words
 		
 	Loop L2
 	call Printendl
+	
 	;---print array6  to check
 	mov rcx, 0
 	mov rcx, Array6.len

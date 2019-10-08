@@ -22,10 +22,10 @@ SECTION .data
 		.len	equ($-Array2) ;length of Array2
 		
 	Array4	dd	11BDh, 3453h, 2FF0h, 6370h, 3350h, 1025h
-		.len	equ($-Array4) ;length of Array4
+		.len	equ($-Array4)/4 ;length of Array4
 		
-	Array5	dd	0FFFh, 0C3Fh, 22FFh, 0EF53h, 400h, 5555h 
-		.len	equ($-Array5) ;length of Array5
+	Array5	dq	0FFFh, 0C3Fh, 22FFh, 0EF53h, 400h, 5555h 
+		.len	equ($-Array5)/8 ;length of Array5
 		
 	testAct db "Test", 0ah,0dh,0h
 	;;DO NOT USE MOVZX
@@ -34,8 +34,8 @@ SECTION .bss
 	;reserve memory here
 	Array3 resb 6 ;reservse 6 bytes for Array 3
 		.len	equ($-Array3)
-	Array6 resb 64 ;reserve (6quadwords * 4 bytes =) 24 bytes for Array6
-		.len	equ	($-Array6) ;reserve the length,size of the Array6. current uninitialized
+	Array6 resq 6 ;reserve 6 quadwords
+		.len	equ	($-Array6)/8 ;reserve the length,size of the Array6. current uninitialized
 SECTION     .text
 	global  _start
      
@@ -97,27 +97,38 @@ _start:
 	push indexedAct
 	call PrintString
 	call Printendl
-	
+
 	;coming from the assumption that Array4 and 5 are the same size
-	mov rcx, 0 ;clean rcx, just in case
+	mov rdi, 0
 	mov rcx, Array4.len
 	mov rsi, 0; ;set rsi (count to zero)
 	L2:	
 		mov rax, 0
 		mov rbx, 0
-		mov eax, DWORD [Array4 + rsi] ;add the last element
-		mov ebx, DWORD [Array5 + rsi]
-		;now we have the rsi'th value stored in the eax from Array1 and in the ebx from Array2
-		;we now want to add them together and put it in Array6
-		add rax, rbx ;adding the value in rbx, to the one in rax (which is in eax)
+		;mov rdx, 0
+		mov eax, DWORD [Array4 + rdi] ;add the last element
+		add rax, QWORD [Array5 + rsi]
+		
 		mov [Array6 + rsi], rax ;mov that value into the rsi'th position in Array6
-		inc rsi ;counter++;
+		;increase rsi 8 times
+		add rsi, 8 ;;increase by 8 to traverse through quad words
+		add rdi, 4 ;incre,ent by 4 to traverse through double words
+		
 	Loop L2
-	
+	call Printendl
 	;---print array6  to check
-	mov rax, [Array6]
-	push rax
-	call Print64bitNumHex
+	mov rcx, 0
+	mov rcx, Array6.len
+	mov rsi, 0
+	Lprint2:
+		mov rax, 0
+		mov rax, [Array6 + rsi]
+		push rax ;push the next number to be printed
+		add rsi, 8
+		call Print64bitNumHex
+		call PrintComma
+		
+	Loop Lprint2 ; go back to the loop
 	call Printendl
 	
 	;------ GOODBYTE ----
@@ -133,3 +144,10 @@ Exit:
 	mov		rax, 60					;60 = system exit
 	mov		rdi, 0					;0 = return code
 	syscall							;Poke the kernel
+
+
+;;TODO:
+;change array3 from indexed to indirect
+;reverse array3
+;fix array 6
+;do windows too

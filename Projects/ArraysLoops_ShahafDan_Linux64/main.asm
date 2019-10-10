@@ -77,8 +77,11 @@ _start:
 		sub rsi, 1 ;count--
 	Loop L1 ;goto L1 flag
 	call Printendl
+	
+	
+	
 	;---print array 3 to check:
-
+	
 	mov rcx, Array3.len
 	mov rsi, 0
 	Lprint1:
@@ -89,7 +92,6 @@ _start:
 		call Print64bitNumHex
 		call PrintComma
 	Loop Lprint1
-	
 	call Printendl
 	
 	
@@ -149,6 +151,5 @@ Exit:
 
 ;;TODO:
 ;change array3 from indexed to indirect
-;reverse array3
 ;fix array 6
 ;do windows too

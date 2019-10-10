@@ -1,0 +1,10 @@
+     1                                  global addTwo ;make addTwo visible to the linker
+     2                                  addTwo:
+     3 00000000 90                      	nop
+     4                                  	
+     5 00000001 67488B442408            	mov rax, [esp + 8]
+     6 00000007 67488B542410            	mov rdx, [esp + 16]
+     7 0000000D 4801D0                  	add rax, rdx ;add first and second parameters
+     8                                  	
+     9 00000010 C3                      ret ;--- will return by defauly
+    10                                  	

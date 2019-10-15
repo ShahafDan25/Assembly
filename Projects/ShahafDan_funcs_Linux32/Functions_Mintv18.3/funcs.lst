@@ -1,0 +1,32 @@
+     1                                  
+     2                                  SECTION .data
+     3 00000000 0D0A00                  	szLF db 0dh, 0ah, 0h
+     4 00000003 00                      	stdin db 0h
+     5 00000004 03                      	sys_read db 03h
+     6                                  
+     7                                  global DisplayText
+     8                                  global Displayendl
+     9                                  global ReadText
+    10                                  	
+    11                                  
+    12                                  DisplayText:
+    13 00000005 B804000000              	mov eax, 04h ;we are goin to write something
+    14 0000000A BB01000000              	mov ebx, 01h ;determine what are we writing to
+    15 0000000F CD80                    	int 80h ;Tickle/Poke the Kernel
+    16 00000011 C3                      ret ;finish the function, return 
+    17                                  
+    18                                  Displayendl: ;the function imply prints the carriage return and new ilne string
+    19 00000012 B9[00000000]            	mov ecx, szLF ;mov the address of the characters to the ecx reg
+    20 00000017 BA03000000              	mov edx, 03h ;move the length of the character arrays to edx
+    21 0000001C B804000000              	mov eax, 04h ;we are goin to write something
+    22 00000021 BB01000000              	mov ebx, 01h ;determine what are we writing to
+    23 00000026 CD80                    	int 80h ;tickle the kernel
+    24 00000028 C3                      ret 
+    25                                  
+    26                                  ReadText:
+    27 00000029 BA[03000000]            	mov edx, stdin ; we are going to READ 
+    28                                  	;sys_read equ 03h
+    29                                  	;stdin equ 0h
+    30 0000002E B8[04000000]            	mov eax, sys_read ;what are we going to read from
+    31 00000033 CD80                    	int 80h ;poke the kernel
+    32 00000035 C3                      ret

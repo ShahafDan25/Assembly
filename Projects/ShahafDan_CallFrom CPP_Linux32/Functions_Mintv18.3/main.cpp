@@ -2,22 +2,31 @@
 #include <iomanip>
 #include <cstdlib>
 using namespace std;
-extern "C" {int addTwo(int a, int b);}
-/*extern "C" 
-{
-		int addTwo(int a, int b);
-		//void addTwoArrays(int[] array1, int[] array2);
-		//int[] revArray (int[] array1, int[] array2);
-		int multiplyTwo(int a, int b);
-		int pow2 (int a);
-		// int add array still need to be declared here
-}*/
 
-int main()
+extern "C" 
 {
-	cout << " welcome to my program of c++ and assembly" << endl;
+	int addTwo(int a, int b); //works
+	int multiplyTwo (int a, int b); //works
+	int pow2 (int a);
+	int revArray (int atr[], int size);
+}
+
+//Define a C-Style function call
+int main() 
+{
+	int toRevArray [7] = {1,3,5,7,6,4,2};
+	cout << "Welcome to Shahaf's c++ and assembly program" << endl;
+	int ret = addTwo(10, 20);
+	//Return value is always in eax
+	cout << "The addition of the two parameters is: " << ret << endl;
 	
-	int ret = addTwo(5, 4);
-	cout << "5 + 4 = " << ret << endl;
+	ret = multiplyTwo(5, 5);
+	cout << "5 times 5 is: " << ret << endl;
+	
+	ret = pow2(6);
+	cout << "6 squared is: " << ret << endl;
+	
+	ret = revArray(toRevArray, 7);
+	cout << "the reversed array is: " << ret <<  endl;
 	return 0;
-}	
+}//main

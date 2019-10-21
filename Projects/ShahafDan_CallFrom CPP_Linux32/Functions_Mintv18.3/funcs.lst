@@ -91,28 +91,23 @@
     91 00000099 C3                      ret ;return eax (x*y)
     92                                  
     93                                  pow2:
-    94 0000009A 8B742404                	mov esi, [esp + 4] ;copies the value from the stack to esi
-    95 0000009E 89F0                    	mov eax, esi ;will return eax later at ret
-    96 000000A0 89F1                    	mov ecx, esi ;multiple eax by esi, esi times
-    97                                  	PowLoop:
-    98 000000A2 F7E6                    		mul esi ;multiple eax by esi
-    99 000000A4 E2FC                    	Loop PowLoop ;traverse through the loop
-   100                                  
-   101 000000A6 C3                      ret ;always returns eax
-   102                                  	
-   103                                  addArray:
-   104                                  	;taken from the presentation
-   105 000000A7 90                      	nop 
-   106 000000A8 8B742404                	mov esi, [esp + 4] ;copy the first parameter to esi; pointer to an array
-   107 000000AC 8B4C2408                	mov ecx, [esp + 8]; copy second parameter to ecx; number of items in the array
-   108 000000B0 53                      	push ebx ;needed when c++
-   109 000000B1 BB00000000              	mov ebx, 0 ;set counter to zero
-   110 000000B6 B800000000              	mov eax, 0 ;set total to zero
-   111                                  	
-   112                                  	Loop1:
-   113 000000BB 8B141E                  		mov edx, [esi + ebx] ;copy values in edx to eax
-   114 000000BE 01D0                    		add eax, edx ;add the array value in edx to eax
-   115 000000C0 83C304                  		add ebx, 4 ;incremeny ebx by a double word size (4 bytes)
-   116 000000C3 E2F6                    	loop Loop1 ;ecx contrains the counter - decrementit and loop
-   117 000000C5 5B                      	pop ebx ;needed when C++ calls assembler programs
-   118 000000C6 C3                      ret ;return
+    94 0000009A 8B442404                	mov eax, [esp + 4] ;copies the value from the stack to esi
+    95 0000009E F7E0                    	mul eax
+    96 000000A0 C3                      ret ;always returns eax
+    97                                  	
+    98                                  addArray:
+    99                                  	;taken from the presentation
+   100 000000A1 90                      	nop 
+   101 000000A2 8B742404                	mov esi, [esp + 4] ;copy the first parameter to esi; pointer to an array
+   102 000000A6 8B4C2408                	mov ecx, [esp + 8]; copy second parameter to ecx; number of items in the array
+   103 000000AA 53                      	push ebx ;needed when c++
+   104 000000AB BB00000000              	mov ebx, 0 ;set counter to zero
+   105 000000B0 B800000000              	mov eax, 0 ;set total to zero
+   106                                  	
+   107                                  	Loop1:
+   108 000000B5 8B141E                  		mov edx, [esi + ebx] ;copy values in edx to eax
+   109 000000B8 01D0                    		add eax, edx ;add the array value in edx to eax
+   110 000000BA 83C304                  		add ebx, 4 ;incremeny ebx by a double word size (4 bytes)
+   111 000000BD E2F6                    	loop Loop1 ;ecx contrains the counter - decrementit and loop
+   112 000000BF 5B                      	pop ebx ;needed when C++ calls assembler programs
+   113 000000C0 C3                      ret ;return

@@ -91,13 +91,8 @@ multiplyTwo:
 ret ;return eax (x*y)
 
 pow2:
-	mov esi, [esp + 4] ;copies the value from the stack to esi
-	mov eax, esi ;will return eax later at ret
-	mov ecx, esi ;multiple eax by esi, esi times
-	PowLoop:
-		mul esi ;multiple eax by esi
-	Loop PowLoop ;traverse through the loop
-
+	mov eax, [esp + 4] ;copies the value from the stack to esi
+	mul eax
 ret ;always returns eax
 	
 addArray:

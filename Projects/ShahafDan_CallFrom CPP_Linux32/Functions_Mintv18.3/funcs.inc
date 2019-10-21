@@ -9,6 +9,14 @@ extern DisplayText
 ;example of usage:
 ;
 extern Displayendl
-
-
+extern DisplayText
+extern Displayendl
+extern revArray
 extern ReadText
+extern addTwoArrays
+extern addTwo
+extern multiplyTwo
+extern pow2
+extern addArray
+
+extern ReadText ;does not work

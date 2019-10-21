@@ -16,9 +16,17 @@
      9                              <1> ;example of usage:
     10                              <1> ;
     11                              <1> extern Displayendl
-    12                              <1> 
-    13                              <1> 
-    14                              <1> extern ReadText
+    12                              <1> extern DisplayText
+    13                              <1> extern Displayendl
+    14                              <1> extern revArray
+    15                              <1> extern ReadText
+    16                              <1> extern addTwoArrays
+    17                              <1> extern addTwo
+    18                              <1> extern multiplyTwo
+    19                              <1> extern pow2
+    20                              <1> extern addArray
+    21                              <1> 
+    22                              <1> extern ReadText ;does not work
      8                                  SECTION .data
      9 00000000 57656C636F6D652074-     	welcomeAct db "Welcome to Shahaf's Program", 0ah, 0dh, 0h
      9 00000009 6F2053686168616627-

@@ -3,30 +3,100 @@
      3 00000000 0D0A00                  	szLF db 0dh, 0ah, 0h
      4 00000003 00                      	stdin db 0h
      5 00000004 03                      	sys_read db 03h
-     6                                  
-     7                                  global DisplayText
-     8                                  global Displayendl
-     9                                  global ReadText
-    10                                  	
-    11                                  
-    12                                  DisplayText:
-    13 00000005 B804000000              	mov eax, 04h ;we are goin to write something
-    14 0000000A BB01000000              	mov ebx, 01h ;determine what are we writing to
-    15 0000000F CD80                    	int 80h ;Tickle/Poke the Kernel
-    16 00000011 C3                      ret ;finish the function, return 
+     6                                  	
+     7                                  
+     8                                  global DisplayText
+     9                                  global Displayendl
+    10                                  global revArray
+    11                                  global ReadText
+    12                                  global addTwoArrays
+    13                                  global addTwo
+    14                                  global multiplyTwo
+    15                                  global pow2
+    16                                  global addArray
     17                                  
-    18                                  Displayendl: ;the function imply prints the carriage return and new ilne string
-    19 00000012 B9[00000000]            	mov ecx, szLF ;mov the address of the characters to the ecx reg
-    20 00000017 BA03000000              	mov edx, 03h ;move the length of the character arrays to edx
-    21 0000001C B804000000              	mov eax, 04h ;we are goin to write something
-    22 00000021 BB01000000              	mov ebx, 01h ;determine what are we writing to
-    23 00000026 CD80                    	int 80h ;tickle the kernel
-    24 00000028 C3                      ret 
-    25                                  
-    26                                  ReadText:
-    27 00000029 BA[03000000]            	mov edx, stdin ; we are going to READ 
-    28                                  	;sys_read equ 03h
-    29                                  	;stdin equ 0h
-    30 0000002E B8[04000000]            	mov eax, sys_read ;what are we going to read from
-    31 00000033 CD80                    	int 80h ;poke the kernel
-    32 00000035 C3                      ret
+    18                                  DisplayText:
+    19 00000005 B804000000              	mov eax, 04h ;we are goin to write something
+    20 0000000A BB01000000              	mov ebx, 01h ;determine what are we writing to
+    21 0000000F CD80                    	int 80h ;Tickle/Poke the Kernel
+    22 00000011 C3                      ret ;finish the function, return 
+    23                                  
+    24                                  Displayendl: ;the function imply prints the carriage return and new ilne string
+    25 00000012 B9[00000000]            	mov ecx, szLF ;mov the address of the characters to the ecx reg
+    26 00000017 BA03000000              	mov edx, 03h ;move the length of the character arrays to edx
+    27 0000001C B804000000              	mov eax, 04h ;we are goin to write something
+    28 00000021 BB01000000              	mov ebx, 01h ;determine what are we writing to
+    29 00000026 CD80                    	int 80h ;tickle the kernel
+    30 00000028 C3                      ret 
+    31                                  
+    32                                  ReadText:
+    33 00000029 BA[03000000]            	mov edx, stdin ; we are going to READ 
+    34                                  	;sys_read equ 03h
+    35                                  	;stdin equ 0h
+    36 0000002E B8[04000000]            	mov eax, sys_read ;what are we going to read from
+    37 00000033 CD80                    	int 80h ;poke the kernel
+    38 00000035 C3                      ret
+    39                                  
+    40                                  revArray:
+    41                                  	;put functions code here
+    42 00000036 8B5C2404                	mov ebx, [esp + 4] ;mov to ebx the pointer to the first array
+    43 0000003A 8B4C2408                	mov ecx, [esp + 8] ;mov to ecx the pointer to the second array
+    44 0000003E C3                      ret
+    45                                  
+    46                                  addTwoArrays: ;??? very confused on how to do this one
+    47 0000003F 8B5C2404                	mov ebx, [esp + 4] ; move to ebx the pointer to the first array
+    48 00000043 8B4C2408                	mov ecx, [esp + 8] ;move to ecx the number of utems in the array
+    49 00000047 8B54240C                	mov edx, [esp + 12] ;move to edx the pointer to the second array
+    50                                  	;coming from the assumption that the length of both arrays (1 and 2) in the same
+    51 0000004B 89CE                    	mov esi, ecx
+    52 0000004D 83EE01                  	sub esi, 1 ;set counter2 to size - 1
+    53 00000050 BF00000000              	mov edi, 0;use edi as counter
+    54                                  	addArraysLoop:
+    55 00000055 89D8                    		mov eax, ebx
+    56 00000057 50                      		push eax ;stack of eax to move forward
+    57                                  	
+    58 00000058 47                      		inc edi;counter1 ++;
+    59 00000059 4E                      		dec esi ;counter2--;
+    60 0000005A E2F9                    	loop addArraysLoop
+    61                                  	
+    62 0000005C C3                      ret ;returns the final eax, therefore eax must inclue the third array
+    63                                  
+    64                                  addTwo:
+    65 0000005D 8B442404                	mov eax, [esp + 4] ;mov to eax the first pointer to a parameter from the stack
+    66 00000061 8B542408                	mov edx, [esp + 8] ;mov to edx the second one from the stack
+    67 00000065 01D0                    	add eax, edx;eax = eax + edx
+    68 00000067 C3                      ret ; return eax
+    69                                  
+    70                                  multiplyTwo:
+    71 00000068 8B742404                	mov esi, [esp + 4] ;mov to esi the first pointer to a parameter
+    72 0000006C 8B542408                	mov edx, [esp + 8] ;mov to edi the second one
+    73 00000070 89F0                    	mov eax, esi; mov x to eax
+    74 00000072 F7E2                    	mul edx ;multiple eax (x) by y (edi)
+    75 00000074 C3                      ret ;return eax (x*y)
+    76                                  
+    77                                  pow2:
+    78 00000075 8B742404                	mov esi, [esp + 4] ;copies the value from the stack to esi
+    79 00000079 89F0                    	mov eax, esi ;will return eax later at ret
+    80 0000007B 89F1                    	mov ecx, esi ;multiple eax by esi, esi times
+    81                                  	PowLoop:
+    82 0000007D F7E6                    		mul esi ;multiple eax by esi
+    83 0000007F E2FC                    	Loop PowLoop ;traverse through the loop
+    84                                  
+    85 00000081 C3                      ret ;always returns eax
+    86                                  	
+    87                                  addArray:
+    88                                  	;taken from the presentation
+    89 00000082 90                      	nop 
+    90 00000083 8B742404                	mov esi, [esp + 4] ;copy the first parameter to esi; pointer to an array
+    91 00000087 8B4C2408                	mov ecx, [esp + 8]; copy second parameter to ecx; number of items in the array
+    92 0000008B 53                      	push ebx ;needed when c++
+    93 0000008C BB00000000              	mov ebx, 0 ;set counter to zero
+    94 00000091 B800000000              	mov eax, 0 ;set total to zero
+    95                                  	
+    96                                  	Loop1:
+    97 00000096 8B141E                  		mov edx, [esi + ebx] ;copy values in edx to eax
+    98 00000099 01D0                    		add eax, edx ;add the array value in edx to eax
+    99 0000009B 83C304                  		add ebx, 4 ;incremeny ebx by a double word size (4 bytes)
+   100 0000009E E2F6                    	loop Loop1 ;ecx contrains the counter - decrementit and loop
+   101 000000A0 5B                      	pop ebx ;needed when C++ calls assembler programs
+   102 000000A1 C3                      ret ;return

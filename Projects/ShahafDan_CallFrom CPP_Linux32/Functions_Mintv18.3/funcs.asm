@@ -43,32 +43,35 @@ revArray:
 	mov ecx, [esp + 8] ;mov to ecx the pointer to the second array
 ret
 
-addTwoArrays:
-	mov esi, [esp + 4] ; move to esi the pointer to the first array
+addTwoArrays: ;??? very confused on how to do this one
+	mov ebx, [esp + 4] ; move to ebx the pointer to the first array
 	mov ecx, [esp + 8] ;move to ecx the number of utems in the array
-	mov edx, [esp + 12] ;move to edi the pointer to the second array
+	mov edx, [esp + 12] ;move to edx the pointer to the second array
 	;coming from the assumption that the length of both arrays (1 and 2) in the same
-	
+	mov esi, ecx
+	sub esi, 1 ;set counter2 to size - 1
 	mov edi, 0;use edi as counter
 	addArraysLoop:
-		
+		mov eax, ebx
+		push eax ;stack of eax to move forward
 	
+		inc edi;counter1 ++;
+		dec esi ;counter2--;
 	loop addArraysLoop
 	
-ret
+ret ;returns the final eax, therefore eax must inclue the third array
 
 addTwo:
-	mov esi, [esp + 4] ;mov to esi the first pointer to a parameter from the stack
-	mov edi, [esp + 8] ;mov to edi the second one from the stack
-	mov eax, esi; eax = esi
-	add eax, edi;eax = esi + edi
+	mov eax, [esp + 4] ;mov to eax the first pointer to a parameter from the stack
+	mov edx, [esp + 8] ;mov to edx the second one from the stack
+	add eax, edx;eax = eax + edx
 ret ; return eax
 
 multiplyTwo:
 	mov esi, [esp + 4] ;mov to esi the first pointer to a parameter
-	mov edi, [esp + 8] ;mov to edi the second one
+	mov edx, [esp + 8] ;mov to edi the second one
 	mov eax, esi; mov x to eax
-	mul eax, edi ;multiple eax (x) by y (edi)
+	mul edx ;multiple eax (x) by y (edi)
 ret ;return eax (x*y)
 
 pow2:
@@ -76,12 +79,12 @@ pow2:
 	mov eax, esi ;will return eax later at ret
 	mov ecx, esi ;multiple eax by esi, esi times
 	PowLoop:
-		mul eax, esi ;multiple eax by esi
+		mul esi ;multiple eax by esi
 	Loop PowLoop ;traverse through the loop
 
 ret ;always returns eax
 	
-addArray
+addArray:
 	;taken from the presentation
 	nop 
 	mov esi, [esp + 4] ;copy the first parameter to esi; pointer to an array
@@ -91,7 +94,7 @@ addArray
 	mov eax, 0 ;set total to zero
 	
 	Loop1:
-		mov edx. [esi + ebx] ;copy values in edx to eax
+		mov edx, [esi + ebx] ;copy values in edx to eax
 		add eax, edx ;add the array value in edx to eax
 		add ebx, 4 ;incremeny ebx by a double word size (4 bytes)
 	loop Loop1 ;ecx contrains the counter - decrementit and loop

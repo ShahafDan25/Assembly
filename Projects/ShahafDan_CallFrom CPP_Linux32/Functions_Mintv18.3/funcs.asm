@@ -40,8 +40,24 @@ ret
 revArray:
 	;put functions code here
 	mov ebx, [esp + 4] ;mov to ebx the pointer to the first array
-	mov ecx, [esp + 8] ;mov to ecx the pointer to the second array
-ret
+	mov eax, [esp + 8] ;mov to ecx the pointer to the second array
+	mov esi, 0 ;counter to take out elements from array 1
+	mov ecx, [esp + 12] ;mov to ecx the amount of items in both arrays
+	mov edi, ecx ;counter to placein array2
+	sub edi, 1 ;edi = size - 1
+	;push ebx ;not sure if I need this
+	mov ebx, 0;clear ebx and eax just in case
+	mov eax, 0
+	
+	;ecx will server us as out counter
+	revLoop:
+		mov eax, [ebx + esi]
+		push eax
+		add esi, 4
+		sub edi, 4
+	loop revLoop
+	pop ebx
+ret ;automatically will reture eax
 
 addTwoArrays: ;??? very confused on how to do this one
 	mov ebx, [esp + 4] ; move to ebx the pointer to the first array

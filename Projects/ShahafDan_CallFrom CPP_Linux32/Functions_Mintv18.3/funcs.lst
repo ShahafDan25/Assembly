@@ -39,75 +39,73 @@
     39                                  
     40                                  revArray:
     41                                  	;put functions code here
-    42 00000036 8B5C2404                	mov ebx, [esp + 4] ;mov to ebx the pointer to the first array
-    43 0000003A 8B442408                	mov eax, [esp + 8] ;mov to ecx the pointer to the second array
-    44 0000003E BE00000000              	mov esi, 0 ;counter to take out elements from array 1
-    45 00000043 8B4C240C                	mov ecx, [esp + 12] ;mov to ecx the amount of items in both arrays
-    46 00000047 89CF                    	mov edi, ecx ;counter to placein array2
-    47 00000049 83EF01                  	sub edi, 1 ;edi = size - 1
-    48                                  	;push ebx ;not sure if I need this
-    49 0000004C BB00000000              	mov ebx, 0;clear ebx and eax just in case
-    50 00000051 B800000000              	mov eax, 0
-    51                                  	
-    52                                  	;ecx will server us as out counter
-    53                                  	revLoop:
-    54 00000056 8B0433                  		mov eax, [ebx + esi]
-    55 00000059 50                      		push eax
-    56 0000005A 83C604                  		add esi, 4
-    57 0000005D 83EF04                  		sub edi, 4
-    58 00000060 E2F4                    	loop revLoop
-    59 00000062 5B                      	pop ebx
-    60 00000063 C3                      ret ;automatically will reture eax
-    61                                  
-    62                                  addTwoArrays: ;??? very confused on how to do this one
-    63 00000064 8B5C2404                	mov ebx, [esp + 4] ; move to ebx the pointer to the first array
-    64 00000068 8B4C2408                	mov ecx, [esp + 8] ;move to ecx the number of utems in the array
-    65 0000006C 8B54240C                	mov edx, [esp + 12] ;move to edx the pointer to the second array
-    66                                  	;coming from the assumption that the length of both arrays (1 and 2) in the same
-    67 00000070 89CE                    	mov esi, ecx
-    68 00000072 83EE01                  	sub esi, 1 ;set counter2 to size - 1
-    69 00000075 BF00000000              	mov edi, 0;use edi as counter
-    70                                  	addArraysLoop:
-    71 0000007A 89D8                    		mov eax, ebx
-    72 0000007C 50                      		push eax ;stack of eax to move forward
-    73                                  	
-    74 0000007D 47                      		inc edi;counter1 ++;
-    75 0000007E 4E                      		dec esi ;counter2--;
-    76 0000007F E2F9                    	loop addArraysLoop
-    77                                  	
-    78 00000081 C3                      ret ;returns the final eax, therefore eax must inclue the third array
-    79                                  
-    80                                  addTwo:
-    81 00000082 8B442404                	mov eax, [esp + 4] ;mov to eax the first pointer to a parameter from the stack
-    82 00000086 8B542408                	mov edx, [esp + 8] ;mov to edx the second one from the stack
-    83 0000008A 01D0                    	add eax, edx;eax = eax + edx
-    84 0000008C C3                      ret ; return eax
-    85                                  
-    86                                  multiplyTwo:
-    87 0000008D 8B742404                	mov esi, [esp + 4] ;mov to esi the first pointer to a parameter
-    88 00000091 8B542408                	mov edx, [esp + 8] ;mov to edi the second one
-    89 00000095 89F0                    	mov eax, esi; mov x to eax
-    90 00000097 F7E2                    	mul edx ;multiple eax (x) by y (edi)
-    91 00000099 C3                      ret ;return eax (x*y)
-    92                                  
-    93                                  pow2:
-    94 0000009A 8B442404                	mov eax, [esp + 4] ;copies the value from the stack to esi
-    95 0000009E F7E0                    	mul eax
-    96 000000A0 C3                      ret ;always returns eax
-    97                                  	
-    98                                  addArray:
-    99                                  	;taken from the presentation
-   100 000000A1 90                      	nop 
-   101 000000A2 8B742404                	mov esi, [esp + 4] ;copy the first parameter to esi; pointer to an array
-   102 000000A6 8B4C2408                	mov ecx, [esp + 8]; copy second parameter to ecx; number of items in the array
-   103 000000AA 53                      	push ebx ;needed when c++
-   104 000000AB BB00000000              	mov ebx, 0 ;set counter to zero
-   105 000000B0 B800000000              	mov eax, 0 ;set total to zero
-   106                                  	
-   107                                  	Loop1:
-   108 000000B5 8B141E                  		mov edx, [esi + ebx] ;copy values in edx to eax
-   109 000000B8 01D0                    		add eax, edx ;add the array value in edx to eax
-   110 000000BA 83C304                  		add ebx, 4 ;incremeny ebx by a double word size (4 bytes)
-   111 000000BD E2F6                    	loop Loop1 ;ecx contrains the counter - decrementit and loop
-   112 000000BF 5B                      	pop ebx ;needed when C++ calls assembler programs
-   113 000000C0 C3                      ret ;return
+    42                                  	; get few parameters:
+    43                                  		; 1) array 1
+    44                                  		; 2) array 2
+    45                                  		; 3) the length of the array
+    46 00000036 8B5C2404                	mov ebx, [esp + 4] ;array1
+    47 0000003A 8B442408                	mov eax, [esp + 8] ;array2
+    48 0000003E 8B4C240C                	mov ecx, [esp + 12] ;size of the arrays - should be the same!
+    49 00000042 BF00000000              	mov edi, 0 ;counter 1 = 0
+    50 00000047 89CE                    	mov esi, ecx ;counter2 = size
+    51 00000049 83EE01                  	sub esi, 1 ;counter2 = size - 1
+    52                                  	L1: ;loop ecx times
+    53 0000004C 8B0433                  		mov eax, [ebx + esi]
+    54 0000004F 50                      		push eax ;do i really need this line?
+    55 00000050 83C604                  		add esi, 4 ;counter1++
+    56 00000053 83EF04                  		sub edi, 4 ;counter2--
+    57 00000056 E2F4                    	loop L1
+    58 00000058 C3                      ret ;automatically will reture eax
+    59                                  
+    60                                  addTwoArrays: ;??? very confused on how to do this one
+    61 00000059 8B5C2404                	mov ebx, [esp + 4] ; move to ebx the pointer to the first array
+    62 0000005D 8B4C2408                	mov ecx, [esp + 8] ;move to ecx the number of utems in the array
+    63 00000061 8B54240C                	mov edx, [esp + 12] ;move to edx the pointer to the second array
+    64                                  	;coming from the assumption that the length of both arrays (1 and 2) in the same
+    65 00000065 89CE                    	mov esi, ecx
+    66 00000067 83EE01                  	sub esi, 1 ;set counter2 to size - 1
+    67 0000006A BF00000000              	mov edi, 0;use edi as counter
+    68                                  	addArraysLoop:
+    69 0000006F 89D8                    		mov eax, ebx
+    70 00000071 50                      		push eax ;stack of eax to move forward
+    71                                  	
+    72 00000072 47                      		inc edi;counter1 ++;
+    73 00000073 4E                      		dec esi ;counter2--;
+    74 00000074 E2F9                    	loop addArraysLoop
+    75                                  	
+    76 00000076 C3                      ret ;returns the final eax, therefore eax must inclue the third array
+    77                                  
+    78                                  addTwo:
+    79 00000077 8B442404                	mov eax, [esp + 4] ;mov to eax the first pointer to a parameter from the stack
+    80 0000007B 8B542408                	mov edx, [esp + 8] ;mov to edx the second one from the stack
+    81 0000007F 01D0                    	add eax, edx;eax = eax + edx
+    82 00000081 C3                      ret ; return eax
+    83                                  
+    84                                  multiplyTwo:
+    85 00000082 8B742404                	mov esi, [esp + 4] ;mov to esi the first pointer to a parameter
+    86 00000086 8B542408                	mov edx, [esp + 8] ;mov to edi the second one
+    87 0000008A 89F0                    	mov eax, esi; mov x to eax
+    88 0000008C F7E2                    	mul edx ;multiple eax (x) by y (edi)
+    89 0000008E C3                      ret ;return eax (x*y)
+    90                                  
+    91                                  pow2:
+    92 0000008F 8B442404                	mov eax, [esp + 4] ;copies the value from the stack to esi
+    93 00000093 F7E0                    	mul eax
+    94 00000095 C3                      ret ;always returns eax
+    95                                  	
+    96                                  addArray:
+    97                                  	;taken from the presentation
+    98 00000096 90                      	nop 
+    99 00000097 8B742404                	mov esi, [esp + 4] ;copy the first parameter to esi; pointer to an array
+   100 0000009B 8B4C2408                	mov ecx, [esp + 8]; copy second parameter to ecx; number of items in the array
+   101 0000009F 53                      	push ebx ;needed when c++
+   102 000000A0 BB00000000              	mov ebx, 0 ;set counter to zero
+   103 000000A5 B800000000              	mov eax, 0 ;set total to zero
+   104                                  	
+   105                                  	Loop1:
+   106 000000AA 8B141E                  		mov edx, [esi + ebx] ;copy values in edx to eax
+   107 000000AD 01D0                    		add eax, edx ;add the array value in edx to eax
+   108 000000AF 83C304                  		add ebx, 4 ;incremeny ebx by a double word size (4 bytes)
+   109 000000B2 E2F6                    	loop Loop1 ;ecx contrains the counter - decrementit and loop
+   110 000000B4 5B                      	pop ebx ;needed when C++ calls assembler programs
+   111 000000B5 C3                      ret ;return

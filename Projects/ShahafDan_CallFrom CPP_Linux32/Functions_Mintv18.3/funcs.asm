@@ -3,7 +3,7 @@ SECTION .data
 	szLF db 0dh, 0ah, 0h
 	stdin db 0h
 	sys_read db 03h
-
+	
 
 global DisplayText
 global Displayendl
@@ -44,13 +44,32 @@ revArray:
 ret
 
 addTwoArrays:
+	mov esi, [esp + 4] ; move to esi the pointer to the first array
+	mov ecx, [esp + 8] ;move to ecx the number of utems in the array
+	mov edx, [esp + 12] ;move to edi the pointer to the second array
+	;coming from the assumption that the length of both arrays (1 and 2) in the same
+	
+	mov edi, 0;use edi as counter
+	addArraysLoop:
+		
+	
+	loop addArraysLoop
+	
 ret
 
 addTwo:
-ret
+	mov esi, [esp + 4] ;mov to esi the first pointer to a parameter from the stack
+	mov edi, [esp + 8] ;mov to edi the second one from the stack
+	mov eax, esi; eax = esi
+	add eax, edi;eax = esi + edi
+ret ; return eax
 
 multiplyTwo:
-ret
+	mov esi, [esp + 4] ;mov to esi the first pointer to a parameter
+	mov edi, [esp + 8] ;mov to edi the second one
+	mov eax, esi; mov x to eax
+	mul eax, edi ;multiple eax (x) by y (edi)
+ret ;return eax (x*y)
 
 pow2:
 	mov esi, [esp + 4] ;copies the value from the stack to esi
@@ -59,9 +78,7 @@ pow2:
 	PowLoop:
 		mul eax, esi ;multiple eax by esi
 	Loop PowLoop ;traverse through the loop
-	
-	mov esi, 0 ;clean pointers, just in case
-	mov edi, 0 ;clean pointers just in case
+
 ret ;always returns eax
 	
 addArray

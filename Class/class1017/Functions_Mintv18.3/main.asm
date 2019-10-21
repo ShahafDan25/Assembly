@@ -26,7 +26,7 @@ _start:
 	nop
 	;jump to L1 if either bit 4,5 or 6 is set in theBL register
 	and bl, 00111000b
-	cmp bl, 0
+	cmp bl, 0h
 		jne L1
 	
 	;jump to L2 if bits 4,5,6 are all set in the BL register
@@ -52,6 +52,13 @@ _start:
 	sub edx, ecx
 	cmp edx, 0h
 		jae L5
+		
+		
+	;jump to L6 if only bit number 2 is off
+	mov bl, al
+	and bl, 11111101b
+	cmp bl, 11111101b
+		je L6
 		
 	;last resort
 	jmp goesHere
@@ -85,6 +92,14 @@ _start:
 		;do something becase an integer was less than 50h
 		jmp endit
 	
+	L6:
+		nop
+		;do something
+		jmp endit
+		
+		
+	endit:
+		nop
 	;---GOODBYE ---
 	push byeAct
 	call PrintString

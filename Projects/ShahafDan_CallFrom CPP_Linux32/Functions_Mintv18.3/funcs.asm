@@ -38,23 +38,28 @@ ReadText:
 ret
 
 revArray:
+	nop
 	;put functions code here
 	; get few parameters:
 		; 1) array 1
 		; 2) array 2
 		; 3) the length of the array
-	mov ebx, [esp + 4] ;array1
-	mov eax, [esp + 8] ;array2
+	;push ebx
+	mov esi, [esp + 4] ;array1
+	mov edi, [esp + 8] ;array2
 	mov ecx, [esp + 12] ;size of the arrays - should be the same!
-	mov edi, 0 ;counter 1 = 0
-	mov esi, ecx ;counter2 = size
-	sub esi, 1 ;counter2 = size - 1
+	mov eax, 0
+	mov edx, ecx
+	sub edx, 4
 	L1: ;loop ecx times
-		mov eax, [ebx + esi]
-		push eax ;do i really need this line?
-		add esi, 4 ;counter1++
-		sub edi, 4 ;counter2--
+		mov ecx, [esi + eax]
+		mov [edi + edx], ecx
+		sub edx, 4
+		add eax, 4
 	loop L1
+	
+	mov eax, edi;move to eax to be returned, the array2 (reversed array1)
+	;pop ebx
 ret ;automatically will reture eax
 
 addTwoArrays: ;??? very confused on how to do this one

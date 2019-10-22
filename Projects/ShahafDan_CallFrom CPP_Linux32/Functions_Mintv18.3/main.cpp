@@ -10,11 +10,13 @@ extern "C"
 	int pow2 (int a); //works
 	//int revArray (int atr[], int size);
 	int addArray(int array[], int size); //works
+	int * addTwoArrays (int array1[], int array2[], int size); //works
 }
 
 //Define a C-Style function call
-int main() 
+int main() //fix later to a user friendly main after done with functions
 {
+	cout << endl << " -------------------------- " << endl << endl;
 	int toRevArray [7] = {1,3,5,7,6,4,2}; //statically define an array
 	cout << "Welcome to Shahaf's c++ and assembly program" << endl;
 	int ret = addTwo(10, 20);
@@ -29,7 +31,24 @@ int main()
 	
 	ret = addArray(toRevArray, 7);
 	cout << "total of array elemens " << ret << endl;
+	
+	int * ret1= new int[7] ;
+	ret1 = addTwoArrays(toRevArray, toRevArray, 7);
+	//ret1 now stores the array
+	for(unsigned int i = 0; i < 7; i++)
+	{
+		cout << ret1[i] << " ";
+	}
+	cout << endl;
 	//ret = revArray(toRevArray, 7);
 	//cout << "the reversed array is: " << ret <<  endl;
+	cout << endl << " -------------------------- " << endl;
 	return 0;
 }//main
+
+
+//TODO:
+	//make main more friendly
+	//document all functions in funcs.inc
+	//finish revArray funcstion
+	//finish addTwoArrays function

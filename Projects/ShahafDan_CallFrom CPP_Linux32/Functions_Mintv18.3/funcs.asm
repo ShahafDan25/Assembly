@@ -58,21 +58,16 @@ revArray:
 ret ;automatically will reture eax
 
 addTwoArrays: ;??? very confused on how to do this one
-	mov ebx, [esp + 4] ; move to ebx the pointer to the first array
-	mov ecx, [esp + 8] ;move to ecx the number of utems in the array
-	mov edx, [esp + 12] ;move to edx the pointer to the second array
-	;coming from the assumption that the length of both arrays (1 and 2) in the same
-	mov esi, ecx
-	sub esi, 1 ;set counter2 to size - 1
-	mov edi, 0;use edi as counter
-	addArraysLoop:
-		mov eax, ebx
-		push eax ;stack of eax to move forward
-	
-		inc edi;counter1 ++;
-		dec esi ;counter2--;
-	loop addArraysLoop
-	
+	mov esi, [esp + 4] ;mov to esi the pointer to the first array
+	mov edi, [esp + 8] ;mov to edi the pointer to the second array
+	mov ecx, [esp + 12];mov to the ecx the size of the array
+	mov edx, 0 ;use ebx as out counter, ebx = 0, increment by 4 (bytes) every loops
+	L:
+		mov eax, [edi + edx]
+		add [esi + edx], eax
+		add edx, 4 ;counter++
+	loop L
+	mov eax, esi
 ret ;returns the final eax, therefore eax must inclue the third array
 
 addTwo:

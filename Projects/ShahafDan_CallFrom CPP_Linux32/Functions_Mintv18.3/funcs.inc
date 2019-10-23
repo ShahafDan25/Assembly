@@ -3,7 +3,6 @@
 	;a filled arrays (1), an empty array of the same size (2), and the size of the array
 	;calling "revArray(arr1, arr2, size)" will return the second array
 	;the second array holds the reversed elements from the first array 
-;
 extern revArray
 
 ;example of usage:
@@ -35,7 +34,5 @@ extern pow2
 	;in the c++ program, pass two parameters:
 	; a filled array, and an integer representing its size
 	;calling "addArray(arr1, size)" will return the summed value of all the element in the array
-	;the third array holds the summed values of the same indexed poition from array1 and 2
 extern addArray
 
-extern ReadText ;does not work

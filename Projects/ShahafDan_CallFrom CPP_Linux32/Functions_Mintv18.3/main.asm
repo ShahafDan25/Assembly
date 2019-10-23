@@ -20,15 +20,7 @@ SECTION     .text
 _start:
 	;
 
-    call ReadText
-
-    mov ecx, welcomeAct
-    mov edx, welcomeAct.len
-	call DisplayText
-	call Displayendl
-
-
-	call ReadText
+    ;Code will be ran through main.cpp
 ;
 ;Setup the registers for exit and poke the kernel
 Exit: 

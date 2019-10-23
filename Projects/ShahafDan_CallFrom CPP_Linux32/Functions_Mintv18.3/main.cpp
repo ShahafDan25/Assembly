@@ -1,9 +1,10 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include "funcs.hpp"
 using namespace std;
 
-extern "C" 
+/*extern "C" 
 {
 	int addTwo(int a, int b); //works
 	int multiplyTwo (int a, int b); //works
@@ -12,7 +13,7 @@ extern "C"
 	int addArray(int array[], int size); //works
 	int * addTwoArrays (int array1[], int array2[], int size); //works
 	int * revArray(int array1[], int array2[], int size);
-}
+}*/
 
 //Define a C-Style function call
 int main() //fix later to a user friendly main after done with functions

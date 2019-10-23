@@ -1,68 +1,42 @@
 
 SECTION .data
-	szLF db 0dh, 0ah, 0h
-	stdin db 0h
-	sys_read db 03h
+
 	
 
-global DisplayText
-global Displayendl
-global revArray
-global ReadText
+;------ GLOABLIZE FUNCSTION ----------
+
 global addTwoArrays
 global addTwo
 global multiplyTwo
 global pow2
 global addArray
+global revArray
 
-DisplayText:
-	mov eax, 04h ;we are goin to write something
-	mov ebx, 01h ;determine what are we writing to
-	int 80h ;Tickle/Poke the Kernel
-ret ;finish the function, return 
 
-Displayendl: ;the function imply prints the carriage return and new ilne string
-	mov ecx, szLF ;mov the address of the characters to the ecx reg
-	mov edx, 03h ;move the length of the character arrays to edx
-	mov eax, 04h ;we are goin to write something
-	mov ebx, 01h ;determine what are we writing to
-	int 80h ;tickle the kernel
-ret 
 
-ReadText:
-	mov edx, stdin ; we are going to READ 
-	;sys_read equ 03h
-	;stdin equ 0h
-	mov eax, sys_read ;what are we going to read from
-	int 80h ;poke the kernel
-ret
-
+;----- REVERSING AN ARRAY -----	
 revArray:
 	nop
-	;put functions code here
-	; get few parameters:
-		; 1) array 1
-		; 2) array 2
-		; 3) the length of the array
-	;push ebx
 	mov esi, [esp + 4] ;array1
 	mov edi, [esp + 8] ;array2
 	mov ecx, [esp + 12] ;size of the arrays - should be the same!
 	mov eax, 0
-	mov edx, ecx
-	sub edx, 4
+	push ebx
 	L1: ;loop ecx times
-		mov ecx, [esi + eax]
-		mov [edi + edx], ecx
-		sub edx, 4
+		mov ebx, [esi + eax]
+		mov [edi + ((ecx- 1 )* 4)], ebx
 		add eax, 4
 	loop L1
 	
 	mov eax, edi;move to eax to be returned, the array2 (reversed array1)
-	;pop ebx
+	pop ebx
 ret ;automatically will reture eax
 
-addTwoArrays: ;??? very confused on how to do this one
+
+
+;----- ADDING ARRAYS -----	
+addTwoArrays: 
+	nop	
 	mov esi, [esp + 4] ;mov to esi the pointer to the first array
 	mov edi, [esp + 8] ;mov to edi the pointer to the second array
 	mov ecx, [esp + 12];mov to the ecx the size of the array
@@ -75,24 +49,35 @@ addTwoArrays: ;??? very confused on how to do this one
 	mov eax, esi
 ret ;returns the final eax, therefore eax must inclue the third array
 
+
+;----- ADDING TWO NUMBERS -----	
 addTwo:
+	nop
 	mov eax, [esp + 4] ;mov to eax the first pointer to a parameter from the stack
 	mov edx, [esp + 8] ;mov to edx the second one from the stack
 	add eax, edx;eax = eax + edx
 ret ; return eax
 
+;----- MULTIPLYING TWO NUMBERS -----	
 multiplyTwo:
+	nop
 	mov esi, [esp + 4] ;mov to esi the first pointer to a parameter
 	mov edx, [esp + 8] ;mov to edi the second one
 	mov eax, esi; mov x to eax
 	mul edx ;multiple eax (x) by y (edi)
 ret ;return eax (x*y)
 
+
+;----- SQUARING A NUMBER -----	
 pow2:
+	nop
 	mov eax, [esp + 4] ;copies the value from the stack to esi
 	mul eax
 ret ;always returns eax
 	
+	
+	
+;----- ADDING ARRAY ELEMENTS -----	
 addArray:
 	;taken from the presentation
 	nop 

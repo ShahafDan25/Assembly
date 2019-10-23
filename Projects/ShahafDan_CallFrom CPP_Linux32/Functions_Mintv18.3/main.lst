@@ -5,28 +5,47 @@
      5                                  ;Include our external functions library functions
      6                                  
      7                                  %include "./funcs.inc"
-     1                              <1> ;example of usage:
-     2                              <1> ;	mov ecx, SOMESTRING 
-     3                              <1> ;    mov edx, SOMESTRING.len
-     4                              <1> ;	call DisplayText
-     5                              <1> ;the function assumes the address if rhge string will be in the ecx register 
-     6                              <1> ;and that the length in the edx register
-     7                              <1> extern DisplayText
+     1                              <1> ;example of usage:	
+     2                              <1> 	;in the c++ program, pass three parameters:
+     3                              <1> 	;a filled arrays (1), an empty array of the same size (2), and the size of the array
+     4                              <1> 	;calling "revArray(arr1, arr2, size)" will return the second array
+     5                              <1> 	;the second array holds the reversed elements from the first array 
+     6                              <1> ;
+     7                              <1> extern revArray
      8                              <1> 
      9                              <1> ;example of usage:
-    10                              <1> ;
-    11                              <1> extern Displayendl
-    12                              <1> extern DisplayText
-    13                              <1> extern Displayendl
-    14                              <1> extern revArray
-    15                              <1> extern ReadText
-    16                              <1> extern addTwoArrays
-    17                              <1> extern addTwo
-    18                              <1> extern multiplyTwo
-    19                              <1> extern pow2
-    20                              <1> extern addArray
+    10                              <1> 	;in the c++ program, pass four parameters:
+    11                              <1> 	; a filled array, another filled array, an empty array (all of the same size), and their size
+    12                              <1> 	;calling "addTwoArrays(arr1, arr2, arr3, size)" will return the third array
+    13                              <1> 	;the third array holds the summed values of the same indexed poition from array1 and 2
+    14                              <1> extern addTwoArrays
+    15                              <1> 
+    16                              <1> ;example of usage:
+    17                              <1> 	;in the c++ program, pass two parameters:
+    18                              <1> 	;an integer a, and an integer b
+    19                              <1> 	;calling "addTwo(a, b)" will return the sum of these integers
+    20                              <1> extern addTwo
     21                              <1> 
-    22                              <1> extern ReadText ;does not work
+    22                              <1> ;example of usage:
+    23                              <1> 	;in the c++ program, pass two parameters:
+    24                              <1> 	; an integer a, and an integer b
+    25                              <1> 	;calling "multiplyTwo(a, b)" will return the product of those two integers
+    26                              <1> extern multiplyTwo
+    27                              <1> 
+    28                              <1> ;example of usage:
+    29                              <1> 	;in the c++ program, pass one parameter:
+    30                              <1> 	;pass an integer
+    31                              <1> 	;calling "pow2(a)" will return the squared value of that integer
+    32                              <1> extern pow2
+    33                              <1> 
+    34                              <1> ;example of usage:
+    35                              <1> 	;in the c++ program, pass two parameters:
+    36                              <1> 	; a filled array, and an integer representing its size
+    37                              <1> 	;calling "addArray(arr1, size)" will return the summed value of all the element in the array
+    38                              <1> 	;the third array holds the summed values of the same indexed poition from array1 and 2
+    39                              <1> extern addArray
+    40                              <1> 
+    41                              <1> extern ReadText ;does not work
      8                                  SECTION .data
      9 00000000 57656C636F6D652074-     	welcomeAct db "Welcome to Shahaf's Program", 0ah, 0dh, 0h
      9 00000009 6F2053686168616627-

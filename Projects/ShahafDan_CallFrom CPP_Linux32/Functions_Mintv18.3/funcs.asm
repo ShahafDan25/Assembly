@@ -19,9 +19,9 @@ revArray:
 	nop
 	mov esi, [esp + 4] ;array1
 	mov edi, [esp + 8] ;array2
-	mov ecx, [esp + 12] ;size of the arrays - should be the same!
+	mov ecx, [esp + 12] ;size of the arrays - should be the same for both array!
 	mov eax, 0
-	push ebx
+	push ebx ;have to do this due to a bug in the system
 	L1: ;loop ecx times
 		mov ebx, [esi + eax]
 		mov [edi + ((ecx- 1 )* 4)], ebx
@@ -29,7 +29,7 @@ revArray:
 	loop L1
 	
 	mov eax, edi;move to eax to be returned, the array2 (reversed array1)
-	pop ebx
+	pop ebx;have to do this due to a bug in the system
 ret ;automatically will reture eax
 
 
@@ -39,14 +39,20 @@ addTwoArrays:
 	nop	
 	mov esi, [esp + 4] ;mov to esi the pointer to the first array
 	mov edi, [esp + 8] ;mov to edi the pointer to the second array
-	mov ecx, [esp + 12];mov to the ecx the size of the array
-	mov edx, 0 ;use ebx as out counter, ebx = 0, increment by 4 (bytes) every loops
+	mov edx, [esp + 12] ;mov to edx the third array
+	mov ecx, [esp + 16];mov to the ecx the size of the array
+	push ebx ;have to do this due to a bug
+	mov ebx, 0 ;use ebx as out counter, ebx = 0, increment by 4 (bytes) every loops
 	L:
-		mov eax, [edi + edx]
-		add [esi + edx], eax
-		add edx, 4 ;counter++
+		mov eax, [edi + ebx] ;put in the temp reg the current idexed value
+		mov [edx + ebx], eax ;from thet temp reg mov it to the empty array at the same index
+		
+		mov eax, [esi + ebx] ;;put in the temp reg the current idexed value
+		add [edx + ebx], eax ;add that value to the same position in the sum array (3rd array)
+		add ebx, 4 ;counter++
 	loop L
-	mov eax, esi
+	mov eax, edx
+	pop ebx ;have to do this due a bug
 ret ;returns the final eax, therefore eax must inclue the third array
 
 

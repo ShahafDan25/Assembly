@@ -37,8 +37,22 @@ _start:
 	call PrintString ;print the welcome prompt
 	call Printendl ;print empty line
 	
+	;Process the Sqitch statment / case table
+	mov rcx, caseTable ;number of items in the switch
+	mov rsi, caseTable ;put the address of our table into rsi
+	mov al, 'C' ;our test value
 	
+	Switch1:
+		cmp al, [rsi] ;compare our value to the lookup table value
+		jne Switch1_goAgain
+		call NEAR [rsi + 1] ; call the function associated with the found value
+		jmp leave_Switch1 ;flag to leave the loop
+		
+	Switch_goAgain: ;go to the next one
+		add rsi, CaseTable.entrySize
+	Loop Switch1
 	
+	leave_Switch1: ;a flag to be called to get out of the loop ;equivalent to break; from a loop in c++
 	;----- GOODBYE ---
 	push byeAct
 	call PrintString
@@ -50,3 +64,16 @@ Exit:
 	mov		rax, 60					;60 = system exit
 	mov		rdi, 0					;0 = return code
 	syscall							;Poke the kernel
+
+Process_A:
+
+ret ;finish Process_A
+Process_B:
+
+ret ;finish Process_B
+Process_C:
+
+ret ;finish Process_C
+Process_D:
+
+ret ;finish Process_D

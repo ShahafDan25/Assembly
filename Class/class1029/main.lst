@@ -528,29 +528,96 @@
     12 00000017 4279652C2068617665-     	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
     12 00000020 206120676F6F642064-
     12 00000029 6179210A0D00       
-    13                                  	
-    14                                  SECTION .bss
-    15                                  	;memory reservation goes here
-    16                                  	
-    17                                  	
-    18                                  SECTION     .text
-    19                                  	global  _start
-    20                                       
-    21                                  _start:
-    22 00000000 90                      	nop ;1byte
-    23                                  	;----- WELCOME -----
-    24 00000001 68[00000000]            	push welcomeAct
-    25 00000006 E8(00000000)            	call PrintString ;print the welcome prompt
-    26 0000000B E8(00000000)            	call Printendl ;print empty line
-    27                                  	
-    28                                  	;----- GOODBYE ---
-    29 00000010 68[17000000]            	push byeAct
-    30 00000015 E8(00000000)            	call PrintString
-    31 0000001A E8(00000000)            	call Printendl
-    32                                  ;
-    33                                  ;Setup the registers for exit and poke the kernel
-    34                                  ;Exit: 
-    35                                  Exit:
-    36 0000001F B83C000000              	mov		rax, 60					;60 = system exit
-    37 00000024 BF00000000              	mov		rdi, 0					;0 = return code
-    38 00000029 0F05                    	syscall							;Poke the kernel
+    13 0000002F 50726F636573732041-     	pA db "Process A", 0ah, 0dh, 0h
+    13 00000038 0A0D00             
+    14 0000003B 50726F636573732042-     	pB db "Process B", 0ah, 0dh, 0h
+    14 00000044 0A0D00             
+    15 00000047 50726F636573732043-     	pC db "Process C", 0ah, 0dh, 0h
+    15 00000050 0A0D00             
+    16 00000053 50726F636573732044-     	pD db "Process D", 0ah, 0dh, 0h
+    16 0000005C 0A0D00             
+    17 0000005F 44656661756C742050-     	pDefault db "Default Process", 0ah, 0dh, 0h
+    17 00000068 726F636573730A0D00 
+    18                                  	
+    19 00000071 41                      	CaseTable	db 'A'
+    20 00000072 [5A00000000000000]      				dq Process_A
+    21                                  		.entrySize equ($ - CaseTable)
+    22 0000007A 42                      				db 'B'
+    23 0000007B [6500000000000000]      				dq Process_B
+    24 00000083 43                      				db 'C'
+    25 00000084 [7000000000000000]      				dq Process_C
+    26 0000008C 44                      				db 'D'
+    27 0000008D [7B00000000000000]      				dq Process_D
+    28                                  		.numberOfEntries equ ($ - CaseTable) / CaseTable.entrySize
+    29                                  	
+    30                                  SECTION .bss
+    31                                  	;memory reservation goes here
+    32                                  	
+    33                                  	
+    34                                  SECTION     .text
+    35                                  	global  _start
+    36                                       
+    37                                  _start:
+    38 00000000 90                      	nop ;1byte
+    39                                  	;----- WELCOME -----
+    40 00000001 E8(00000000)            	call Printendl
+    41 00000006 68[00000000]            	push welcomeAct
+    42 0000000B E8(00000000)            	call PrintString ;print the welcome prompt
+    43 00000010 E8(00000000)            	call Printendl ;print empty line
+    44                                  	
+    45                                  	;Process the Sqitch statment / case table
+    46 00000015 48B9-                   	mov rcx, CaseTable ;number of items in the switch
+    46 00000017 [7100000000000000] 
+    47 0000001F 48BE-                   	mov rsi, CaseTable ;put the address of our table into rsi
+    47 00000021 [7100000000000000] 
+    48 00000029 B044                    	mov al, 'D' ;our test value
+    49                                  	
+    50                                  	Switch1:
+    51 0000002B 3A06                    		cmp al, [rsi] ;compare our value to the lookup table value
+    52 0000002D 7505                    		jne Switch1_goAgain ; This is not the one
+    53 0000002F FF5601                  		call NEAR [rsi + 1] ; call the function associated with the found value
+    54                                  		;nesr is used to tell the computer we are using an address, not a value
+    55 00000032 EB0B                    		jmp leave_Switch1 ;flag to leave the loop
+    56                                  		
+    57                                  		Switch1_goAgain: ;go to the next one
+    58 00000034 4883C609                			add rsi, CaseTable.entrySize
+    59                                  			
+    60 00000038 E2F1                    	Loop Switch1
+    61 0000003A E847000000              		call Switch_default
+    62                                  	
+    63                                  	
+    64                                  	leave_Switch1: ;a flag to be called to get out of the loop ;equivalent to break; from a loop in c++
+    65                                  	;----- GOODBYE ---
+    66 0000003F 68[17000000]            	push byeAct
+    67 00000044 E8(00000000)            	call PrintString
+    68 00000049 E8(00000000)            	call Printendl
+    69                                  ;
+    70                                  ;Setup the registers for exit and poke the kernel
+    71                                  ;Exit: 
+    72                                  Exit:
+    73 0000004E B83C000000              	mov		rax, 60					;60 = system exit
+    74 00000053 BF00000000              	mov		rdi, 0					;0 = return code
+    75 00000058 0F05                    	syscall							;Poke the kernel
+    76                                  
+    77                                  Process_A:
+    78 0000005A 68[2F000000]            	push pA
+    79 0000005F E8(00000000)            	call PrintString
+    80 00000064 C3                      ret ;finish Process_A
+    81                                  Process_B:
+    82 00000065 68[3B000000]            	push pB
+    83 0000006A E8(00000000)            	call PrintString
+    84 0000006F C3                      ret ;finish Process_B
+    85                                  Process_C:
+    86 00000070 68[47000000]            	push pC
+    87 00000075 E8(00000000)            	call PrintString
+    88 0000007A C3                      ret ;finish Process_C
+    89                                  Process_D:
+    90 0000007B 68[53000000]            	push pD
+    91 00000080 E8(00000000)            	call PrintString
+    92 00000085 C3                      ret ;finish Process_D
+    93                                  Switch_default: ;default condition ;Beleit Breyrah
+    94 00000086 68[5F000000]            	push pDefault
+    95 0000008B E8(00000000)            	call PrintString
+    96 00000090 E299                    	Loop Switch1
+    97 00000092 BB99990000              	mov rbx, 9999h
+    98 00000097 C3                      ret

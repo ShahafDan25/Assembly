@@ -9,10 +9,10 @@ SECTION .data
 	welcomeAct	db	"Welcome to my progrm", 0ah, 0dh, 0h
 	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
 	
-	printOne db "CF: 1", 0h
-	printZero db "CF: 0", 0h
+	printOne db "1", 0h
+	printZero db "0", 0h
 	number dd 11001100111000110101110111101110b ;i hope I got this right
-		.size equ ($ - number)*4; ;amount of bits in there
+		.size equ ($ - number)*8; ;amount of bits in there
 SECTION .bss
  
 SECTION     .text
@@ -41,12 +41,13 @@ _start:
 		jc carrySet
 		push printZero
 			call PrintString
-			call Printendl
+			;call Printendl
+			jmp continuelp
 		carrySet:
 			push printOne;
 			call PrintString
-			call Printendl;
-		
+			;call Printendl;
+		continuelp:
 	loop rotateLoop ;go back to the loop flag
 	call Printendl
 	;----- GOODBYE ---

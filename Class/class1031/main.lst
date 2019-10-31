@@ -687,10 +687,10 @@
     10 00000020 206120676F6F642064-
     10 00000029 6179210A0D00       
     11                                  	
-    12 0000002F 3100                    	printOne db "1", 0h
-    13 00000031 3000                    	printZero db "0", 0h
-    14 00000033 EE5DE3CC                	number dd 11001100111000110101110111101110b ;i hope I got this right
-    15                                  		.size equ ($ - number); ;amount of bits in there
+    12 0000002F 43463A203100            	printOne db "CF: 1", 0h
+    13 00000035 43463A203000            	printZero db "CF: 0", 0h
+    14 0000003B EE5DE3CC                	number dd 11001100111000110101110111101110b ;i hope I got this right
+    15                                  		.size equ ($ - number)*4; ;amount of bits in there
     16                                  SECTION .bss
     17                                   
     18                                  SECTION     .text
@@ -712,12 +712,12 @@
     34                                  	;when done, print an endl and end the program
     35                                  	;DO NO destroy the value o fnumberToPrint - it should have the same value ->
     36                                  	; it did when the program began
-    37 00000015 A1[33000000]            	mov eax, [number] ;move to eax the nubmer
-    38 0000001A B904000000              	mov ecx, number.size ;set counte rto the amount of bits
+    37 00000015 A1[3B000000]            	mov eax, [number] ;move to eax the nubmer
+    38 0000001A B910000000              	mov ecx, number.size ;set counte rto the amount of bits
     39                                  	rotateLoop:
     40 0000001F D1C0                    		ROL eax, 1 ;rotate eax 1 time
     41 00000021 720F                    		jc carrySet
-    42 00000023 68[31000000]            		push printZero
+    42 00000023 68[35000000]            		push printZero
     43 00000028 E8(00000000)            			call PrintString
     44 0000002D E8(00000000)            			call Printendl
     45                                  		carrySet:

@@ -18,6 +18,22 @@ SECTION .data
 		 db	"x) Exit Program", 0ah, 0dh,
 		 db	"Please Enter One", 0ah, 0dh, 0ah, 0dh, 0h
 	
+	caseTable 	db '1'
+				dq enterString
+			.entrySize equ ($ - caseTable)
+				db '2'
+				dq enterKey
+				db '3'
+				dq printInputString
+				db '4'
+				dq printKey
+				db '5'
+				dq encryptString
+				db '6'
+				dq decryptKey
+				db 'x'
+				dq exitProgram
+		.numberOfEntries equ ($ - caseTable) / caseTable.entrySize
 	
 SECTION .bss
 	inputString resb 255 ;reserve 255 bits for the inputString variable
@@ -38,6 +54,8 @@ _start:
 	push menu;
 	call PrintString
 	
+	mov ecx, caseTable ;mov the number of items in the switch
+	mov esi, caseTable ;put the address of our table into the pointer esi register
 	
 	;----- GOODBYE ---
 	push byeAct
@@ -50,4 +68,36 @@ Exit:
 	mov		eax,sys_exit				;What are we going to do? Exit!
 	mov		ebx,0						;Return code
 	int		80h							;Poke the kernel
+
+
+; ----- FUNCTION HERE ----
+enterString:
+
+ret
+
+enterKey
+
+ret
+	
+printInputString
+
+ret
+
+printKey
+
+ret
+
+encryptString
+
+ret
+
+decryptKey
+
+ret
+
+exitProgram
+
+ret 
+
+
 

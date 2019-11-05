@@ -52,6 +52,8 @@ SECTION .bss
 		.len equ ($ - inputString) ;no need todivivde. because it is all bytes
 	inputValue resb 8;reserving 8 for the inputValue that will be entered by the user
 		.len equ ($ - inputValue) ;size of it, will be used for the buffer
+	inputKey resb 255 ;reserve 255 for the encryption key variable
+		.len equ ($ - inputkey) ;length of
 	
 SECTION     .text
 	global      _start
@@ -114,6 +116,12 @@ enterString:
 ret
 
 enterKey:
+	push option2
+	call PrintString
+	push inputKey
+	push inputKey.len
+	call ReadText
+	mov edx, [inputKey] ;mov to edx the new inputKey
 
 ret
 	

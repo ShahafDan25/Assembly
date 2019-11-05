@@ -686,66 +686,183 @@
     10 00000017 4279652C2068617665-     	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
     10 00000020 206120676F6F642064-
     10 00000029 6179210A0D00       
-    11 0000002F 456E6372797074202F-     	menu db "Encrypt / Decrypt Program", 0ah, 0dh,
-    11 00000038 204465637279707420-
-    11 00000041 50726F6772616D0A0D 
-    12 0000004A 312920456E74657220-     		 db "1) Enter a String", 0ah, 0dh, 
-    12 00000053 6120537472696E670A-
-    12 0000005C 0D                 
-    13 0000005D 322920456E74657220-     		 db	"2) Enter an Encryption Key", 0ah, 0dh,
-    13 00000066 616E20456E63727970-
-    13 0000006F 74696F6E204B65790A-
-    13 00000078 0D                 
-    14 00000079 3329205072696E7420-     		 db	"3) Print the Input String", 0ah, 0dh,
-    14 00000082 74686520496E707574-
-    14 0000008B 20537472696E670A0D 
-    15 00000094 3429205072696E7420-     		 db	"4) Print the Input Key", 0ah ,0dh,
-    15 0000009D 74686520496E707574-
-    15 000000A6 204B65790A0D       
-    16 000000AC 352920456E63727970-     		 db	"5) Encrypt / Display the String", 0ah, 0dh,
-    16 000000B5 74202F20446973706C-
-    16 000000BE 617920746865205374-
-    16 000000C7 72696E670A0D       
-    17 000000CD 362920446563727970-     		 db	"6) Decrypt / Display the String", 0ah, 0dh,
-    17 000000D6 74202F20446973706C-
-    17 000000DF 617920746865205374-
-    17 000000E8 72696E670A0D       
-    18 000000EE 782920457869742050-     		 db	"x) Exit Program", 0ah, 0dh,
-    18 000000F7 726F6772616D0A0D   
-    19 000000FF 506C6561736520456E-     		 db	"Please Enter One", 0ah, 0dh, 0ah, 0dh, 0h
-    19 00000108 746572204F6E650A0D-
-    19 00000111 0A0D00             
+    11 0000002F 56616C756520696E76-     	notFound db "Value invalid, enter a new one", 0ah, 0dh, 0h
+    11 00000038 616C69642C20656E74-
+    11 00000041 65722061206E657720-
+    11 0000004A 6F6E650A0D00       
+    12                                  	
+    13 00000050 4F7074696F6E203120-     	option1 db "Option 1 Selected: Enter a string:", 0ah, 0dh, 0h
+    13 00000059 53656C65637465643A-
+    13 00000062 20456E746572206120-
+    13 0000006B 737472696E673A0A0D-
+    13 00000074 00                 
+    14 00000075 4F7074696F6E203220-     	option2 db "Option 2 Selected: Enter an Encryption key:", 0ah, 0dh, 0h
+    14 0000007E 53656C65637465643A-
+    14 00000087 20456E74657220616E-
+    14 00000090 20456E637279707469-
+    14 00000099 6F6E206B65793A0A0D-
+    14 000000A2 00                 
+    15 000000A3 4F7074696F6E203320-     	option3 db "Option 3 Selected: your last input string was:", 0ah, 0dh, 0h
+    15 000000AC 53656C65637465643A-
+    15 000000B5 20796F7572206C6173-
+    15 000000BE 7420696E7075742073-
+    15 000000C7 7472696E6720776173-
+    15 000000D0 3A0A0D00           
+    16 000000D4 4F7074696F6E203420-     	option4 db "Option 4 Selected: your last encryption key entered was: ", 0ah, 0dh, 0h
+    16 000000DD 53656C65637465643A-
+    16 000000E6 20796F7572206C6173-
+    16 000000EF 7420656E6372797074-
+    16 000000F8 696F6E206B65792065-
+    16 00000101 6E7465726564207761-
+    16 0000010A 733A200A0D00       
+    17 00000110 4F7074696F6E203520-     	option5 db "Option 5 Selected: Encrypting...", 0ah, 0dh, 0h
+    17 00000119 53656C65637465643A-
+    17 00000122 20456E637279707469-
+    17 0000012B 6E672E2E2E0A0D00   
+    18 00000133 4F7074696F6E203520-     	option6 db "Option 5 Selected: Decrypting...", 0ah, 0dh, 0h
+    18 0000013C 53656C65637465643A-
+    18 00000145 204465637279707469-
+    18 0000014E 6E672E2E2E0A0D00   
+    19                                  	
     20                                  	
-    21                                  	
-    22                                  SECTION .bss
-    23 00000000 <res 000000FF>          	inputString resb 255 ;reserve 255 bits for the inputString variable
-    24                                  	
-    25                                  SECTION     .text
-    26                                  	global      _start
-    27                                       
-    28                                  _start:
-    29 00000000 90                      	nop
-    30                                  	;----- WELCOME -----
-    31 00000001 E8(00000000)            	call Printendl
-    32 00000006 68[00000000]            	push welcomeAct
-    33 0000000B E8(00000000)            	call PrintString ;print the welcome prompt
-    34 00000010 E8(00000000)            	call Printendl ;print empty line
-    35                                  	
-    36                                  	;---ASSIGNMENT---
-    37                                  	;---- first: PRINT MENU ---
-    38 00000015 68[2F000000]            	push menu;
-    39 0000001A E8(00000000)            	call PrintString
-    40                                  	
-    41                                  	
-    42                                  	;----- GOODBYE ---
-    43 0000001F 68[17000000]            	push byeAct
-    44 00000024 E8(00000000)            	call PrintString
-    45 00000029 E8(00000000)            	call Printendl
-    46                                  	
-    47                                  ;
-    48                                  ;Setup the registers for exit and poke the kernel
-    49                                  Exit: 
-    50 0000002E B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
-    51 00000033 BB00000000              	mov		ebx,0						;Return code
-    52 00000038 CD80                    	int		80h							;Poke the kernel
-    53                                  
+    21 00000156 456E6372797074202F-     	menu db "Encrypt / Decrypt Program", 0ah, 0dh,
+    21 0000015F 204465637279707420-
+    21 00000168 50726F6772616D0A0D 
+    22 00000171 312920456E74657220-     		 db "1) Enter a String", 0ah, 0dh, 
+    22 0000017A 6120537472696E670A-
+    22 00000183 0D                 
+    23 00000184 322920456E74657220-     		 db	"2) Enter an Encryption Key", 0ah, 0dh,
+    23 0000018D 616E20456E63727970-
+    23 00000196 74696F6E204B65790A-
+    23 0000019F 0D                 
+    24 000001A0 3329205072696E7420-     		 db	"3) Print the Input String", 0ah, 0dh,
+    24 000001A9 74686520496E707574-
+    24 000001B2 20537472696E670A0D 
+    25 000001BB 3429205072696E7420-     		 db	"4) Print the Input Key", 0ah ,0dh,
+    25 000001C4 74686520496E707574-
+    25 000001CD 204B65790A0D       
+    26 000001D3 352920456E63727970-     		 db	"5) Encrypt / Display the String", 0ah, 0dh,
+    26 000001DC 74202F20446973706C-
+    26 000001E5 617920746865205374-
+    26 000001EE 72696E670A0D       
+    27 000001F4 362920446563727970-     		 db	"6) Decrypt / Display the String", 0ah, 0dh,
+    27 000001FD 74202F20446973706C-
+    27 00000206 617920746865205374-
+    27 0000020F 72696E670A0D       
+    28 00000215 782920457869742050-     		 db	"x) Exit Program", 0ah, 0dh,
+    28 0000021E 726F6772616D0A0D   
+    29 00000226 506C6561736520456E-     		 db	"Please Enter One", 0ah, 0dh, 0ah, 0dh, 0h
+    29 0000022F 746572204F6E650A0D-
+    29 00000238 0A0D00             
+    30                                  	
+    31 0000023B 31                      	caseTable 	db '1'
+    32 0000023C [6F000000]              				dd enterString
+    33                                  			.entrySize equ ($ - caseTable)
+    34 00000240 32                      				db '2'
+    35 00000241 [8F000000]              				dd enterKey
+    36 00000245 33                      				db '3'
+    37 00000246 [90000000]              				dd printInputString
+    38 0000024A 34                      				db '4'
+    39 0000024B [91000000]              				dd printKey
+    40 0000024F 35                      				db '5'
+    41 00000250 [92000000]              				dd encryptString
+    42 00000254 36                      				db '6'
+    43 00000255 [93000000]              				dd decryptKey
+    44 00000259 78                      				db 'x'
+    45 0000025A [94000000]              				dd exitProgram
+    46                                  		.numberOfEntries equ ($ - caseTable) / caseTable.entrySize
+    47                                  		
+    48                                  	
+    49                                  	
+    50                                  SECTION .bss
+    51 00000000 <res 000000FF>          	inputString resb 255 ;reserve 255 bits for the inputString variable
+    52                                  		.len equ ($ - inputString) ;no need todivivde. because it is all bytes
+    53 000000FF <res 00000008>          	inputValue resb 8;reserving 8 for the inputValue that will be entered by the user
+    54                                  		.len equ ($ - inputValue) ;size of it, will be used for the buffer
+    55                                  	
+    56                                  SECTION     .text
+    57                                  	global      _start
+    58                                       
+    59                                  _start:
+    60 00000000 90                      	nop
+    61                                  	;----- WELCOME -----
+    62 00000001 E8(00000000)            	call Printendl
+    63 00000006 68[00000000]            	push welcomeAct
+    64 0000000B E8(00000000)            	call PrintString ;print the welcome prompt
+    65 00000010 E8(00000000)            	call Printendl ;print empty line
+    66                                  	
+    67                                  	;---ASSIGNMENT---
+    68                                  	;---- first: PRINT MENU ---
+    69                                  	printMenu: ;use a flag just in case I need to callit again
+    70 00000015 68[56010000]            	push menu;
+    71 0000001A E8(00000000)            	call PrintString
+    72                                  	
+    73 0000001F B9[3B020000]            	mov ecx, caseTable ;mov the number of items in the switch
+    74 00000024 BE[3B020000]            	mov esi, caseTable ;put the address of our table into the pointer esi register
+    75                                  	
+    76 00000029 68[FF000000]            	push inputValue
+    77 0000002E 6A08                    	push inputValue.len
+    78 00000030 E8(00000000)            	call ReadText
+    79 00000035 A0[FF000000]            	mov al, [inputValue] ;move to the al 1 bytes register the input from the user
+    80                                  	
+    81 0000003A 3A06                    	cmp al, [esi] ;compare the value the user entered to the lookup table
+    82 0000003C 7505                    	jne notFoundInTable; jump to that flag if the value the user entered cannot be found within the caseTable
+    83 0000003E FF5601                  	call NEAR [esi + 1] ; call the function associated with the entered value by the user
+    84 00000041 EBD2                    	jmp printMenu
+    85                                  	
+    86                                  	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
+    87 00000043 68[2F000000]            		push notFound
+    88 00000048 E8(00000000)            		call PrintString
+    89 0000004D E8(00000000)            		call Printendl
+    90 00000052 EBC1                    		jmp printMenu ;go back to printing the menu again
+    91                                  		
+    92                                  	;----- GOODBYE ---
+    93                                  	exitFlag:
+    94 00000054 68[17000000]            	push byeAct
+    95 00000059 E8(00000000)            	call PrintString
+    96 0000005E E8(00000000)            	call Printendl
+    97                                  	
+    98                                  ;
+    99                                  ;Setup the registers for exit and poke the kernel
+   100                                  Exit: 
+   101 00000063 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
+   102 00000068 BB00000000              	mov		ebx,0						;Return code
+   103 0000006D CD80                    	int		80h							;Poke the kernel
+   104                                  
+   105                                  
+   106                                  ; ----- FUNCTION HERE ----
+   107                                  enterString:
+   108 0000006F 68[50000000]            	push option1
+   109 00000074 E8(00000000)            	call PrintString
+   110 00000079 68[00000000]            	push inputString
+   111 0000007E 68FF000000              	push inputString.len
+   112 00000083 E8(00000000)            	call ReadText
+   113 00000088 8B1D[00000000]          	mov ebx, [inputString] ;move to the ebx 1 string input from the user
+   114 0000008E C3                      ret
+   115                                  
+   116                                  enterKey:
+   117                                  
+   118 0000008F C3                      ret
+   119                                  	
+   120                                  printInputString:
+   121                                  
+   122 00000090 C3                      ret
+   123                                  
+   124                                  printKey:
+   125                                  
+   126 00000091 C3                      ret
+   127                                  
+   128                                  encryptString:
+   129                                  
+   130 00000092 C3                      ret
+   131                                  
+   132                                  decryptKey:
+   133                                  
+   134 00000093 C3                      ret
+   135                                  
+   136                                  exitProgram:
+   137                                  
+   138 00000094 C3                      ret 
+   139                                  
+   140                                  
+   141                                  

@@ -37,6 +37,7 @@ SECTION .data
 	
 SECTION .bss
 	inputString resb 255 ;reserve 255 bits for the inputString variable
+		.len equ ($ - inputString) ;no need todivivde. because it is all bytes
 	
 SECTION     .text
 	global      _start
@@ -51,11 +52,18 @@ _start:
 	
 	;---ASSIGNMENT---
 	;---- first: PRINT MENU ---
+	printMenu: ;use a flag just in case I need to callit again
 	push menu;
 	call PrintString
 	
 	mov ecx, caseTable ;mov the number of items in the switch
 	mov esi, caseTable ;put the address of our table into the pointer esi register
+	
+	push inputString
+	push inputString.len
+	call ReadText
+	mov al, [inputString] ;move to the al 1 bytes register the input from the user
+	
 	
 	;----- GOODBYE ---
 	push byeAct

@@ -16,6 +16,7 @@ SECTION .data
 	option4 db "Option 4 Selected: your last encryption key entered was: ", 0ah, 0dh, 0h
 	option5 db "Option 5 Selected: Encrypting...", 0ah, 0dh, 0h
 	option6 db "Option 5 Selected: Decrypting...", 0ah, 0dh, 0h
+	optionExit db "You chose to eixt the program", 0ah, 0dh, 0h
 	
 	
 	menu db "Encrypt / Decrypt Program", 0ah, 0dh,
@@ -41,8 +42,6 @@ SECTION .data
 				dd encryptString
 				db '6'
 				dd decryptKey
-				db 'x'
-				dd exitProgram
 		.numberOfEntries equ ($ - caseTable) / caseTable.entrySize
 		
 	
@@ -80,10 +79,13 @@ _start:
 	call ReadText
 	mov al, [inputValue] ;move to the al 1 bytes register the input from the user
 	
+	cmp al,'x' ;compare to x, in order to exit the program
+	je exitFlag ;if the user entered x, jmp to exitFlag (exit the program)
 	cmp al, [esi] ;compare the value the user entered to the lookup table
 	jne notFoundInTable; jump to that flag if the value the user entered cannot be found within the caseTable
+	
 	call NEAR [esi + 1] ; call the function associated with the entered value by the user
-	jmp printMenu
+	jmp printMenu ;go ahead and pring the menu again
 	
 	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
 		push notFound
@@ -112,7 +114,7 @@ enterString:
 	push inputString
 	push inputString.len
 	call ReadText
-	mov ebx, [inputString] ;move to the ebx 1 string input from the user
+	mov eax, [inputString] ;move to the ebx 1 string input from the user
 ret
 
 enterKey:
@@ -126,7 +128,11 @@ enterKey:
 ret
 	
 printInputString:
-
+	push option3
+	call PrintString
+	push eax
+	call Print32bitNumHex ;print the eax returned value (user input)
+	mov eax, 0
 ret
 
 printKey:
@@ -141,9 +147,8 @@ decryptKey:
 
 ret
 
-exitProgram:
-
-ret 
 
 
+;-----TODO-------
+;1) do not forget to clear buffer 
 

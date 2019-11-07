@@ -723,154 +723,162 @@
     18 0000013C 53656C65637465643A-
     18 00000145 204465637279707469-
     18 0000014E 6E672E2E2E0A0D00   
-    19                                  	
+    19 00000156 596F752063686F7365-     	optionExit db "You chose to eixt the program", 0ah, 0dh, 0h
+    19 0000015F 20746F206569787420-
+    19 00000168 7468652070726F6772-
+    19 00000171 616D0A0D00         
     20                                  	
-    21 00000156 456E6372797074202F-     	menu db "Encrypt / Decrypt Program", 0ah, 0dh,
-    21 0000015F 204465637279707420-
-    21 00000168 50726F6772616D0A0D 
-    22 00000171 312920456E74657220-     		 db "1) Enter a String", 0ah, 0dh, 
-    22 0000017A 6120537472696E670A-
-    22 00000183 0D                 
-    23 00000184 322920456E74657220-     		 db	"2) Enter an Encryption Key", 0ah, 0dh,
-    23 0000018D 616E20456E63727970-
-    23 00000196 74696F6E204B65790A-
-    23 0000019F 0D                 
-    24 000001A0 3329205072696E7420-     		 db	"3) Print the Input String", 0ah, 0dh,
-    24 000001A9 74686520496E707574-
-    24 000001B2 20537472696E670A0D 
-    25 000001BB 3429205072696E7420-     		 db	"4) Print the Input Key", 0ah ,0dh,
-    25 000001C4 74686520496E707574-
-    25 000001CD 204B65790A0D       
-    26 000001D3 352920456E63727970-     		 db	"5) Encrypt / Display the String", 0ah, 0dh,
-    26 000001DC 74202F20446973706C-
-    26 000001E5 617920746865205374-
-    26 000001EE 72696E670A0D       
-    27 000001F4 362920446563727970-     		 db	"6) Decrypt / Display the String", 0ah, 0dh,
-    27 000001FD 74202F20446973706C-
-    27 00000206 617920746865205374-
-    27 0000020F 72696E670A0D       
-    28 00000215 782920457869742050-     		 db	"x) Exit Program", 0ah, 0dh,
-    28 0000021E 726F6772616D0A0D   
-    29 00000226 506C6561736520456E-     		 db	"Please Enter One", 0ah, 0dh, 0ah, 0dh, 0h
-    29 0000022F 746572204F6E650A0D-
-    29 00000238 0A0D00             
-    30                                  	
-    31 0000023B 31                      	caseTable 	db '1'
-    32 0000023C [6F000000]              				dd enterString
-    33                                  			.entrySize equ ($ - caseTable)
-    34 00000240 32                      				db '2'
-    35 00000241 [8F000000]              				dd enterKey
-    36 00000245 33                      				db '3'
-    37 00000246 [A9000000]              				dd printInputString
-    38 0000024A 34                      				db '4'
-    39 0000024B [AA000000]              				dd printKey
-    40 0000024F 35                      				db '5'
-    41 00000250 [AB000000]              				dd encryptString
-    42 00000254 36                      				db '6'
-    43 00000255 [AC000000]              				dd decryptKey
-    44 00000259 78                      				db 'x'
-    45 0000025A [AD000000]              				dd exitProgram
-    46                                  		.numberOfEntries equ ($ - caseTable) / caseTable.entrySize
-    47                                  		
+    21                                  	
+    22 00000176 456E6372797074202F-     	menu db "Encrypt / Decrypt Program", 0ah, 0dh,
+    22 0000017F 204465637279707420-
+    22 00000188 50726F6772616D0A0D 
+    23 00000191 312920456E74657220-     		 db "1) Enter a String", 0ah, 0dh, 
+    23 0000019A 6120537472696E670A-
+    23 000001A3 0D                 
+    24 000001A4 322920456E74657220-     		 db	"2) Enter an Encryption Key", 0ah, 0dh,
+    24 000001AD 616E20456E63727970-
+    24 000001B6 74696F6E204B65790A-
+    24 000001BF 0D                 
+    25 000001C0 3329205072696E7420-     		 db	"3) Print the Input String", 0ah, 0dh,
+    25 000001C9 74686520496E707574-
+    25 000001D2 20537472696E670A0D 
+    26 000001DB 3429205072696E7420-     		 db	"4) Print the Input Key", 0ah ,0dh,
+    26 000001E4 74686520496E707574-
+    26 000001ED 204B65790A0D       
+    27 000001F3 352920456E63727970-     		 db	"5) Encrypt / Display the String", 0ah, 0dh,
+    27 000001FC 74202F20446973706C-
+    27 00000205 617920746865205374-
+    27 0000020E 72696E670A0D       
+    28 00000214 362920446563727970-     		 db	"6) Decrypt / Display the String", 0ah, 0dh,
+    28 0000021D 74202F20446973706C-
+    28 00000226 617920746865205374-
+    28 0000022F 72696E670A0D       
+    29 00000235 782920457869742050-     		 db	"x) Exit Program", 0ah, 0dh,
+    29 0000023E 726F6772616D0A0D   
+    30 00000246 506C6561736520456E-     		 db	"Please Enter One", 0ah, 0dh, 0ah, 0dh, 0h
+    30 0000024F 746572204F6E650A0D-
+    30 00000258 0A0D00             
+    31                                  	
+    32 0000025B 31                      	caseTable 	db '1'
+    33 0000025C [73000000]              				dd enterString
+    34                                  			.entrySize equ ($ - caseTable)
+    35 00000260 32                      				db '2'
+    36 00000261 [92000000]              				dd enterKey
+    37 00000265 33                      				db '3'
+    38 00000266 [AC000000]              				dd printInputString
+    39 0000026A 34                      				db '4'
+    40 0000026B [C2000000]              				dd printKey
+    41 0000026F 35                      				db '5'
+    42 00000270 [C3000000]              				dd encryptString
+    43 00000274 36                      				db '6'
+    44 00000275 [C4000000]              				dd decryptKey
+    45                                  		.numberOfEntries equ ($ - caseTable) / caseTable.entrySize
+    46                                  		
+    47                                  	
     48                                  	
-    49                                  	
-    50                                  SECTION .bss
-    51 00000000 <res 000000FF>          	inputString resb 255 ;reserve 255 bits for the inputString variable
-    52                                  		.len equ ($ - inputString) ;no need todivivde. because it is all bytes
-    53 000000FF <res 00000008>          	inputValue resb 8;reserving 8 for the inputValue that will be entered by the user
-    54                                  		.len equ ($ - inputValue) ;size of it, will be used for the buffer
-    55 00000107 <res 000000FF>          	inputKey resb 255 ;reserve 255 for the encryption key variable
-    56                                  		.len equ ($ - inputKey) ;length of
-    57                                  	
-    58                                  SECTION     .text
-    59                                  	global      _start
-    60                                       
-    61                                  _start:
-    62 00000000 90                      	nop
-    63                                  	;----- WELCOME -----
-    64 00000001 E8(00000000)            	call Printendl
-    65 00000006 68[00000000]            	push welcomeAct
-    66 0000000B E8(00000000)            	call PrintString ;print the welcome prompt
-    67 00000010 E8(00000000)            	call Printendl ;print empty line
-    68                                  	
-    69                                  	;---ASSIGNMENT---
-    70                                  	;---- first: PRINT MENU ---
-    71                                  	printMenu: ;use a flag just in case I need to callit again
-    72 00000015 68[56010000]            	push menu;
-    73 0000001A E8(00000000)            	call PrintString
-    74                                  	
-    75 0000001F B9[3B020000]            	mov ecx, caseTable ;mov the number of items in the switch
-    76 00000024 BE[3B020000]            	mov esi, caseTable ;put the address of our table into the pointer esi register
-    77                                  	
-    78 00000029 68[FF000000]            	push inputValue
-    79 0000002E 6A08                    	push inputValue.len
-    80 00000030 E8(00000000)            	call ReadText
-    81 00000035 A0[FF000000]            	mov al, [inputValue] ;move to the al 1 bytes register the input from the user
-    82                                  	
-    83 0000003A 3A06                    	cmp al, [esi] ;compare the value the user entered to the lookup table
-    84 0000003C 7505                    	jne notFoundInTable; jump to that flag if the value the user entered cannot be found within the caseTable
-    85 0000003E FF5601                  	call NEAR [esi + 1] ; call the function associated with the entered value by the user
-    86 00000041 EBD2                    	jmp printMenu
-    87                                  	
-    88                                  	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
-    89 00000043 68[2F000000]            		push notFound
-    90 00000048 E8(00000000)            		call PrintString
-    91 0000004D E8(00000000)            		call Printendl
-    92 00000052 EBC1                    		jmp printMenu ;go back to printing the menu again
-    93                                  		
-    94                                  	;----- GOODBYE ---
-    95                                  	exitFlag:
-    96 00000054 68[17000000]            	push byeAct
-    97 00000059 E8(00000000)            	call PrintString
-    98 0000005E E8(00000000)            	call Printendl
-    99                                  	
-   100                                  ;
-   101                                  ;Setup the registers for exit and poke the kernel
-   102                                  Exit: 
-   103 00000063 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
-   104 00000068 BB00000000              	mov		ebx,0						;Return code
-   105 0000006D CD80                    	int		80h							;Poke the kernel
-   106                                  
-   107                                  
-   108                                  ; ----- FUNCTION HERE ----
-   109                                  enterString:
-   110 0000006F 68[50000000]            	push option1
-   111 00000074 E8(00000000)            	call PrintString
-   112 00000079 68[00000000]            	push inputString
-   113 0000007E 68FF000000              	push inputString.len
-   114 00000083 E8(00000000)            	call ReadText
-   115 00000088 8B1D[00000000]          	mov ebx, [inputString] ;move to the ebx 1 string input from the user
-   116 0000008E C3                      ret
-   117                                  
-   118                                  enterKey:
-   119 0000008F 68[75000000]            	push option2
-   120 00000094 E8(00000000)            	call PrintString
-   121 00000099 68[07010000]            	push inputKey
-   122 0000009E 68FF000000              	push inputKey.len
-   123 000000A3 E8(00000000)            	call ReadText
-   124                                  	;mov edx, [inputKey] ;mov to edx the new inputKey
-   125                                  
-   126 000000A8 C3                      ret
-   127                                  	
-   128                                  printInputString:
-   129                                  
-   130 000000A9 C3                      ret
-   131                                  
-   132                                  printKey:
-   133                                  
-   134 000000AA C3                      ret
-   135                                  
-   136                                  encryptString:
+    49                                  SECTION .bss
+    50 00000000 <res 000000FF>          	inputString resb 255 ;reserve 255 bits for the inputString variable
+    51                                  		.len equ ($ - inputString) ;no need todivivde. because it is all bytes
+    52 000000FF <res 00000008>          	inputValue resb 8;reserving 8 for the inputValue that will be entered by the user
+    53                                  		.len equ ($ - inputValue) ;size of it, will be used for the buffer
+    54 00000107 <res 000000FF>          	inputKey resb 255 ;reserve 255 for the encryption key variable
+    55                                  		.len equ ($ - inputKey) ;length of
+    56                                  	
+    57                                  SECTION     .text
+    58                                  	global      _start
+    59                                       
+    60                                  _start:
+    61 00000000 90                      	nop
+    62                                  	;----- WELCOME -----
+    63 00000001 E8(00000000)            	call Printendl
+    64 00000006 68[00000000]            	push welcomeAct
+    65 0000000B E8(00000000)            	call PrintString ;print the welcome prompt
+    66 00000010 E8(00000000)            	call Printendl ;print empty line
+    67                                  	
+    68                                  	;---ASSIGNMENT---
+    69                                  	;---- first: PRINT MENU ---
+    70                                  	printMenu: ;use a flag just in case I need to callit again
+    71 00000015 68[76010000]            	push menu;
+    72 0000001A E8(00000000)            	call PrintString
+    73                                  	
+    74 0000001F B9[5B020000]            	mov ecx, caseTable ;mov the number of items in the switch
+    75 00000024 BE[5B020000]            	mov esi, caseTable ;put the address of our table into the pointer esi register
+    76                                  	
+    77 00000029 68[FF000000]            	push inputValue
+    78 0000002E 6A08                    	push inputValue.len
+    79 00000030 E8(00000000)            	call ReadText
+    80 00000035 A0[FF000000]            	mov al, [inputValue] ;move to the al 1 bytes register the input from the user
+    81                                  	
+    82 0000003A 3C78                    	cmp al,'x' ;compare to x, in order to exit the program
+    83 0000003C 741A                    	je exitFlag ;if the user entered x, jmp to exitFlag (exit the program)
+    84 0000003E 3A06                    	cmp al, [esi] ;compare the value the user entered to the lookup table
+    85 00000040 7505                    	jne notFoundInTable; jump to that flag if the value the user entered cannot be found within the caseTable
+    86                                  	
+    87 00000042 FF5601                  	call NEAR [esi + 1] ; call the function associated with the entered value by the user
+    88 00000045 EBCE                    	jmp printMenu ;go ahead and pring the menu again
+    89                                  	
+    90                                  	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
+    91 00000047 68[2F000000]            		push notFound
+    92 0000004C E8(00000000)            		call PrintString
+    93 00000051 E8(00000000)            		call Printendl
+    94 00000056 EBBD                    		jmp printMenu ;go back to printing the menu again
+    95                                  		
+    96                                  	;----- GOODBYE ---
+    97                                  	exitFlag:
+    98 00000058 68[17000000]            	push byeAct
+    99 0000005D E8(00000000)            	call PrintString
+   100 00000062 E8(00000000)            	call Printendl
+   101                                  	
+   102                                  ;
+   103                                  ;Setup the registers for exit and poke the kernel
+   104                                  Exit: 
+   105 00000067 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
+   106 0000006C BB00000000              	mov		ebx,0						;Return code
+   107 00000071 CD80                    	int		80h							;Poke the kernel
+   108                                  
+   109                                  
+   110                                  ; ----- FUNCTION HERE ----
+   111                                  enterString:
+   112 00000073 68[50000000]            	push option1
+   113 00000078 E8(00000000)            	call PrintString
+   114 0000007D 68[00000000]            	push inputString
+   115 00000082 68FF000000              	push inputString.len
+   116 00000087 E8(00000000)            	call ReadText
+   117 0000008C A1[00000000]            	mov eax, [inputString] ;move to the ebx 1 string input from the user
+   118 00000091 C3                      ret
+   119                                  
+   120                                  enterKey:
+   121 00000092 68[75000000]            	push option2
+   122 00000097 E8(00000000)            	call PrintString
+   123 0000009C 68[07010000]            	push inputKey
+   124 000000A1 68FF000000              	push inputKey.len
+   125 000000A6 E8(00000000)            	call ReadText
+   126                                  	;mov edx, [inputKey] ;mov to edx the new inputKey
+   127                                  
+   128 000000AB C3                      ret
+   129                                  	
+   130                                  printInputString:
+   131 000000AC 68[A3000000]            	push option3
+   132 000000B1 E8(00000000)            	call PrintString
+   133 000000B6 50                      	push eax
+   134 000000B7 E8(00000000)            	call Print32bitNumHex ;print the eax returned value (user input)
+   135 000000BC B800000000              	mov eax, 0
+   136 000000C1 C3                      ret
    137                                  
-   138 000000AB C3                      ret
+   138                                  printKey:
    139                                  
-   140                                  decryptKey:
+   140 000000C2 C3                      ret
    141                                  
-   142 000000AC C3                      ret
+   142                                  encryptString:
    143                                  
-   144                                  exitProgram:
+   144 000000C3 C3                      ret
    145                                  
-   146 000000AD C3                      ret 
+   146                                  decryptKey:
    147                                  
-   148                                  
+   148 000000C4 C3                      ret
    149                                  
+   150                                  
+   151                                  
+   152                                  ;-----TODO-------
+   153                                  ;1) do not forget to clear buffer 
+   154                                  

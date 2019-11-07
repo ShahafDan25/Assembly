@@ -1,0 +1,46 @@
+     1                                  ;
+     2                                  ;This program will test out the functions library
+     3                                  ;
+     4                                  ;
+     5                                  ;Include our external functions library functions
+     6                                  ;%include "./functions.inc"
+     7                                   
+     8                                  SECTION .data
+     9                                  	;welcomeAct	db	"Welcome to my progrm", 0ah, 0dh, 0h
+    10                                  	;byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
+    11                                  	
+    12 00000000 38                      	char1 db '8'
+    13 00000001 32                      	char2 db '2'
+    14                                  	
+    15                                  SECTION .bss
+    16                                   
+    17                                  SECTION     .text
+    18                                  	global      _start
+    19                                       
+    20                                  _start:
+    21                                  
+    22                                  	;----- WELCOME -----
+    23                                  	;call Printendl
+    24                                  	;push welcomeAct
+    25                                  	;call PrintString ;print the welcome prompt
+    26                                  	;call Printendl ;print empty line
+    27                                  	
+    28                                  	;---------PROGRAM-----------
+    29 00000000 B800000000              	mov eax, 0h ;clear out eax
+    30 00000005 A0[00000000]            	mov al, [char1] ;put '8' into al
+    31 0000000A 0205[01000000]          	add al, [char2] ;add '2' into al
+    32 00000010 37                      	aaa ;ASCII adjsut our total in eax
+    33 00000011 660D3030                	or ax,  3030h ;add the 30h's in front of every digit
+    34                                  	
+    35                                  	;----- GOODBYE ---
+    36                                  	;push byeAct
+    37                                  	;call PrintString
+    38                                  	;call Printendl
+    39                                  	
+    40                                  ;
+    41                                  ;Setup the registers for exit and poke the kernel
+    42                                  
+    43 00000015 B801000000              	mov		eax,1				;What are we going to do? Exit!
+    44 0000001A BB00000000              	mov		ebx,0						;Return code
+    45 0000001F CD80                    	int		80h							;Poke the kernel
+    46                                  

@@ -10,14 +10,18 @@ SECTION .data
 	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
 	notFound db "Value invalid, enter a new one", 0ah, 0dh, 0h
 	
+	currentKey db  0h
+	
 	option1 db "Option 1 Selected: Enter a string:", 0ah, 0dh, 0h
 	option2 db "Option 2 Selected: Enter an Encryption key:", 0ah, 0dh, 0h
 	option3 db "Option 3 Selected: your last input string was:", 0ah, 0dh, 0h
 	option4 db "Option 4 Selected: your last encryption key entered was: ", 0ah, 0dh, 0h
 	option5 db "Option 5 Selected: Encrypting...", 0ah, 0dh, 0h
-	option6 db "Option 5 Selected: Decrypting...", 0ah, 0dh, 0h
+	option6 db "Option 6 Selected: Decrypting...", 0ah, 0dh, 0h
 	optionExit db "You chose to eixt the program", 0ah, 0dh, 0h
 	
+	keyArray db 10h, 20h, 30h, 40h, 50h, 60h, 70h, 80h ;only 8 values for testing purposes right now
+		.len equ ($ - keyArray) ;use it later in encryption
 	
 	menu db "Encrypt / Decrypt Program", 0ah, 0dh,
 		 db "1) Enter a String", 0ah, 0dh, 
@@ -53,7 +57,8 @@ SECTION .bss
 		.len equ ($ - inputValue) ;size of it, will be used for the buffer
 	inputKey resb 255 ;reserve 255 for the encryption key variable
 		.len equ ($ - inputKey) ;length of
-	
+	encryptedValue resb 255 ;reserve 255 bytes for the encrypoted value resulted from choosing option5
+		.len equ ($ - encryptedValue)
 SECTION     .text
 	global      _start
      
@@ -66,6 +71,8 @@ _start:
 	call Printendl ;print empty line
 	
 	;---ASSIGNMENT---
+	mov edi, 0 ;reset two pointers
+	mov esi, 0 ;reset two pointers
 	;---- first: PRINT MENU ---
 	printMenu: ;use a flag just in case I need to callit again
 	push menu;
@@ -122,15 +129,17 @@ Exit:
 enterString:
 	push option1
 	call PrintString
+	
 	push inputString
 	push inputString.len
 	call ReadText
-	mov eax, [inputString] ;move to the ebx 1 string input from the user
+	;mov ebx, [inputString] ;move to the ebx 1 string input from the user
 ret
 
 enterKey:
 	push option2
 	call PrintString
+		
 	push inputKey
 	push inputKey.len
 	call ReadText
@@ -141,25 +150,65 @@ ret
 printInputString:
 	push option3
 	call PrintString
-	push eax
-	call Print32bitNumHex ;print the eax returned value (user input)
-	mov eax, 0
+	push inputString
+	call PrintString ;print the eax returned value (user input)
+	call Printendl
+	call Printendl ;print two empty lines
 ret
 
 printKey:
+	push option4
+	call PrintString
+	
+	;mov esi, 0; clear the pointer
+	;printKeyArray:
+;		mov al, BYTE [inputKey + esi];
+;		inc esi ;increase counter++;;
+;	Loop printKeyArray
 
+	push inputKey
+	call PrintString
+	call Printendl
+	call Printendl
 ret
 
+;----5----
 encryptString:
-
+	push option5 ;print the right prompt
+	call PrintString
+	mov edx, 0
+	mov edx, [inputString]
+	mov [encryptedValue], edx ;move the inputString from the user to encryptedValue variable
+	;then xor that value
+	mov esi, 0 ;used to track position of key
+	mov edi , 0 ;counter = 0; reset counter variable to access array index
+	
+	mov ecx, encryptedValue.len
+	encLoop:
+		mov edx, 0
+		mov edx, [keyArray + esi]
+		mov [currentKey],edx ;; three last lines meant to move to CurrentKey the currently spoken key from the array
+		xor DWORD [encryptedValue + edi], currentKey
+		inc edi; counter ++;
+		inc esi;
+		cmp esi, [keyArray.len]
+		jne continueLoop
+		mov esi, 0; reset counter to 0
+		continueLoop: ;flag to skip increment of keyArray counter
+	Loop encLoop
+	
+	call Printendl
+	
 ret
 
 decryptKey:
-
+	push option6
+	call PrintString
 ret
 
 
 
 ;-----TODO-------
 ;1) do not forget to clear buffer 
-
+;2) reerase everytime user enters input
+;3)leave as many comments as possible

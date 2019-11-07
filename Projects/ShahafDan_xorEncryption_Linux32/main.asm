@@ -71,7 +71,7 @@ _start:
 	push menu;
 	call PrintString
 	
-	mov ecx, caseTable ;mov the number of items in the switch
+	mov ecx, caseTable ;mov the number of items in the switch ;set counter for the switch loop
 	mov esi, caseTable ;put the address of our table into the pointer esi register
 	
 	push inputValue
@@ -79,13 +79,24 @@ _start:
 	call ReadText
 	mov al, [inputValue] ;move to the al 1 bytes register the input from the user
 	
-	cmp al,'x' ;compare to x, in order to exit the program
-	je exitFlag ;if the user entered x, jmp to exitFlag (exit the program)
-	cmp al, [esi] ;compare the value the user entered to the lookup table
-	jne notFoundInTable; jump to that flag if the value the user entered cannot be found within the caseTable
 	
-	call NEAR [esi + 1] ; call the function associated with the entered value by the user
-	jmp printMenu ;go ahead and pring the menu again
+	
+	Switch: ;create a loop to go through every element of the table
+	
+		cmp al,'x' ;compare to x, in order to exit the program
+		je exitFlag ;if the user entered x, jmp to exitFlag (exit the program)
+	
+		cmp al, [esi] ;compre to the look up table
+		jne nextSwitchItem ;try the next value in the switch table
+		call NEAR[esi + 1] ;call the function associated ith the user input
+		
+		jmp printMenu
+		
+		nextSwitchItem:
+			add esi, caseTable.entrySize
+		
+		
+	Loop Switch ; go to the switch flag again
 	
 	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
 		push notFound

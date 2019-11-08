@@ -104,10 +104,11 @@ _start:
 		jmp printMenu
 		
 		nextSwitchItem:
-			cmp esi, caseTable.numberOfEntries
+			;c;mp esi, (caseTable.numberOfEntries - 1)
+			;je notFoundInTable
 			add esi, caseTable.entrySize
 		
-		jmp notFoundInTable
+		;jmp notFoundInTable ;print invliad message if cannot find the value withint the switch system table
 		
 	Loop Switch ; go to the switch flag again
 	
@@ -194,21 +195,19 @@ encryptString:
 	
 	;mov ecx, inputStringVar.len
 	mov ecx, [inputSize] ;move the right amount of characters toecx counter
-	sub ecx, 1 ;size - 1
+	;sub ecx, 1 ;size - 1
 	encLoop:
 		mov edx, 0
 		mov dl, [keyArray + esi]
 		mov [currentKey],dl ;; three last lines meant to move to CurrentKey the currently spoken key from the array
-		xor DWORD [encryptedValue + edi], currentKey
-		;push currentKey
-		;call Print32bitNumHex
+		xor BYTE [encryptedValue + edi], 32h ;xoringly encrypting the string ;chaging the value stored in encryptedValue variable
 		inc edi; counter ++;
 		inc esi; keyCounter++;
 		
-		cmp esi, 8
-		jne continueLoop
-		mov esi, 0; reset counter to 0
-		continueLoop: ;flag to skip increment of keyArray counter
+		;cmp esi, 8
+		;jne continueLoop
+		;mov esi, 0; reset counter to 0
+		;continueLoop: ;flag to skip increment of keyArray counter
 	Loop encLoop
 	
 	call Printendl
@@ -228,7 +227,10 @@ decryptKey:
 	mov esi, 0
 	mov edi, 0 ;clear counters just in case
 	mov ecx, [inputSize]
-	sub ecx, 1 ;now ecx holds the amount of characters in the input - 1
+	mov edx, 0
+	mov edx, [encryptedValue]
+	mov [decryptedValue], edx
+	;sub ecx, 1 ;now ecx holds the amount of characters in the input - 1
 	decLoop:
 		;CODE FOR DECRYPTIONG GOES HERE
 		mov edx, 0 ;use edx to decided what encryption key we will use
@@ -236,14 +238,14 @@ decryptKey:
 		
 		mov [currentKey], edx ;set currentKey to the right index from the arrayKey
 		
-		xor DWORD [decryptedValue + edi], currentKey ;xoring and elements taht had already been exored will resotre its original value
+		xor BYTE [decryptedValue + edi], 32h ;xoring and elements taht had already been exored will resotre its original value
 		
 		inc edi
 		inc esi ;increase both counters
-		cmp esi, keyArray.len
-		jne contDecLoop ;skipping reseting the keyArray index
-		mov esi, 0 ;reset to the first index of the array again to re traverse throguh the ket array
-		contDecLoop:
+		;cmp esi, 8
+		;jne contDecLoop ;skipping reseting the keyArray index
+		;mov esi, 0 ;reset to the first index of the array again to re traverse throguh the ket array
+		;contDecLoop:
 	Loop decLoop
 	
 	call Printendl
@@ -261,3 +263,5 @@ ret
 ;5) how to populate the keyArray?
 ;6) what is the key entered at option2 used for?
 ;7) add option of chooising somerthing not in menu
+;8) how to display the invliad message
+;9) clean code to as less lines as possible

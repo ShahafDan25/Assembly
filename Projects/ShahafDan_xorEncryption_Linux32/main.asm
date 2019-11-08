@@ -11,6 +11,7 @@ SECTION .data
 	notFound db "Value invalid, enter a new one", 0ah, 0dh, 0h
 	
 	currentKey db  0h
+	inputSize db 0h
 	
 	option1 db "Option 1 Selected: Enter a string:", 0ah, 0dh, 0h
 	option2 db "Option 2 Selected: Enter an Encryption key:", 0ah, 0dh, 0h
@@ -130,12 +131,16 @@ Exit:
 
 ; ----- FUNCTION HERE ----
 enterString:
+	mov eax, 0
 	push option1
 	call PrintString
 	
 	push inputString
 	push inputString.len
 	call ReadText
+	
+	mov [inputSize], eax ;store the amount of characters from the input in inputSize
+	
 	;mov ebx, [inputString] ;move to the ebx 1 string input from the user
 ret
 
@@ -155,7 +160,6 @@ printInputString:
 	call PrintString
 	push inputString
 	call PrintString ;print the eax returned value (user input)
-	call Printendl
 	call Printendl ;print two empty lines
 ret
 
@@ -186,16 +190,22 @@ encryptString:
 	mov esi, 0 ;used to track position of key
 	mov edi , 0 ;counter = 0; reset counter variable to access array index
 	
-	mov ecx, encryptedValue.len
+	;mov ecx, inputStringVar.len
+	mov ecx, [inputSize] ;move the right amount of characters toecx counter
+	sub ecx, 1 ;size - 1
 	encLoop:
 		mov edx, 0
-		mov edx, [keyArray + esi]
-		mov [currentKey],edx ;; three last lines meant to move to CurrentKey the currently spoken key from the array
+		mov dl, [keyArray + esi]
+		mov [currentKey],dl ;; three last lines meant to move to CurrentKey the currently spoken key from the array
 		xor DWORD [encryptedValue + edi], currentKey
-		
+		;push currentKey
+		;call Print32bitNumHex
+		push ecx
+		call Print32bitNumHex
 		inc edi; counter ++;
-		inc esi;
-		cmp esi, keyArray.len
+		inc esi; keyCounter++;
+		
+		cmp esi, 8
 		jne continueLoop
 		mov esi, 0; reset counter to 0
 		continueLoop: ;flag to skip increment of keyArray counter
@@ -217,7 +227,8 @@ decryptKey:
 	call PrintString
 	mov esi, 0
 	mov edi, 0 ;clear counters just in case
-	mov ecx, decryptedValue.len
+	mov ecx, [inputSize]
+	sub ecx, 1 ;now ecx holds the amount of characters in the input - 1
 	decLoop:
 		;CODE FOR DECRYPTIONG GOES HERE
 		mov edx, 0 ;use edx to decided what encryption key we will use
@@ -249,3 +260,4 @@ ret
 ;3)leave as many comments as possible
 ;5) how to populate the keyArray?
 ;6) what is the key entered at option2 used for?
+;7) add option of chooising somerthing not in menu

@@ -775,7 +775,7 @@
     45 00000278 35                      				db '5'
     46 00000279 [F4000000]              				dd encryptString
     47 0000027D 36                      				db '6'
-    48 0000027E [50010000]              				dd decryptKey
+    48 0000027E [5C010000]              				dd decryptKey
     49                                  		.numberOfEntries equ ($ - caseTable) / caseTable.entrySize
     50                                  		
     51                                  	
@@ -920,26 +920,33 @@
    190 00000129 8915[50000000]          		mov [currentKey],edx ;; three last lines meant to move to CurrentKey the currently spoken key from the array
    191 0000012F 81B7[06020000]-         		xor DWORD [encryptedValue + edi], currentKey
    191 00000135 [50000000]         
-   192 00000139 47                      		inc edi; counter ++;
-   193 0000013A 46                      		inc esi;
-   194 0000013B 3B3508000000            		cmp esi, [keyArray.len]
-   195 00000141 7505                    		jne continueLoop
-   196 00000143 BE00000000              		mov esi, 0; reset counter to 0
-   197                                  		continueLoop: ;flag to skip increment of keyArray counter
-   198 00000148 E2D4                    	Loop encLoop
-   199                                  	
-   200 0000014A E8(00000000)            	call Printendl
-   201                                  	
-   202 0000014F C3                      ret
-   203                                  
-   204                                  decryptKey:
-   205 00000150 68[34010000]            	push option6
-   206 00000155 E8(00000000)            	call PrintString
-   207 0000015A C3                      ret
-   208                                  
-   209                                  
+   192                                  		
+   193 00000139 47                      		inc edi; counter ++;
+   194 0000013A 46                      		inc esi;
+   195 0000013B 83FE08                  		cmp esi, keyArray.len
+   196 0000013E 7505                    		jne continueLoop
+   197 00000140 BE00000000              		mov esi, 0; reset counter to 0
+   198                                  		continueLoop: ;flag to skip increment of keyArray counter
+   199 00000145 E2D7                    	Loop encLoop
+   200                                  	
+   201 00000147 E8(00000000)            	call Printendl
+   202                                  	
+   203                                  	
+   204                                  	;for debugging purposes, print the new debugged string
+   205 0000014C 68[06020000]            	push encryptedValue
+   206 00000151 E8(00000000)            	call PrintText
+   207 00000156 E8(00000000)            	call Printendl
+   208                                  	
+   209 0000015B C3                      ret
    210                                  
-   211                                  ;-----TODO-------
-   212                                  ;1) do not forget to clear buffer 
-   213                                  ;2) reerase everytime user enters input
-   214                                  ;3)leave as many comments as possible
+   211                                  decryptKey:
+   212 0000015C 68[34010000]            	push option6
+   213 00000161 E8(00000000)            	call PrintString
+   214 00000166 C3                      ret
+   215                                  
+   216                                  
+   217                                  
+   218                                  ;-----TODO-------
+   219                                  ;1) do not forget to clear buffer 
+   220                                  ;2) reerase everytime user enters input
+   221                                  ;3)leave as many comments as possible

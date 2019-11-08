@@ -189,6 +189,7 @@ encryptString:
 		mov edx, [keyArray + esi]
 		mov [currentKey],edx ;; three last lines meant to move to CurrentKey the currently spoken key from the array
 		xor DWORD [encryptedValue + edi], currentKey
+		
 		inc edi; counter ++;
 		inc esi;
 		cmp esi, [keyArray.len]
@@ -199,8 +200,15 @@ encryptString:
 	
 	call Printendl
 	
+	
+	;for debugging purposes, print the new debugged string
+	push encryptedValue
+	call PrintText
+	call Printendl
+	
 ret
 
+;------6-----------
 decryptKey:
 	push option6
 	call PrintString
@@ -212,3 +220,6 @@ ret
 ;1) do not forget to clear buffer 
 ;2) reerase everytime user enters input
 ;3)leave as many comments as possible
+;4) encryption help?
+;5) how to populate the keyArray?
+;6) what is the key entered at option2 used for?

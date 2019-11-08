@@ -23,7 +23,8 @@ SECTION .data
 	keyArray db 10h, 20h, 30h, 40h, 50h, 60h, 70h, 80h ;only 8 values for testing purposes right now
 		.len equ ($ - keyArray) ;use it later in encryption
 	
-	menu db "Encrypt / Decrypt Program", 0ah, 0dh,
+	menu db "----------------------- " , 0ah, 0dh,
+		 db "Encrypt / Decrypt Program", 0ah, 0dh,
 		 db "1) Enter a String", 0ah, 0dh, 
 		 db	"2) Enter an Encryption Key", 0ah, 0dh,
 		 db	"3) Print the Input String", 0ah, 0dh,
@@ -59,6 +60,8 @@ SECTION .bss
 		.len equ ($ - inputKey) ;length of
 	encryptedValue resb 255 ;reserve 255 bytes for the encrypoted value resulted from choosing option5
 		.len equ ($ - encryptedValue)
+	decryptedValue resb 255 ;reserve the same amount of bits (255) for the decrypted value
+		.len equ ($ - decryptedValue)
 SECTION     .text
 	global      _start
      
@@ -192,7 +195,7 @@ encryptString:
 		
 		inc edi; counter ++;
 		inc esi;
-		cmp esi, [keyArray.len]
+		cmp esi, keyArray.len
 		jne continueLoop
 		mov esi, 0; reset counter to 0
 		continueLoop: ;flag to skip increment of keyArray counter
@@ -203,7 +206,7 @@ encryptString:
 	
 	;for debugging purposes, print the new debugged string
 	push encryptedValue
-	call PrintText
+	call PrintString
 	call Printendl
 	
 ret
@@ -212,6 +215,10 @@ ret
 decryptKey:
 	push option6
 	call PrintString
+	
+	push decryptedValue
+	call PrintString
+	call Printendl
 ret
 
 

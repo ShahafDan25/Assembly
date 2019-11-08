@@ -10,8 +10,9 @@ SECTION .data
 	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
 	notFound db "Value invalid, enter a new one", 0ah, 0dh, 0h
 	
-	currentKey db  0h
-	inputSize db 0h
+	inputStringSize db 0h ;will store value returned from ReadText here
+	inputKeySize db 0h ;will store value returned from ReadText here
+	
 	
 	option1 db "Option 1 Selected: Enter a string:", 0ah, 0dh, 0h
 	option2 db "Option 2 Selected: Enter an Encryption key:", 0ah, 0dh, 0h
@@ -21,8 +22,6 @@ SECTION .data
 	option6 db "Option 6 Selected: Decrypting...", 0ah, 0dh, 0h
 	optionExit db "You chose to eixt the program", 0ah, 0dh, 0h
 	
-	keyArray db 10h, 20h, 30h, 40h, 50h, 60h, 70h, 80h ;only 8 values for testing purposes right now
-		.len equ ($ - keyArray) ;use it later in encryption
 	
 	menu db "----------------------- " , 0ah, 0dh,
 		 db "Encrypt / Decrypt Program", 0ah, 0dh,
@@ -32,7 +31,7 @@ SECTION .data
 		 db	"4) Print the Input Key", 0ah ,0dh,
 		 db	"5) Encrypt / Display the String", 0ah, 0dh,
 		 db	"6) Decrypt / Display the String", 0ah, 0dh,
-		 db	"x) Exit Program", 0ah, 0dh,
+		 db	"x) Exit Program", 0ah, 0dh, 0ah, 0dh
 		 db	"Please Enter One", 0ah, 0dh, 0ah, 0dh, 0h
 	
 	caseTable 	db '1'
@@ -53,16 +52,21 @@ SECTION .data
 	
 	
 SECTION .bss
+	indexValue resb 8 ;reserve 8 bits for the chosen index by the user
+		.len equ ($ - indexValue)
+		
 	inputString resb 255 ;reserve 255 bits for the inputString variable
 		.len equ ($ - inputString) ;no need todivivde. because it is all bytes
-	inputValue resb 8;reserving 8 for the inputValue that will be entered by the user
-		.len equ ($ - inputValue) ;size of it, will be used for the buffer
-	inputKey resb 255 ;reserve 255 for the encryption key variable
-		.len equ ($ - inputKey) ;length of
-	encryptedValue resb 255 ;reserve 255 bytes for the encrypoted value resulted from choosing option5
-		.len equ ($ - encryptedValue)
-	decryptedValue resb 255 ;reserve the same amount of bits (255) for the decrypted value
-		.len equ ($ - decryptedValue)
+		
+	inputKey resb 255 ;reserve 255 bits for the encryptiong array
+		.len equ ($ - inputKey)
+		
+	encValue resb 255
+		.len equ ($ - encValue)
+		
+	decValue resb 255 
+		.len equ ($ - decValue)
+	
 SECTION     .text
 	global      _start
      
@@ -85,11 +89,11 @@ _start:
 	mov ecx, caseTable ;mov the number of items in the switch ;set counter for the switch loop
 	mov esi, caseTable ;put the address of our table into the pointer esi register
 	
-	push inputValue
-	push inputValue.len
-	call ReadText
-	mov al, [inputValue] ;move to the al 1 bytes register the input from the user
-	
+	push indexValue
+	push indexValue.len
+	call ReadText ;;read input from user
+	mov al, [indexValue] ;move to the al 1 bytes register the input from the user
+	;call ClearKBuffer
 	
 	
 	Switch: ;create a loop to go through every element of the table
@@ -104,12 +108,8 @@ _start:
 		jmp printMenu
 		
 		nextSwitchItem:
-			;c;mp esi, (caseTable.numberOfEntries - 1)
-			;je notFoundInTable
 			add esi, caseTable.entrySize
-		
-		;jmp notFoundInTable ;print invliad message if cannot find the value withint the switch system table
-		
+				
 	Loop Switch ; go to the switch flag again
 	
 	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
@@ -135,123 +135,112 @@ Exit:
 ; ----- FUNCTION HERE ----
 enterString:
 	mov eax, 0
+	;mov [inputString], 0h
 	push option1
-	call PrintString
+	call PrintString ;print prompt
 	
 	push inputString
 	push inputString.len
-	call ReadText
+	call ReadText ; returns in eax the amount of characters	
 	
-	mov [inputSize], eax ;store the amount of characters from the input in inputSize
+	mov [inputStringSize], eax
+	mov eax, 0
 	
-	;mov ebx, [inputString] ;move to the ebx 1 string input from the user
 ret
 
 enterKey:
+	mov eax, 0
+	;mov [inputKey], 0
 	push option2
 	call PrintString
-		
+	
 	push inputKey
 	push inputKey.len
 	call ReadText
-	;mov edx, [inputKey] ;mov to edx the new inputKey
-
+	;call ClearKBuffer
+	mov [inputKeySize], eax
+	mov eax, 0
 ret
 	
 printInputString:
 	push option3
 	call PrintString
 	push inputString
-	call PrintString ;print the eax returned value (user input)
-	call Printendl ;print two empty lines
+	call PrintString
+	call Printendl
 ret
 
 printKey:
 	push option4
 	call PrintString
-	
-	;mov esi, 0; clear the pointer
-	;printKeyArray:
-;		mov al, BYTE [inputKey + esi];
-;		inc esi ;increase counter++;;
-;	Loop printKeyArray
-
 	push inputKey
 	call PrintString
 	call Printendl
-	call Printendl
+
 ret
 
 ;----5----
 encryptString:
 	push option5 ;print the right prompt
 	call PrintString
-	mov edx, 0
-	mov edx, [inputString]
-	mov [encryptedValue], edx ;move the inputString from the user to encryptedValue variable
-	;then xor that value
-	mov esi, 0 ;used to track position of key
-	mov edi , 0 ;counter = 0; reset counter variable to access array index
 	
-	;mov ecx, inputStringVar.len
-	mov ecx, [inputSize] ;move the right amount of characters toecx counter
-	;sub ecx, 1 ;size - 1
+	
+	mov ebx, 0
+	mov eax, 0
+	mov edx, 0
+	mov edi, 0
+	mov ecx, 0
+	mov ecx, [inputStringSize] ;same as the encryption loop
+	sub ecx, 1
+
 	encLoop:
-		mov edx, 0
-		mov dl, [keyArray + esi]
-		mov [currentKey],dl ;; three last lines meant to move to CurrentKey the currently spoken key from the array
-		xor BYTE [encryptedValue + edi], 32h ;xoringly encrypting the string ;chaging the value stored in encryptedValue variable
-		inc edi; counter ++;
-		inc esi; keyCounter++;
+		;--- CODE FOR ENCRYPTING --- 
 		
-		;cmp esi, 8
-		;jne continueLoop
-		;mov esi, 0; reset counter to 0
-		;continueLoop: ;flag to skip increment of keyArray counter
+		mov eax, edi ;gotta move first to eax, because th div operand onlyt operates on the eax register
+		mov ebx, [inputKeySize]
+		div ebx ;stores the modules in edx
+		mov ebx ,0
+		mov ebx, [inputString + edi]
+		xor ebx, [inputKey + edx] ;xor with the same key
+		mov [encValue + edi], ebx
+		inc edi
+		
 	Loop encLoop
 	
-	call Printendl
-	
-	
-	;for debugging purposes, print the new debugged string
-	push encryptedValue
+	;debug by printing
+	push encValue
 	call PrintString
-	call Printendl
-	
+
 ret
 
 ;------6-----------
 decryptKey:
 	push option6
 	call PrintString
-	mov esi, 0
-	mov edi, 0 ;clear counters just in case
-	mov ecx, [inputSize]
+	mov ebx, 0
+	mov eax, 0
 	mov edx, 0
-	mov edx, [encryptedValue]
-	mov [decryptedValue], edx
-	;sub ecx, 1 ;now ecx holds the amount of characters in the input - 1
+	mov edi, 0
+	mov ecx, 0
+	mov ecx, [inputStringSize] ;same as the encryption loop
+	sub ecx, 1
+
 	decLoop:
 		;CODE FOR DECRYPTIONG GOES HERE
-		mov edx, 0 ;use edx to decided what encryption key we will use
-		mov edx, [keyArray + esi]
-		
-		mov [currentKey], edx ;set currentKey to the right index from the arrayKey
-		
-		xor BYTE [decryptedValue + edi], 32h ;xoring and elements taht had already been exored will resotre its original value
-		
+
+		mov eax, edi ;gotta move first to eax, because th div operand onlyt operates on the eax register
+		mov ebx, [inputKeySize]
+		div ebx ;stores the modules in edx
+		mov ebx ,0
+		mov ebx, [encValue + edi]
+		xor ebx, [inputKey + edx] ;xor with the same key
+		mov [decValue + edi], ebx
 		inc edi
-		inc esi ;increase both counters
-		;cmp esi, 8
-		;jne contDecLoop ;skipping reseting the keyArray index
-		;mov esi, 0 ;reset to the first index of the array again to re traverse throguh the ket array
-		;contDecLoop:
 	Loop decLoop
 	
-	call Printendl
-	push decryptedValue
+	;;pring the decrypted value to check
+	push decValue
 	call PrintString
-	call Printendl
 ret
 
 

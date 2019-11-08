@@ -215,10 +215,27 @@ ret
 decryptKey:
 	push option6
 	call PrintString
-	mov ecx, encryptedValue.len
+	mov esi, 0
+	mov edi, 0 ;clear counters just in case
+	mov ecx, decryptedValue.len
 	decLoop:
 		;CODE FOR DECRYPTIONG GOES HERE
+		mov edx, 0 ;use edx to decided what encryption key we will use
+		mov edx, [keyArray + esi]
+		
+		mov [currentKey], edx ;set currentKey to the right index from the arrayKey
+		
+		xor DWORD [decryptedValue + edi], currentKey ;xoring and elements taht had already been exored will resotre its original value
+		
+		inc edi
+		inc esi ;increase both counters
+		cmp esi, keyArray.len
+		jne contDecLoop ;skipping reseting the keyArray index
+		mov esi, 0 ;reset to the first index of the array again to re traverse throguh the ket array
+		contDecLoop:
 	Loop decLoop
+	
+	call Printendl
 	push decryptedValue
 	call PrintString
 	call Printendl

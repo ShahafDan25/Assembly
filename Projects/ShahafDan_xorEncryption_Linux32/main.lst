@@ -948,18 +948,38 @@
    215                                  decryptKey:
    216 0000015C 68[34010000]            	push option6
    217 00000161 E8(00000000)            	call PrintString
-   218                                  	
-   219 00000166 68[05030000]            	push decryptedValue
-   220 0000016B E8(00000000)            	call PrintString
-   221 00000170 E8(00000000)            	call Printendl
-   222 00000175 C3                      ret
-   223                                  
-   224                                  
-   225                                  
-   226                                  ;-----TODO-------
-   227                                  ;1) do not forget to clear buffer 
-   228                                  ;2) reerase everytime user enters input
-   229                                  ;3)leave as many comments as possible
-   230                                  ;4) encryption help?
-   231                                  ;5) how to populate the keyArray?
-   232                                  ;6) what is the key entered at option2 used for?
+   218 00000166 BE00000000              	mov esi, 0
+   219 0000016B BF00000000              	mov edi, 0 ;clear counters just in case
+   220 00000170 B9FF000000              	mov ecx, decryptedValue.len
+   221                                  	decLoop:
+   222                                  		;CODE FOR DECRYPTIONG GOES HERE
+   223 00000175 BA00000000              		mov edx, 0 ;use edx to decided what encryption key we will use
+   224 0000017A 8B96[77010000]          		mov edx, [keyArray + esi]
+   225                                  		
+   226 00000180 8915[50000000]          		mov [currentKey], edx ;set currentKey to the right index from the arrayKey
+   227                                  		
+   228 00000186 81B7[05030000]-         		xor DWORD [decryptedValue + edi], currentKey ;xoring and elements taht had already been exored will resotre its original value
+   228 0000018C [50000000]         
+   229                                  		
+   230 00000190 47                      		inc edi
+   231 00000191 46                      		inc esi ;increase both counters
+   232 00000192 83FE08                  		cmp esi, keyArray.len
+   233 00000195 7505                    		jne contDecLoop ;skipping reseting the keyArray index
+   234 00000197 BE00000000              		mov esi, 0 ;reset to the first index of the array again to re traverse throguh the ket array
+   235                                  		contDecLoop:
+   236 0000019C E2D7                    	Loop decLoop
+   237                                  	
+   238 0000019E E8(00000000)            	call Printendl
+   239 000001A3 68[05030000]            	push decryptedValue
+   240 000001A8 E8(00000000)            	call PrintString
+   241 000001AD E8(00000000)            	call Printendl
+   242 000001B2 C3                      ret
+   243                                  
+   244                                  
+   245                                  
+   246                                  ;-----TODO-------
+   247                                  ;1) do not forget to clear buffer 
+   248                                  ;2) reerase everytime user enters input
+   249                                  ;3)leave as many comments as possible
+   250                                  ;5) how to populate the keyArray?
+   251                                  ;6) what is the key entered at option2 used for?

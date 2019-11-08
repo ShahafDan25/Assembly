@@ -104,8 +104,10 @@ _start:
 		jmp printMenu
 		
 		nextSwitchItem:
+			cmp esi, caseTable.numberOfEntries
 			add esi, caseTable.entrySize
 		
+		jmp notFoundInTable
 		
 	Loop Switch ; go to the switch flag again
 	
@@ -200,8 +202,6 @@ encryptString:
 		xor DWORD [encryptedValue + edi], currentKey
 		;push currentKey
 		;call Print32bitNumHex
-		push ecx
-		call Print32bitNumHex
 		inc edi; counter ++;
 		inc esi; keyCounter++;
 		

@@ -6,7 +6,7 @@
 %include "./functions.inc"
  
 SECTION .data
-	welcomeAct	db	"Welcome to my progrm", 0ah, 0dh, 0h
+	welcomeAct	db	"Welcome to my program!", 0h
 	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
 	notFound db "Value invalid, enter a new one", 0ah, 0dh, 0h
 	
@@ -23,7 +23,7 @@ SECTION .data
 	optionExit db "You chose to eixt the program", 0ah, 0dh, 0h
 	
 	
-	menu db "----------------------- " , 0ah, 0dh,
+	menu db 0ah,0dh, "----------------------- " , 0ah, 0dh,
 		 db "Encrypt / Decrypt Program", 0ah, 0dh,
 		 db "1) Enter a String", 0ah, 0dh, 
 		 db	"2) Enter an Encryption Key", 0ah, 0dh,
@@ -112,7 +112,6 @@ _start:
 	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
 		push notFound
 		call PrintString
-		call Printendl
 		jmp printMenu ;go back to printing the menu again
 	;----- GOODBYE ---
 	exitFlag:
@@ -130,14 +129,14 @@ Exit:
 
 ; ----- FUNCTION HERE ----
 enterString:
-	mov eax, 0
-	;mov [inputString], 0h
+	mov eax, 0h
 	push option1
 	call PrintString ;print prompt
 	push inputString
 	push inputString.len
 	call ReadText ; returns in eax the amount of characters	
 	mov [inputStringSize], eax
+	;call ClearKBuffer
 	mov eax, 0
 ret
 
@@ -149,6 +148,7 @@ enterKey:
 	push inputKey.len
 	call ReadText ;get input from the user
 	mov [inputKeySize], eax ; ReadText returns the "actual" length in eax, move it to a variable
+	;call ClearKBuffer
 	mov eax, 0
 ret
 	
@@ -157,7 +157,7 @@ printInputString: ;just printing some stuff
 	call PrintString
 	push inputString
 	call PrintString
-	call Printendl
+
 ret
 
 printKey: ;just printing promopt and the key
@@ -165,7 +165,7 @@ printKey: ;just printing promopt and the key
 	call PrintString
 	push inputKey
 	call PrintString
-	call Printendl
+
 ret
 
 ;----5----

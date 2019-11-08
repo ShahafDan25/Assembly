@@ -769,18 +769,18 @@
     35 00000276 0A0D00             
     36                                  	
     37 00000279 31                      	caseTable 	db '1'
-    38 0000027A [82000000]              				dd enterString
+    38 0000027A [8A000000]              				dd enterString
     39                                  			.entrySize equ ($ - caseTable)
     40 0000027E 32                      				db '2'
-    41 0000027F [AB000000]              				dd enterKey
+    41 0000027F [B3000000]              				dd enterKey
     42 00000283 33                      				db '3'
-    43 00000284 [D4000000]              				dd printInputString
+    43 00000284 [DC000000]              				dd printInputString
     44 00000288 34                      				db '4'
-    45 00000289 [EE000000]              				dd printKey
+    45 00000289 [F6000000]              				dd printKey
     46 0000028D 35                      				db '5'
-    47 0000028E [08010000]              				dd encryptString
+    47 0000028E [10010000]              				dd encryptString
     48 00000292 36                      				db '6'
-    49 00000293 [69010000]              				dd decryptKey
+    49 00000293 [6B010000]              				dd decryptKey
     50                                  		.numberOfEntries equ ($ - caseTable) / caseTable.entrySize
     51                                  		
     52                                  	
@@ -833,7 +833,7 @@
     99                                  	Switch: ;create a loop to go through every element of the table
    100                                  	
    101 00000044 3C78                    		cmp al,'x' ;compare to x, in order to exit the program
-   102 00000046 741F                    		je exitFlag ;if the user entered x, jmp to exitFlag (exit the program)
+   102 00000046 7427                    		je exitFlag ;if the user entered x, jmp to exitFlag (exit the program)
    103                                  	
    104 00000048 3A06                    		cmp al, [esi] ;compre to the look up table
    105 0000004A 7505                    		jne nextSwitchItem ;try the next value in the switch table
@@ -843,151 +843,149 @@
    109                                  		
    110                                  		nextSwitchItem:
    111 00000051 83C605                  			add esi, caseTable.entrySize
-   112                                  				
-   113 00000054 E2EE                    	Loop Switch ; go to the switch flag again
-   114                                  	
-   115                                  	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
-   116 00000056 68[2F000000]            		push notFound
-   117 0000005B E8(00000000)            		call PrintString
-   118 00000060 E8(00000000)            		call Printendl
-   119 00000065 EBB8                    		jmp printMenu ;go back to printing the menu again
-   120                                  		
-   121                                  	;----- GOODBYE ---
-   122                                  	exitFlag:
-   123 00000067 68[17000000]            	push byeAct
-   124 0000006C E8(00000000)            	call PrintString
-   125 00000071 E8(00000000)            	call Printendl
-   126                                  	
-   127                                  ;
-   128                                  ;Setup the registers for exit and poke the kernel
-   129                                  Exit: 
-   130 00000076 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
-   131 0000007B BB00000000              	mov		ebx,0						;Return code
-   132 00000080 CD80                    	int		80h							;Poke the kernel
-   133                                  
-   134                                  
-   135                                  ; ----- FUNCTION HERE ----
-   136                                  enterString:
-   137 00000082 B800000000              	mov eax, 0
-   138                                  	;mov [inputString], 0h
-   139 00000087 68[52000000]            	push option1
-   140 0000008C E8(00000000)            	call PrintString ;print prompt
-   141                                  	
-   142 00000091 68[08000000]            	push inputString
-   143 00000096 68FF000000              	push inputString.len
-   144 0000009B E8(00000000)            	call ReadText ; returns in eax the amount of characters	
-   145                                  	
-   146 000000A0 A3[50000000]            	mov [inputStringSize], eax
-   147 000000A5 B800000000              	mov eax, 0
+   112 00000054 81FE[97020000]          			cmp esi, caseTable + (caseTable.numberOfEntries * caseTable.entrySize)
+   113 0000005A 7D02                    			jge notFoundInTable
+   114                                  				
+   115 0000005C E2E6                    	Loop Switch ; go to the switch flag again
+   116                                  	
+   117                                  	
+   118                                  	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
+   119 0000005E 68[2F000000]            		push notFound
+   120 00000063 E8(00000000)            		call PrintString
+   121 00000068 E8(00000000)            		call Printendl
+   122 0000006D EBB0                    		jmp printMenu ;go back to printing the menu again
+   123                                  		
+   124                                  	;----- GOODBYE ---
+   125                                  	exitFlag:
+   126 0000006F 68[17000000]            	push byeAct
+   127 00000074 E8(00000000)            	call PrintString
+   128 00000079 E8(00000000)            	call Printendl
+   129                                  	
+   130                                  ;
+   131                                  ;Setup the registers for exit and poke the kernel
+   132                                  Exit: 
+   133 0000007E B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
+   134 00000083 BB00000000              	mov		ebx,0						;Return code
+   135 00000088 CD80                    	int		80h							;Poke the kernel
+   136                                  
+   137                                  
+   138                                  ; ----- FUNCTION HERE ----
+   139                                  enterString:
+   140 0000008A B800000000              	mov eax, 0
+   141                                  	;mov [inputString], 0h
+   142 0000008F 68[52000000]            	push option1
+   143 00000094 E8(00000000)            	call PrintString ;print prompt
+   144                                  	
+   145 00000099 68[08000000]            	push inputString
+   146 0000009E 68FF000000              	push inputString.len
+   147 000000A3 E8(00000000)            	call ReadText ; returns in eax the amount of characters	
    148                                  	
-   149 000000AA C3                      ret
-   150                                  
-   151                                  enterKey:
-   152 000000AB B800000000              	mov eax, 0
-   153                                  	;mov [inputKey], 0
-   154 000000B0 68[77000000]            	push option2
-   155 000000B5 E8(00000000)            	call PrintString
-   156                                  	
-   157 000000BA 68[07010000]            	push inputKey
-   158 000000BF 68FF000000              	push inputKey.len
-   159 000000C4 E8(00000000)            	call ReadText
-   160                                  	;call ClearKBuffer
-   161 000000C9 A3[51000000]            	mov [inputKeySize], eax
-   162 000000CE B800000000              	mov eax, 0
-   163 000000D3 C3                      ret
-   164                                  	
-   165                                  printInputString:
-   166 000000D4 68[A5000000]            	push option3
-   167 000000D9 E8(00000000)            	call PrintString
-   168 000000DE 68[08000000]            	push inputString
-   169 000000E3 E8(00000000)            	call PrintString
-   170 000000E8 E8(00000000)            	call Printendl
-   171 000000ED C3                      ret
-   172                                  
-   173                                  printKey:
-   174 000000EE 68[D6000000]            	push option4
-   175 000000F3 E8(00000000)            	call PrintString
-   176 000000F8 68[07010000]            	push inputKey
-   177 000000FD E8(00000000)            	call PrintString
-   178 00000102 E8(00000000)            	call Printendl
-   179                                  
-   180 00000107 C3                      ret
-   181                                  
-   182                                  ;----5----
-   183                                  encryptString:
-   184 00000108 68[12010000]            	push option5 ;print the right prompt
-   185 0000010D E8(00000000)            	call PrintString
-   186                                  	
-   187                                  	
-   188 00000112 BB00000000              	mov ebx, 0
-   189 00000117 B800000000              	mov eax, 0
-   190 0000011C BA00000000              	mov edx, 0
-   191 00000121 BF00000000              	mov edi, 0
-   192 00000126 B900000000              	mov ecx, 0
-   193 0000012B 8B0D[50000000]          	mov ecx, [inputStringSize] ;same as the encryption loop
-   194 00000131 83E901                  	sub ecx, 1
-   195 00000134 51                      	push ecx
-   196 00000135 E8(00000000)            	call Print32bitNumHex
-   197                                  	encLoop:
-   198                                  		;--- CODE FOR ENCRYPTING --- 
-   199                                  		
-   200 0000013A 89F8                    		mov eax, edi ;gotta move first to eax, because th div operand onlyt operates on the eax register
-   201 0000013C 8B1D[51000000]          		mov ebx, [inputKeySize]
-   202 00000142 F7F3                    		div ebx ;stores the modules in edx
-   203 00000144 BB00000000              		mov ebx ,0
-   204 00000149 8B9F[08000000]          		mov ebx, [inputString + edi]
-   205 0000014F 339A[07010000]          		xor ebx, [inputKey + edx] ;xor with the same key
-   206 00000155 899F[06020000]          		mov [encValue + edi], ebx
-   207 0000015B 47                      		inc edi
-   208                                  		
-   209 0000015C E2DC                    	Loop encLoop
-   210                                  	
-   211                                  	;debug by printing
-   212 0000015E 68[06020000]            	push encValue
-   213 00000163 E8(00000000)            	call PrintString
-   214                                  
-   215 00000168 C3                      ret
+   149 000000A8 A3[50000000]            	mov [inputStringSize], eax
+   150 000000AD B800000000              	mov eax, 0
+   151                                  	
+   152 000000B2 C3                      ret
+   153                                  
+   154                                  enterKey:
+   155 000000B3 B800000000              	mov eax, 0
+   156                                  	;mov [inputKey], 0
+   157 000000B8 68[77000000]            	push option2
+   158 000000BD E8(00000000)            	call PrintString
+   159                                  	
+   160 000000C2 68[07010000]            	push inputKey
+   161 000000C7 68FF000000              	push inputKey.len
+   162 000000CC E8(00000000)            	call ReadText
+   163                                  	;call ClearKBuffer
+   164 000000D1 A3[51000000]            	mov [inputKeySize], eax
+   165 000000D6 B800000000              	mov eax, 0
+   166 000000DB C3                      ret
+   167                                  	
+   168                                  printInputString: ;just printing some stuff
+   169 000000DC 68[A5000000]            	push option3
+   170 000000E1 E8(00000000)            	call PrintString
+   171 000000E6 68[08000000]            	push inputString
+   172 000000EB E8(00000000)            	call PrintString
+   173 000000F0 E8(00000000)            	call Printendl
+   174 000000F5 C3                      ret
+   175                                  
+   176                                  printKey: ;just printing promopt and the key
+   177 000000F6 68[D6000000]            	push option4
+   178 000000FB E8(00000000)            	call PrintString
+   179 00000100 68[07010000]            	push inputKey
+   180 00000105 E8(00000000)            	call PrintString
+   181 0000010A E8(00000000)            	call Printendl
+   182                                  
+   183 0000010F C3                      ret
+   184                                  
+   185                                  ;----5----
+   186                                  encryptString:
+   187 00000110 68[12010000]            	push option5 ;print the right prompt
+   188 00000115 E8(00000000)            	call PrintString
+   189                                  	
+   190                                  	
+   191 0000011A BB00000000              	mov ebx, 0
+   192 0000011F B800000000              	mov eax, 0
+   193 00000124 BA00000000              	mov edx, 0
+   194 00000129 BF00000000              	mov edi, 0
+   195 0000012E B900000000              	mov ecx, 0
+   196 00000133 8B0D[50000000]          	mov ecx, [inputStringSize] ;same as the encryption loop
+   197 00000139 83E901                  	sub ecx, 1
+   198                                  
+   199                                  	encLoop:
+   200                                  		;--- CODE FOR ENCRYPTING --- 
+   201                                  		
+   202 0000013C 89F8                    		mov eax, edi ;gotta move first to eax, because th div operand onlyt operates on the eax register
+   203 0000013E 8B1D[51000000]          		mov ebx, [inputKeySize]
+   204 00000144 F7F3                    		div ebx ;stores the modules in edx
+   205 00000146 BB00000000              		mov ebx ,0
+   206 0000014B 8B9F[08000000]          		mov ebx, [inputString + edi]
+   207 00000151 339A[07010000]          		xor ebx, [inputKey + edx] ;xor with the same key
+   208 00000157 899F[06020000]          		mov [encValue + edi], ebx
+   209 0000015D 47                      		inc edi
+   210                                  		
+   211 0000015E E2DC                    	Loop encLoop
+   212                                  	
+   213                                  	;debug by printing
+   214 00000160 68[06020000]            	push encValue
+   215 00000165 E8(00000000)            	call PrintString
    216                                  
-   217                                  ;------6-----------
-   218                                  decryptKey:
-   219 00000169 68[35010000]            	push option6
-   220 0000016E E8(00000000)            	call PrintString
-   221 00000173 BB00000000              	mov ebx, 0
-   222 00000178 B800000000              	mov eax, 0
-   223 0000017D BA00000000              	mov edx, 0
-   224 00000182 BF00000000              	mov edi, 0
-   225 00000187 B900000000              	mov ecx, 0
-   226 0000018C 8B0D[50000000]          	mov ecx, [inputStringSize] ;same as the encryption loop
-   227 00000192 83E901                  	sub ecx, 1
-   228                                  	push [inputStringSize]
-   228          ******************       error: operation size not specified
-   229 00000195 E8(00000000)            	call PrintString
-   230                                  	decLoop:
-   231                                  		;CODE FOR DECRYPTIONG GOES HERE
-   232                                  
-   233 0000019A 89F8                    		mov eax, edi ;gotta move first to eax, because th div operand onlyt operates on the eax register
-   234 0000019C 8B1D[51000000]          		mov ebx, [inputKeySize]
-   235 000001A2 F7F3                    		div ebx ;stores the modules in edx
-   236 000001A4 BB00000000              		mov ebx ,0
-   237 000001A9 8B9F[06020000]          		mov ebx, [encValue + edi]
-   238 000001AF 339A[07010000]          		xor ebx, [inputKey + edx] ;xor with the same key
-   239 000001B5 899F[05030000]          		mov [decValue + edi], ebx
-   240 000001BB 47                      		inc edi
-   241 000001BC E2DC                    	Loop decLoop
-   242                                  	
-   243                                  	;;pring the decrypted value to check
-   244 000001BE 68[05030000]            	push decValue
-   245 000001C3 E8(00000000)            	call PrintString
-   246 000001C8 C3                      ret
-   247                                  
+   217 0000016A C3                      ret
+   218                                  
+   219                                  ;------6-----------
+   220                                  decryptKey:
+   221 0000016B 68[35010000]            	push option6
+   222 00000170 E8(00000000)            	call PrintString
+   223 00000175 BB00000000              	mov ebx, 0
+   224 0000017A B800000000              	mov eax, 0
+   225 0000017F BA00000000              	mov edx, 0
+   226 00000184 BF00000000              	mov edi, 0
+   227 00000189 B900000000              	mov ecx, 0
+   228 0000018E 8B0D[50000000]          	mov ecx, [inputStringSize] ;same as the encryption loop
+   229 00000194 83E901                  	sub ecx, 1
+   230                                  
+   231                                  	decLoop:
+   232                                  		;CODE FOR DECRYPTIONG GOES HERE
+   233                                  
+   234 00000197 89F8                    		mov eax, edi ;gotta move first to eax, because th div operand onlyt operates on the eax register
+   235 00000199 8B1D[51000000]          		mov ebx, [inputKeySize]
+   236 0000019F F7F3                    		div ebx ;stores the modules in edx
+   237 000001A1 BB00000000              		mov ebx ,0
+   238 000001A6 8B9F[06020000]          		mov ebx, [encValue + edi]
+   239 000001AC 339A[07010000]          		xor ebx, [inputKey + edx] ;xor with the same key
+   240 000001B2 899F[05030000]          		mov [decValue + edi], ebx
+   241 000001B8 47                      		inc edi
+   242 000001B9 E2DC                    	Loop decLoop
+   243                                  	
+   244                                  	;;pring the decrypted value to check
+   245 000001BB 68[05030000]            	push decValue
+   246 000001C0 E8(00000000)            	call PrintString
+   247 000001C5 C3                      ret
    248                                  
    249                                  
-   250                                  ;-----TODO-------
-   251                                  ;1) do not forget to clear buffer 
-   252                                  ;2) reerase everytime user enters input
-   253                                  ;3)leave as many comments as possible
-   254                                  ;5) how to populate the keyArray?
-   255                                  ;6) what is the key entered at option2 used for?
-   256                                  ;7) add option of chooising somerthing not in menu
-   257                                  ;8) how to display the invliad message
-   258                                  ;9) clean code to as less lines as possible
+   250                                  
+   251                                  ;-----TODO-------
+   252                                  ;1) do not forget to clear buffer 
+   253                                  ;2) reerase everytime user enters input
+   254                                  ;3)leave as many comments as possible
+   255                                  ;7) add option of chooising somerthing not in menu
+   256                                  ;8) how to display the invliad message
+   257                                  ;9) clean code to as less lines as possible

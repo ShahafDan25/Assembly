@@ -109,8 +109,11 @@ _start:
 		
 		nextSwitchItem:
 			add esi, caseTable.entrySize
+			cmp esi, caseTable + (caseTable.numberOfEntries * caseTable.entrySize)
+			jge notFoundInTable
 				
 	Loop Switch ; go to the switch flag again
+	
 	
 	notFoundInTable: ;flag to jump to if the value the user entered cannot be found in the look up table
 		push notFound
@@ -162,7 +165,7 @@ enterKey:
 	mov eax, 0
 ret
 	
-printInputString:
+printInputString: ;just printing some stuff
 	push option3
 	call PrintString
 	push inputString
@@ -170,7 +173,7 @@ printInputString:
 	call Printendl
 ret
 
-printKey:
+printKey: ;just printing promopt and the key
 	push option4
 	call PrintString
 	push inputKey
@@ -249,8 +252,6 @@ ret
 ;1) do not forget to clear buffer 
 ;2) reerase everytime user enters input
 ;3)leave as many comments as possible
-;5) how to populate the keyArray?
-;6) what is the key entered at option2 used for?
 ;7) add option of chooising somerthing not in menu
 ;8) how to display the invliad message
 ;9) clean code to as less lines as possible

@@ -215,7 +215,10 @@ ret
 decryptKey:
 	push option6
 	call PrintString
-	
+	mov ecx, encryptedValue.len
+	decLoop:
+		;CODE FOR DECRYPTIONG GOES HERE
+	Loop decLoop
 	push decryptedValue
 	call PrintString
 	call Printendl
@@ -227,6 +230,5 @@ ret
 ;1) do not forget to clear buffer 
 ;2) reerase everytime user enters input
 ;3)leave as many comments as possible
-;4) encryption help?
 ;5) how to populate the keyArray?
 ;6) what is the key entered at option2 used for?

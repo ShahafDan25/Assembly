@@ -35,45 +35,22 @@ _start:
 	mov rax, 0
 	mov rdx, 0; use register to transfer numbers to total
 	mov rcx, 0 ;clear counter for loops just in case
-	mov cl, valuesArray.len
+	mov cx, valuesArray.len
 	;inc ecx
 	mov rsi, 0 ;counter
 	totalLoop:
-		mov bx, [valuesArray + rsi] ;add the rsi'th item to total
-		cmp bx, 80h
-		jg addition
-		sub [total], bx
-		jmp cont
-		addition:
-		add [total], bx ;we had to move it throuhg a register
-		cont:
-		
-		
-		;===TESTING ===
-		mov rax, [total]
+		add ax, [valuesArray + rsi]
 		push rax
 		call Print64bitNumDecimal
 		call PrintComma
-		push bx
-		call Print64bitNumDecimal
-		call PrintComma
-		call Printendl;
-		
-		;======PART OF PROGRAM 
-		mov bx, 0 ;clear that register ^^
-		inc rsi ;counter++
+		inc rsi
 	loop totalLoop
-
-	mov rax, [total]
+	
+	mov [total], eax
 	push rax
 	call Print64bitNumDecimal
 	call PrintComma
-	mov bl, valuesArray.len
-	div bx
-	
-	mov [average], al
-	push rax
-	call Print64bitNumDecimal
+	call Printendl
 	;call Print64bitNumHex
 	
 	

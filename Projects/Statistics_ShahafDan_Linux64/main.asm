@@ -26,6 +26,7 @@ SECTION     .text
      
 _start:
 	;code goes here
+	
 	;--------- WELCOME ---------
 	call Printendl
 	push welcomeAct
@@ -35,24 +36,22 @@ _start:
 	mov rax, 0
 	mov rdx, 0; use register to transfer numbers to total
 	mov rcx, 0 ;clear counter for loops just in case
+	mov rsi ,0
 	mov cx, valuesArray.len
-	;inc ecx
-	mov rsi, 0 ;counter
+
 	totalLoop:
-		add ax, [valuesArray + rsi]
-		push rax
-		call Print64bitNumDecimal
-		call PrintComma
+		
+		add bx, [valuesArray + rsi]
 		inc rsi
 	loop totalLoop
 	
-	mov [total], eax
-	push rax
+	mov [total], bx
+	push rbx
 	call Print64bitNumDecimal
 	call PrintComma
-	call Printendl
-	;call Print64bitNumHex
-	
+	push total
+	call PrintString
+	call Printendl	
 	
 	;------ GOODBYTE ----
 	call Printendl

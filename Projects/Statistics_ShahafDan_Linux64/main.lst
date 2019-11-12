@@ -551,50 +551,49 @@
     26                                       
     27                                  _start:
     28                                  	;code goes here
-    29                                  	;--------- WELCOME ---------
-    30 00000000 E8(00000000)            	call Printendl
-    31 00000005 68[00000000]            	push welcomeAct
-    32 0000000A E8(00000000)            	call PrintString 
-    33 0000000F E8(00000000)            	call Printendl
-    34                                  	
-    35 00000014 B800000000              	mov rax, 0
-    36 00000019 BA00000000              	mov rdx, 0; use register to transfer numbers to total
-    37 0000001E B900000000              	mov rcx, 0 ;clear counter for loops just in case
-    38 00000023 66B90600                	mov cx, valuesArray.len
-    39                                  	;inc ecx
-    40 00000027 BE00000000              	mov rsi, 0 ;counter
-    41                                  	totalLoop:
-    42 0000002C 660386[43000000]        		add ax, [valuesArray + rsi]
-    43 00000033 50                      		push rax
-    44 00000034 E8(00000000)            		call Print64bitNumDecimal
-    45 00000039 E8(00000000)            		call PrintComma
-    46 0000003E 48FFC6                  		inc rsi
-    47 00000041 E2E9                    	loop totalLoop
-    48                                  	
-    49 00000043 890425[73000000]        	mov [total], eax
-    50 0000004A 50                      	push rax
-    51 0000004B E8(00000000)            	call Print64bitNumDecimal
-    52 00000050 E8(00000000)            	call PrintComma
-    53 00000055 E8(00000000)            	call Printendl
-    54                                  	;call Print64bitNumHex
+    29                                  	
+    30                                  	;--------- WELCOME ---------
+    31 00000000 E8(00000000)            	call Printendl
+    32 00000005 68[00000000]            	push welcomeAct
+    33 0000000A E8(00000000)            	call PrintString 
+    34 0000000F E8(00000000)            	call Printendl
+    35                                  	
+    36 00000014 B800000000              	mov rax, 0
+    37 00000019 BA00000000              	mov rdx, 0; use register to transfer numbers to total
+    38 0000001E B900000000              	mov rcx, 0 ;clear counter for loops just in case
+    39 00000023 BE00000000              	mov rsi ,0
+    40 00000028 66B90600                	mov cx, valuesArray.len
+    41                                  
+    42                                  	totalLoop:
+    43                                  		
+    44 0000002C 66039E[43000000]        		add bx, [valuesArray + rsi]
+    45 00000033 48FFC6                  		inc rsi
+    46 00000036 E2F4                    	loop totalLoop
+    47                                  	
+    48 00000038 66891C25[73000000]      	mov [total], bx
+    49 00000040 53                      	push rbx
+    50 00000041 E8(00000000)            	call Print64bitNumDecimal
+    51 00000046 E8(00000000)            	call PrintComma
+    52 0000004B 68[73000000]            	push total
+    53 00000050 E8(00000000)            	call PrintString
+    54 00000055 E8(00000000)            	call Printendl	
     55                                  	
-    56                                  	
-    57                                  	;------ GOODBYTE ----
-    58 0000005A E8(00000000)            	call Printendl
-    59 0000005F 68[1E000000]            	push goodbyeAct
-    60 00000064 E8(00000000)            	call PrintString
-    61 00000069 E8(00000000)            	call Printendl
-    62                                  	
-    63                                  ;
-    64                                  ;Setup the registers for exit and poke the kernel
-    65                                  ;Exit: 
-    66                                  Exit:
-    67 0000006E B83C000000              	mov		rax, 60					;60 = system exit
-    68 00000073 BF00000000              	mov		rdi, 0					;0 = return code
-    69 00000078 0F05                    	syscall							;Poke the kernel
+    56                                  	;------ GOODBYTE ----
+    57 0000005A E8(00000000)            	call Printendl
+    58 0000005F 68[1E000000]            	push goodbyeAct
+    59 00000064 E8(00000000)            	call PrintString
+    60 00000069 E8(00000000)            	call Printendl
+    61                                  	
+    62                                  ;
+    63                                  ;Setup the registers for exit and poke the kernel
+    64                                  ;Exit: 
+    65                                  Exit:
+    66 0000006E B83C000000              	mov		rax, 60					;60 = system exit
+    67 00000073 BF00000000              	mov		rdi, 0					;0 = return code
+    68 00000078 0F05                    	syscall							;Poke the kernel
+    69                                  
     70                                  
-    71                                  
-    72                                  ;;TODO:
-    73                                  ;change array3 from indexed to indirect
-    74                                  ;fix array 6
-    75                                  ;do windows too
+    71                                  ;;TODO:
+    72                                  ;change array3 from indexed to indirect
+    73                                  ;fix array 6
+    74                                  ;do windows too

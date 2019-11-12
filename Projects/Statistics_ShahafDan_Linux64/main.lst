@@ -538,7 +538,7 @@
     15 0000005E FFFFFFFFFF00030000-
     15 00000067 000000008E02000000-
     15 00000070 000000             
-    16                                  		.len equ (($ - valuesArray) / 8);divide by 8 because we are using quad word
+    16                                  		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
     17                                  		
     18 00000073 0000000000000000        	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
     19 0000007B 0000000000000000        	average dq	0h
@@ -559,41 +559,42 @@
     34 0000000F E8(00000000)            	call Printendl
     35                                  	
     36 00000014 B800000000              	mov rax, 0
-    37 00000019 BA00000000              	mov rdx, 0; use register to transfer numbers to total
-    38 0000001E B900000000              	mov rcx, 0 ;clear counter for loops just in case
-    39 00000023 BE00000000              	mov rsi ,0
-    40 00000028 66B90600                	mov cx, valuesArray.len
-    41                                  
-    42                                  	totalLoop:
-    43                                  		
-    44 0000002C 66039E[43000000]        		add bx, [valuesArray + rsi]
-    45 00000033 48FFC6                  		inc rsi
-    46 00000036 E2F4                    	loop totalLoop
-    47                                  	
-    48 00000038 66891C25[73000000]      	mov [total], bx
-    49 00000040 53                      	push rbx
-    50 00000041 E8(00000000)            	call Print64bitNumDecimal
-    51 00000046 E8(00000000)            	call PrintComma
-    52 0000004B 68[73000000]            	push total
-    53 00000050 E8(00000000)            	call PrintString
-    54 00000055 E8(00000000)            	call Printendl	
-    55                                  	
+    37 00000019 BB00000000              	mov rbx, 0
+    38 0000001E BA00000000              	mov rdx, 0; use register to transfer numbers to total
+    39 00000023 B900000000              	mov rcx, 0 ;clear counter for loops just in case
+    40 00000028 BE00000000              	mov rsi ,0
+    41                                  	
+    42 0000002D B000                    	mov al, 0
+    43 0000002F 6698                    	cbw
+    44 00000031 66B90600                	mov cx, valuesArray.len
+    45                                  	totalLoop:
+    46 00000035 661386[43000000]        		adc ax, [valuesArray + rsi]
+    47 0000003C 6698                    		cbw ; sign extend al to ah
+    48                                  		;add [total], al
+    49 0000003E 48FFC6                  		inc rsi ;counter++
+    50 00000041 E2F2                    	loop totalLoop
+    51                                  	
+    52                                  	
+    53 00000043 50                      	push rax
+    54 00000044 E8(00000000)            	call Print64bitNumDecimal
+    55                                  
     56                                  	;------ GOODBYTE ----
-    57 0000005A E8(00000000)            	call Printendl
-    58 0000005F 68[1E000000]            	push goodbyeAct
-    59 00000064 E8(00000000)            	call PrintString
-    60 00000069 E8(00000000)            	call Printendl
+    57 00000049 E8(00000000)            	call Printendl
+    58 0000004E 68[1E000000]            	push goodbyeAct
+    59 00000053 E8(00000000)            	call PrintString
+    60 00000058 E8(00000000)            	call Printendl
     61                                  	
     62                                  ;
     63                                  ;Setup the registers for exit and poke the kernel
     64                                  ;Exit: 
     65                                  Exit:
-    66 0000006E B83C000000              	mov		rax, 60					;60 = system exit
-    67 00000073 BF00000000              	mov		rdi, 0					;0 = return code
-    68 00000078 0F05                    	syscall							;Poke the kernel
+    66 0000005D B83C000000              	mov		rax, 60					;60 = system exit
+    67 00000062 BF00000000              	mov		rdi, 0					;0 = return code
+    68 00000067 0F05                    	syscall							;Poke the kernel
     69                                  
     70                                  
     71                                  ;;TODO:
     72                                  ;change array3 from indexed to indirect
     73                                  ;fix array 6
     74                                  ;do windows too
+    75                                  ;https://stackoverflow.com/questions/20302276/adding-signed-numbers-in-assembly

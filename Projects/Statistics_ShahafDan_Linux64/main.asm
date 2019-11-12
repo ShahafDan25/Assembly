@@ -13,7 +13,7 @@ SECTION .data
 	avgAct db "Average is:" , 0ah, 0dh, 0h
 	
 	valuesArray	dq	-999, 878, 776, -580, 768, 654 ;everything should be signed
-		.len equ (($ - valuesArray) / 8);divide by 8 because we are using quad word
+		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
 		
 	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
 	average dq	0h
@@ -34,25 +34,25 @@ _start:
 	call Printendl
 	
 	mov rax, 0
+	mov rbx, 0
 	mov rdx, 0; use register to transfer numbers to total
 	mov rcx, 0 ;clear counter for loops just in case
 	mov rsi ,0
+	
+	mov al, 0
+	cbw
 	mov cx, valuesArray.len
-
 	totalLoop:
-		
-		add bx, [valuesArray + rsi]
-		inc rsi
+		adc ax, [valuesArray + rsi]
+		cbw ; sign extend al to ah
+		;add [total], al
+		inc rsi ;counter++
 	loop totalLoop
 	
-	mov [total], bx
-	push rbx
-	call Print64bitNumDecimal
-	call PrintComma
-	push total
-	call PrintString
-	call Printendl	
 	
+	push rax
+	call Print64bitNumDecimal
+
 	;------ GOODBYTE ----
 	call Printendl
 	push goodbyeAct
@@ -72,3 +72,4 @@ Exit:
 ;change array3 from indexed to indirect
 ;fix array 6
 ;do windows too
+;https://stackoverflow.com/questions/20302276/adding-signed-numbers-in-assembly

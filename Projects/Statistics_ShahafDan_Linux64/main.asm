@@ -12,7 +12,7 @@ SECTION .data
 	goodbyeAct db "Bye, have a good one", 0ah, 0dh, 0h
 	avgAct db "Average is:" , 0ah, 0dh, 0h
 	
-	valuesArray	dq	-999, 878, 776, 580, 768, 654 ;everything should be signed
+	valuesArray	dq	-999, 878, 776, -580, 768, 654 ;everything should be signed
 		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
 		
 	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
@@ -43,24 +43,28 @@ _start:
 	totalLoop:
 	
 		mov rax, [valuesArray + rsi]
-		add [total], rax
-		
-		
-		cont:
+		;bt rax, 64 ;puts the last bit in the carry flag
+		;jc sub ;just in carry (meaning if the left most (most significant) bit is 1, then the number is negative)
+		adc [total], rax
+
 		push rax
 		call Print64bitNumDecimal
 		call Printendl
 		mov rax, 0 ;clear every loop just in case, I guess
-		mov rbx, 0
-		mov rdx, 0
-		add rsi, 8
+		add rsi, 8 ;add 8 bit sfor quad word
 	loop totalLoop
 	
 	call Printendl
 	mov rbx, [total]
 	push rbx
 	call Print64bitNumDecimal
-	
+	mov rax, [total]
+	mov cx, valuesArray.len;set counter	div valuesArray.len ;divide signed rax (total) by rcx (length), then rax will store our integer average
+	idiv rcx
+	mov [average], rax
+	call Printendl
+	push rax
+	call Print64bitNumDecimal
 	;;; ASSUME THAT BY NOW WE HAVE THE TOTAL IN TOTAL
 	
 	

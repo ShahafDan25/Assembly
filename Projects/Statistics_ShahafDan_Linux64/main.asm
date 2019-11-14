@@ -8,11 +8,14 @@
  
 SECTION .data
 	; put your variables below
-	welcomeAct db "Hello World, Assignment #7:", 0ah, 0dh, 0h
+	lineAct db "===============================", 0ah ,0dh, 0h
+	welcomeAct db "Hello World, Assignment #7:", 0ah, 0dh, "We will now calculate the variance of the following values" , 0ah, 0dh, 0h
 	goodbyeAct db "Bye, have a good one", 0ah, 0dh, 0h
 	avgAct db "Average is: ", 0h
 	totalAct db "Total is: ", 0h
 	valuesAct db "the values given are: ", 0h
+	VarianceAct db "The Variance of these values is: ", 0h
+	PrintMinus db "-", 0h
 	valuesArray	dq	-999, 878, 776, -580, 768, 654 ;everything should be signed
 		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
 		
@@ -32,6 +35,8 @@ _start:
 	
 	;--------- WELCOME ---------
 	call Printendl
+	push lineAct
+	call PrintString
 	push welcomeAct
 	call PrintString 
 	call Printendl
@@ -48,13 +53,27 @@ _start:
 	totalLoop:
 		clc ;clear the carry flag
 		mov rax, [valuesArray + rsi]
-		;bt rax, 64 ;puts the last bit in the carry flag
+		
 		;jc negative ;just in carry (meaning if the left most (most significant) bit is 1, then the number is negative)
-		adc [total], rax
+		add [total], rax
+		bt rax, 63;puts the last bit in the carry flag
+		jnc printIt; if not carry flag, the umbe is positive, just print without negative
+		neg rax
+		push PrintMinus
+		call PrintString
+		printIt:
+			push rax
+			call Print64bitNumDecimal
+			cmp rcx, 1 ;just so we dont print the last comma
+			je next ; if this is the last item, avoid printintg the comma
+			call PrintComma
+		next:
 		mov rax, 0 ;clear every loop just in case, I guess
 		add rsi, 8 ;add 8 bit sfor quad word
+		clc
 	loop totalLoop
-
+	call Printendl
+	call Printendl
 	mov rbx, [total]
 	;======== PRINT TOTAL=========
 	push totalAct
@@ -77,31 +96,36 @@ _start:
 	;======= CALCULATING MEAN DIFFERENCES =============
 	mov rax, 0
 	mov rbx, 0
+	call Printendl
 	mov rcx, 0
 	mov rsi, 0 ;clearing registers, first of all
 	mov cx, valuesArray.len;set iterator
-	meanFifLoop
+	MeanDifLoop:
 		; for each value:
 		;1) substract the previosuly calculated mean
 		;2) sqaure the new value
 		;3) add it to varianceTotal
-		mov rax, [valuesAct + rsi] ;move o rax the next value in line
-		sbb rax, [average] ;substract the previously caluated average from the current spoken value stored in rax
+		mov rax, [valuesArray + rsi] ;move o rax the next value in line
+		
+		sub rax, [average] ;substract the previously caluated average from the current spoken value stored in rax
 		imul rax ;multiply rax by rax (squaring it)
 		add [varianceTotal], rax ;add the new values (which much be positive, becauseit was sqaures) to its corresponding variable
 		
 		mov rax, 0 ;clean rax for safety reasons LOL
 		add rsi, 8;8 for quad words
-		
 	loop MeanDifLoop
-	
+		call Printendl
+
+
+;============= PRINT VARIANCE ===============
+push VarianceAct
+call PrintString
 	mov rcx, 0
 	mov rax, 0
+	mov rax, [varianceTotal]
 	mov cx, valuesArray.len
-	mov rax [varianceTotal]
 	idiv rcx ;divide the variance toatl (storedin rax) by rcx
 	mov [varianceAverage], rax
-	
 	push rax
 	call Print64bitNumDecimal
 	;------ GOODBYTE ----
@@ -109,6 +133,8 @@ _start:
 	push goodbyeAct
 	call PrintString
 	call Printendl
+	push lineAct
+	call PrintString
 	
 ;
 ;Setup the registers for exit and poke the kernel
@@ -121,6 +147,4 @@ Exit:
 
 ;;TODO:
 ;print values of the array
-;try other values
-;calculate  means differences
-;sqauer them all
+

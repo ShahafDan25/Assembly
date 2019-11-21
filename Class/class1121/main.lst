@@ -5,87 +5,177 @@
      5                                  ;variables with values go here
      6 00000000 66696C65312E747874-     	fileName db "file1.txt", 0h
      6 00000009 00                 
-     7 0000000A 536F6D652064617461-     	fileText db "Some datat to put onto disk", 0h
+     7 0000000A 536F6D652064617461-     	fileText db "Some datat to put onto disk, we will need to read a file into this string", 0h
      7 00000013 7420746F2070757420-
      7 0000001C 6F6E746F206469736B-
-     7 00000025 00                 
+     7 00000025 2C2077652077696C6C-
+     7 0000002E 206E65656420746F20-
+     7 00000037 726561642061206669-
+     7 00000040 6C6520696E746F2074-
+     7 00000049 68697320737472696E-
+     7 00000052 6700               
      8                                  		.len equ ($ - fileText)
-     9 00000026 0A0D                    	endl db 0ah, 0dh
-    10                                  		.len equ ($ - endl)
-    11                                  section .bss
-    12                                  ;reserved memory goes here
-    13 00000000 <res 00000004>          	outputFile resd 1
-    14                                  	
-    15 00000004 <res 00000004>          	inputFile resd  1
+     9 00000054 536F6D65204D6F7265-     	fileText2 db "Some More text o write into the end of our file", 0h
+     9 0000005D 2074657874206F2077-
+     9 00000066 7269746520696E746F-
+     9 0000006F 2074686520656E6420-
+     9 00000078 6F66206F7572206669-
+     9 00000081 6C6500             
+    10                                  		.len equ ($ - fileText2)
+    11 00000084 0A0D                    	endl db 0ah, 0dh
+    12                                  		.len equ ($ - endl)
+    13                                  section .bss
+    14                                  ;reserved memory goes here
+    15 00000000 <res 00000004>          	outputFile resd 1
     16                                  	
-    17 00000008 <res 000000FF>          	inputBuffer resb 255
-    18                                  		.len equ ($ - inputBuffer)
-    19                                  section .text
-    20                                  ;Your program code goes here
-    21                                  
-    22                                  	global _start
-    23                                  _start:
-    24 00000000 90                          nop
-    25                                  	
-    26                                  	;Your program code should go here
-    27                                  
-    28 00000001 B808000000              	mov eax, 8h ;open for write
-    29 00000006 BB[00000000]            	mov ebx, fileName ;address of file name
-    30                                  	;mov ecx, 01ffh ;Octal 777
-    31 0000000B B9B6010000              	mov ecx, 1b6h
-    32 00000010 CD80                    	int 80h ;poke the kernel
-    33 00000012 A3[00000000]            	mov [outputFile], eax ;Put our file details into eax
-    34                                  	
-    35                                  	
-    36                                  	;---- PROCESS FILE -----
-    37 00000017 B804000000              	mov eax, 4h ;write to  the file
-    38 0000001C 8B1D[00000000]          	mov ebx, [outputFile] ;file descriptor
-    39 00000022 B9[0A000000]            	mov ecx, fileText ;the adddress of the data we want to write
-    40 00000027 BA1C000000              	mov edx, fileText.len ;the length of that data
-    41 0000002C CD80                    	int 80h ;int = interrupt, meaning to poke the kernel
-    42                                  	
-    43                                  	;--------- WRITE A CARRIAGE RETURN AND LINE FEED ---------
-    44 0000002E B804000000              	mov eax, 4h ;write to  the file
-    45 00000033 8B1D[00000000]          	mov ebx, [outputFile] ;file descriptor
-    46 00000039 B9[26000000]            	mov ecx, endl
-    47 0000003E BA02000000              	mov edx, endl.len
-    48 00000043 CD80                    	int 80h ;int = interrupt, meaning to poke the kernel
+    17 00000004 <res 00000004>          	inputFile resd  1
+    18                                  	
+    19 00000008 <res 000000FF>          	inputBuffer resb 255
+    20                                  		.len equ ($ - inputBuffer)
+    21                                  section .text
+    22                                  ;Your program code goes here
+    23                                  
+    24                                  	global _start
+    25                                  _start:
+    26 00000000 90                          nop
+    27                                  	
+    28                                  	;Your program code should go here
+    29                                  
+    30                                  	;------ OPEN THE FILE TO WRITE ------
+    31 00000001 B808000000              	mov eax, 8h ;open for write
+    32 00000006 BB[00000000]            	mov ebx, fileName ;address of file name
+    33                                  	;mov ecx, 01ffh ;Octal 777
+    34 0000000B B9B6010000              	mov ecx, 1b6h
+    35 00000010 CD80                    	int 80h ;poke the kernel
+    36 00000012 A3[00000000]            	mov [outputFile], eax ;Put our file details into eax
+    37                                  	
+    38                                  	
+    39                                  	
+    40                                  	
+    41                                  	;---- PROCESS FILE -----
+    42 00000017 B804000000              	mov eax, 4h ;write to  the file
+    43 0000001C 8B1D[00000000]          	mov ebx, [outputFile] ;file descriptor
+    44 00000022 B9[0A000000]            	mov ecx, fileText ;the adddress of the data we want to write
+    45 00000027 BA4A000000              	mov edx, fileText.len ;the length of that data
+    46 0000002C CD80                    	int 80h ;int = interrupt, meaning to poke the kernel
+    47                                  	
+    48                                  	
     49                                  	
     50                                  	
-    51                                  	
-    52                                  	;----------- CLOSE FILE -----------
-    53 00000045 B806000000              	mov eax, 6h ;Close the file
-    54 0000004A 8B1D[00000000]          	mov ebx, [outputFile] ;file descriptor
-    55 00000050 CD80                    	int 80h;poke the kernel
-    56                                  	
-    57                                  	;------- OPEN THE FILE FOR READ -----------------
-    58 00000052 B805000000              	mov eax, 5h ; open for read
-    59 00000057 BB[00000000]            	mov ebx, fileName ;the name of the flie
-    60 0000005C B900000000              	mov ecx, 0h ;read only
-    61 00000061 CD80                    	int 80h ;poke the kernel
-    62 00000063 A3[04000000]            	mov [inputFile], eax
-    63                                  	
-    64                                  	
-    65                                  	;------------PROCESS INPUT FILE -----------
-    66 00000068 B803000000              	mov eax, 3h ;read from this file
-    67 0000006D 8B1D[04000000]          	mov ebx,[inputFile] ; the input file info
-    68 00000073 B9[08000000]            	mov ecx, inputBuffer ;where the data read goes
-    69 00000078 BAFF000000              	mov edx, inputBuffer.len ;the size of our input buffer
-    70 0000007D CD80                    	int 80h; interuupt the kernel
-    71                                  
-    72                                  	;----------- CLOSE FILE -----------
-    73 0000007F B806000000              	mov eax, 6h ;Close the file
-    74 00000084 8B1D[04000000]          	mov ebx, [inputFile] ;file descriptor
-    75 0000008A CD80                    	int 80h;poke the kernel
+    51                                  	;--------- WRITE A CARRIAGE RETURN AND LINE FEED ---------
+    52 0000002E B804000000              	mov eax, 4h ;write to  the file
+    53 00000033 8B1D[00000000]          	mov ebx, [outputFile] ;file descriptor
+    54 00000039 B9[84000000]            	mov ecx, endl
+    55 0000003E BA02000000              	mov edx, endl.len
+    56 00000043 CD80                    	int 80h ;int = interrupt, meaning to poke the kernel
+    57                                  	
+    58                                  	
+    59                                  	
+    60                                  	
+    61                                  	;----------- CLOSE FILE -----------
+    62 00000045 B806000000              	mov eax, 6h ;Close the file
+    63 0000004A 8B1D[00000000]          	mov ebx, [outputFile] ;file descriptor
+    64 00000050 CD80                    	int 80h;poke the kernel
+    65                                  	
+    66                                  	
+    67                                  	
+    68                                  	;------- APPEND TO THE FILE --------
+    69 00000052 B805000000              	mov eax, 5h 	;open the file
+    70 00000057 BB[00000000]            	mov ebx, fileName ;mov into ebx the file name
+    71 0000005C B902000000              	mov ecx, 2h ;open for read AANNDD write
+    72 00000061 CD80                    	int 80h ;poke the kernel
+    73 00000063 A3[00000000]            	mov [outputFile], eax ;save out file descriptor
+    74                                  	
+    75                                  	
     76                                  	
-    77                                  	
-    78                                  	
-    79                                  	
-    80                                  	endit:
-    81                                  	;Do not remove/change the lines below here.
-    82                                  	;These exit out of the application and back
-    83                                  	;to linux in an orderly fashion
-    84 0000008C 90                      	nop
-    85 0000008D B801000000              	mov eax,1      ; Exit system call value
-    86 00000092 BB00000000              	mov ebx,0      ; Exit return code
-    87 00000097 CD80                    	int 80h        ; Call the kernel
+    77                                  	;--------- POSITION FILE POINTER TO THE END ------------
+    78 00000068 B813000000              	mov eax, 13h ;set position of file pointer
+    79 0000006D 8B1D[00000000]          	mov ebx, [outputFile] ;our file descriptor
+    80 00000073 BA02000000              	mov edx, 2h ;startin at the end of the file 
+    81 00000078 B900000000              	mov ecx, 0h ;move zero bytes
+    82 0000007D CD80                    	int 80h ; tickler the kernel
+    83                                  	
+    84                                  	
+    85                                  	
+    86                                  	
+    87                                  	;----- APPEND NEW DATA TO THE FILE -------
+    88 0000007F B804000000              	mov eax, 4h ;write to  the file
+    89 00000084 8B1D[00000000]          	mov ebx, [outputFile] ;file descriptor
+    90 0000008A B9[54000000]            	mov ecx, fileText2 ;the adddress of the data we want to write
+    91 0000008F BA30000000              	mov edx, fileText2.len ;the length of that data
+    92 00000094 CD80                    	int 80h ;int = interrupt, meaning to poke the kernel
+    93                                  	
+    94                                  	
+    95                                  	
+    96                                  	
+    97                                  	
+    98                                  	;--------- WRITE A CARRIAGE RETURN AND LINE FEED ---------
+    99 00000096 B804000000              	mov eax, 4h ;write to  the file
+   100 0000009B 8B1D[00000000]          	mov ebx, [outputFile] ;file descriptor
+   101 000000A1 B9[84000000]            	mov ecx, endl
+   102 000000A6 BA02000000              	mov edx, endl.len
+   103 000000AB CD80                    	int 80h ;int = interrupt, meaning to poke the kernel
+   104                                  	
+   105                                  	
+   106                                  	
+   107                                  	
+   108                                  	
+   109                                  	;------- OPEN THE FILE FOR READ -----------------
+   110 000000AD B805000000              	mov eax, 5h ; open for read
+   111 000000B2 BB[00000000]            	mov ebx, fileName ;the name of the flie
+   112 000000B7 B900000000              	mov ecx, 0h ;read only
+   113 000000BC CD80                    	int 80h ;poke the kernel
+   114                                  	
+   115                                  						;---- WE SHOULD HAVE THIS WHENEVR THERE IS A PROBLEM< HELPS US TO CATCH THE PROBLEM ------
+   116                                  	
+   117 000000BE 83F800                  	cmp eax, 0h ;;see if the file is still empty, go ahead and close the file
+   118 000000C1 7C29                    	jl endit ;jump to endit if the file did not end
+   119                                  	
+   120 000000C3 A3[04000000]            	mov [inputFile], eax
+   121                                  	
+   122                                  	
+   123                                  	
+   124                                  	
+   125                                  	
+   126                                  	
+   127                                  	;------------PROCESS INPUT FILE -----------
+   128 000000C8 B803000000              	mov eax, 3h ;read from this file
+   129 000000CD 8B1D[04000000]          	mov ebx,[inputFile] ; the input file info
+   130 000000D3 B9[08000000]            	mov ecx, inputBuffer ;where the data read goes
+   131 000000D8 BAFF000000              	mov edx, inputBuffer.len ;the size of our input buffer
+   132 000000DD CD80                    	int 80h; interuupt the kernel
+   133                                  
+   134                                  
+   135                                  
+   136                                  
+   137                                  
+   138                                  	;----------- CLOSE FILE -----------
+   139 000000DF B806000000              	mov eax, 6h ;Close the file
+   140 000000E4 8B1D[04000000]          	mov ebx, [inputFile] ;file descriptor
+   141 000000EA CD80                    	int 80h;poke the kernel
+   142                                  	
+   143                                  	
+   144                                  	
+   145                                  	
+   146                                  	
+   147                                  	;------------ TERMINAL COMMANDS --------------
+   148                                  	;cat file1.txt 
+   149                                  	;woulld print the file input
+   150                                  ;	;
+   151                                  	;ghex file1.txt 
+   152                                  	;will sho the values in hex decimnal in the fileName
+   153                                  ;	;
+   154                                  	;ls -la 
+   155                                  	;would show information about all hte ilesin the directory
+   156                                  	
+   157                                  	;ls /
+   158                                  	;would show also all files that start with /
+   159                                  	
+   160                                  	endit:
+   161                                  	;Do not remove/change the lines below here.
+   162                                  	;These exit out of the application and back
+   163                                  	;to linux in an orderly fashion
+   164 000000EC 90                      	nop
+   165 000000ED B801000000              	mov eax,1      ; Exit system call value
+   166 000000F2 BB00000000              	mov ebx,0      ; Exit return code
+   167 000000F7 CD80                    	int 80h        ; Call the kernel

@@ -528,96 +528,71 @@
     12 00000017 4279652C2068617665-     	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
     12 00000020 206120676F6F642064-
     12 00000029 6179210A0D00       
-    13 0000002F 50726F636573732041-     	pA db "Process A", 0ah, 0dh, 0h
-    13 00000038 0A0D00             
-    14 0000003B 50726F636573732042-     	pB db "Process B", 0ah, 0dh, 0h
-    14 00000044 0A0D00             
-    15 00000047 50726F636573732043-     	pC db "Process C", 0ah, 0dh, 0h
-    15 00000050 0A0D00             
-    16 00000053 50726F636573732044-     	pD db "Process D", 0ah, 0dh, 0h
-    16 0000005C 0A0D00             
-    17 0000005F 44656661756C742050-     	pDefault db "Default Process", 0ah, 0dh, 0h
-    17 00000068 726F636573730A0D00 
-    18                                  	
-    19 00000071 41                      	CaseTable	db 'A'
-    20 00000072 [5A00000000000000]      				dq Process_A
-    21                                  		.entrySize equ($ - CaseTable)
-    22 0000007A 42                      				db 'B'
-    23 0000007B [6500000000000000]      				dq Process_B
-    24 00000083 43                      				db 'C'
-    25 00000084 [7000000000000000]      				dq Process_C
-    26 0000008C 44                      				db 'D'
-    27 0000008D [7B00000000000000]      				dq Process_D
-    28                                  		.numberOfEntries equ ($ - CaseTable) / CaseTable.entrySize
-    29                                  	
-    30                                  SECTION .bss
-    31                                  	;memory reservation goes here
-    32                                  	
-    33                                  	
-    34                                  SECTION     .text
-    35                                  	global  _start
-    36                                       
-    37                                  _start:
-    38 00000000 90                      	nop ;1byte
-    39                                  	;----- WELCOME -----
-    40 00000001 E8(00000000)            	call Printendl
-    41 00000006 68[00000000]            	push welcomeAct
-    42 0000000B E8(00000000)            	call PrintString ;print the welcome prompt
-    43 00000010 E8(00000000)            	call Printendl ;print empty line
+    13                                  	
+    14                                  
+    15 0000002F 0000000000000000        	oldBottomAddress	dq 		0h
+    16 00000037 0000000000000000        	newBottomAddress	dq 		0h
+    17                                  	
+    18                                  SECTION .bss
+    19                                  	;memory reservation goes here
+    20                                  	
+    21                                  	
+    22                                  SECTION     .text
+    23                                  	global  _start
+    24                                       
+    25                                  _start:
+    26                                  	
+    27                                  	
+    28                                  	
+    29                                  	;----- WELCOME -----
+    30 00000000 E8(00000000)            	call Printendl
+    31 00000005 68[00000000]            	push welcomeAct
+    32 0000000A E8(00000000)            	call PrintString ;print the welcome prompt
+    33 0000000F E8(00000000)            	call Printendl ;print empty line
+    34                                  	
+    35 00000014 90                      	nop									; start debuggin point
+    36                                  	;------------ PROGRAM --------------
+    37                                  	
+    38                                  	;obtain current 'bottom' of my program
+    39 00000015 B80C000000              	mov rax, 0ch						;Sysbreak call ;0ch into rax is the code for systeam break call
+    40 0000001A BF00000000              	mov rdi, 0h							;Return into rax the current bottom of the program
+    41 0000001F 0F05                    	syscall								;tickle the kernel
+    42 00000021 48890425[2F000000]      	mov [oldBottomAddress], rax			;Save the old bottom
+    43                                  	
     44                                  	
-    45                                  	;Process the Sqitch statment / case table
-    46 00000015 48B9-                   	mov rcx, CaseTable ;number of items in the switch
-    46 00000017 [7100000000000000] 
-    47 0000001F 48BE-                   	mov rsi, CaseTable ;put the address of our table into rsi
-    47 00000021 [7100000000000000] 
-    48 00000029 B044                    	mov al, 'D' ;our test value
-    49                                  	
-    50                                  	Switch1:
-    51 0000002B 3A06                    		cmp al, [rsi] ;compare our value to the lookup table value
-    52 0000002D 7505                    		jne Switch1_goAgain ; This is not the one
-    53 0000002F FF5601                  		call NEAR [rsi + 1] ; call the function associated with the found value
-    54                                  		;nesr is used to tell the computer we are using an address, not a value
-    55 00000032 EB0B                    		jmp leave_Switch1 ;flag to leave the loop
-    56                                  		
-    57                                  		Switch1_goAgain: ;go to the next one
-    58 00000034 4883C609                			add rsi, CaseTable.entrySize
-    59                                  			
-    60 00000038 E2F1                    	Loop Switch1
-    61 0000003A E847000000              		call Switch_default
-    62                                  	
-    63                                  	
-    64                                  	leave_Switch1: ;a flag to be called to get out of the loop ;equivalent to break; from a loop in c++
-    65                                  	;----- GOODBYE ---
-    66 0000003F 68[17000000]            	push byeAct
-    67 00000044 E8(00000000)            	call PrintString
-    68 00000049 E8(00000000)            	call Printendl
-    69                                  ;
-    70                                  ;Setup the registers for exit and poke the kernel
-    71                                  ;Exit: 
-    72                                  Exit:
-    73 0000004E B83C000000              	mov		rax, 60					;60 = system exit
-    74 00000053 BF00000000              	mov		rdi, 0					;0 = return code
-    75 00000058 0F05                    	syscall							;Poke the kernel
-    76                                  
-    77                                  Process_A:
-    78 0000005A 68[2F000000]            	push pA
-    79 0000005F E8(00000000)            	call PrintString
-    80 00000064 C3                      ret ;finish Process_A
-    81                                  Process_B:
-    82 00000065 68[3B000000]            	push pB
-    83 0000006A E8(00000000)            	call PrintString
-    84 0000006F C3                      ret ;finish Process_B
-    85                                  Process_C:
-    86 00000070 68[47000000]            	push pC
-    87 00000075 E8(00000000)            	call PrintString
-    88 0000007A C3                      ret ;finish Process_C
-    89                                  Process_D:
-    90 0000007B 68[53000000]            	push pD
-    91 00000080 E8(00000000)            	call PrintString
-    92 00000085 C3                      ret ;finish Process_D
-    93                                  Switch_default: ;default condition ;Beleit Breyrah
-    94 00000086 68[5F000000]            	push pDefault
-    95 0000008B E8(00000000)            	call PrintString
-    96 00000090 E299                    	Loop Switch1
-    97 00000092 BB99990000              	mov rbx, 9999h
-    98 00000097 C3                      ret
+    45                                  	;Allocate 100h bytes to the memory area
+    46 00000029 4889C7                  	mov rdi, rax						;Move the bottom address inot rdi
+    47 0000002C 4881C700010000          	add rdi, 100h						;Increase it by 100
+    48 00000033 B80C000000              	mov rax, 0ch							;Sys_break call
+    49 00000038 0F05                    	syscall								;Tickle the kernel
+    50 0000003A 4883F800                	cmp rax, 0							;Did the realloction work? (reallocation of memory)
+    51 0000003E 7C2C                    	jl allocationError					;Jump to that label (flag....) if rax holds a negative number
+    52 00000040 48890425[37000000]      	mov [newBottomAddress], rax			;Save the new bottom
+    53                                  	
+    54 00000048 B900010000              	mov rcx, 100h						;Let's fill our newly allocated memory with 0ah
+    55 0000004D 488B3425[2F000000]      	mov rsi, [oldBottomAddress]			;Addres sof our old last bytewhich is the first new byte of our
+    56                                  	PhilLoop:							;Allocated memory loop
+    57 00000055 C6060A                  		mov  [rsi], BYTE 0ah					;put an 'a' there
+    58 00000058 48FFC6                  		inc rsi							;Go to the next memory location
+    59 0000005B E2F8                    	Loop PhilLoop						;Loop it
+    60                                  	
+    61                                  	;Restore our orginal memory data (deete the previously allocated memory)
+    62 0000005D B80C000000              	mov rax, 0ch						;sys_brk call
+    63 00000062 488B3C25[2F000000]      	mov rdi, [oldBottomAddress]			;our original memory bottom
+    64 0000006A 0F05                    	syscall
+    65                                  	
+    66                                  	allocationError:					; allocation did not go as planned flag / label
+    67 0000006C 90                      	nop 								;1 byte break
+    68                                  	
+    69                                  	;----- GOODBYE ---
+    70 0000006D 68[17000000]            	push byeAct
+    71 00000072 E8(00000000)            	call PrintString
+    72 00000077 E8(00000000)            	call Printendl
+    73                                  ;
+    74                                  ;Setup the registers for exit and poke the kernel
+    75                                  ;Exit: 
+    76                                  Exit:
+    77 0000007C B83C000000              	mov		rax, 60					;60 = system exit
+    78 00000081 BF00000000              	mov		rdi, 0					;0 = return code
+    79 00000086 0F05                    	syscall							;Poke the kernel
+    80                                  

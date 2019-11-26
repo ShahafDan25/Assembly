@@ -74,7 +74,7 @@ myFunc3:
 	
 	;gonna have two arguments sent there from the stack
 	mov eax, [ebp + 8] ;put our second argument into eax
-	mov eax, [ebp + 12]] ;put our first argument into eax
+	mov eax, [ebp + 12] ;put our first argument into eax
 	
 	
 	mov esp, ebp ;restore our stack pointer - tremvoe any local variables

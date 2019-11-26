@@ -16,7 +16,7 @@ SECTION .data
 	valuesAct db "the values given are: ", 0h
 	VarianceAct db "The Variance of these values is: ", 0h
 	PrintMinus db "-", 0h
-	valuesArray	dq	-999, 878, 776, -580, 768, 654 ;everything should be signed
+	valuesArray	dq	999, -878, -776, 580, -768 ;everything should be signed
 		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
 		
 	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
@@ -126,6 +126,7 @@ call PrintString
 	mov cx, valuesArray.len
 	idiv rcx ;divide the variance toatl (storedin rax) by rcx
 	mov [varianceAverage], rax
+	
 	push rax
 	call Print64bitNumDecimal
 	;------ GOODBYTE ----

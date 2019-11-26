@@ -680,82 +680,60 @@
    674                              <1> 
      7                                   
      8                                  SECTION .data
-     9 00000000 57656C636F6D652074-     	welcomeAct	db	"Welcome to my progrm", 0ah, 0dh, 0h
-     9 00000009 6F206D792070726F67-
-     9 00000012 726D0A0D00         
-    10 00000017 4279652C2068617665-     	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
-    10 00000020 206120676F6F642064-
-    10 00000029 6179210A0D00       
-    11                                  
-    12                                  	
-    13                                  SECTION .bss
-    14                                   
-    15                                  SECTION     .text
-    16                                  	global      _start
-    17                                      global myFunc
-    18                                      global myFunc2
-    19                                      global myFunc3
-    20                                  _start:
-    21 00000000 90                      nop
-    22                                  	;----- WELCOME -----
-    23 00000001 E8(00000000)            	call Printendl
-    24 00000006 68[00000000]            	push welcomeAct
-    25 0000000B E8(00000000)            	call PrintString ;print the welcome prompt
-    26 00000010 E8(00000000)            	call Printendl ;print empty line
-    27                                  	
-    28                                  	;---------PROGRAM-----------
-    29 00000015 6811111111              	push 11111111h ;arg#1
-    30 0000001A 6822222222              	push 22222222h ;arg#2
-    31 0000001F E83B000000              	call myFunc3
-    32                                  	
-    33                                  	;----- GOODBYE ---
-    34 00000024 68[17000000]            	push byeAct
-    35 00000029 E8(00000000)            	call PrintString
-    36 0000002E E8(00000000)            	call Printendl
-    37                                  	
-    38                                  ;
-    39                                  ;Setup the registers for exit and poke the kernel
-    40 00000033 90                      	nop
-    41 00000034 B801000000              	mov		eax,1				;What are we going to do? Exit!
-    42 00000039 BB00000000              	mov		ebx,0						;Return code
-    43 0000003E CD80                    	int		80h							;Poke the kernel
-    44                                  
-    45                                  myFunc: 
-    46 00000040 55                      	push ebp;save the caller's ebp pointer
-    47 00000041 89E5                    	mov ebp, esp ;set up outown ebp - stcak foundation of our function
-    48                                  	
-    49                                  	
-    50                                  	
-    51 00000043 89EC                    	mov esp, ebp ;restore our stack pointer - tremvoe any local variables
-    52 00000045 5D                      	pop ebp
-    53 00000046 C3                      ret
-    54                                  
-    55                                  myFunc2: 
-    56 00000047 55                      	push ebp;save the caller's ebp pointer
-    57 00000048 89E5                    	mov ebp, esp ;set up outown ebp - stcak foundation of our function
-    58 0000004A 83EC08                  	sub esp, 8 ;allocate two 4 byte integer variables
-    59                                  	;local variable x is: [ebp - 4]
-    60                                  	;local variable y is: [ebp - 8]
-    61                                  	
-    62 0000004D C745FC11111111          	mov DWORD [ebp - 4], 11111111h ;set x to 11111111
-    63 00000054 C745F822222222          	mov DWORD [ebp - 8], 22222222h ;set y to 22222222
-    64                                  	
-    65                                  	
-    66 0000005B 89EC                    	mov esp, ebp ;restore our stack pointer - tremvoe any local variables
-    67 0000005D 5D                      	pop ebp
-    68 0000005E C3                      ret
-    69                                  
-    70                                  myFunc3: 
-    71 0000005F 55                      	push ebp;save the caller's ebp pointer
-    72 00000060 89E5                    	mov ebp, esp ;set up outown ebp - stcak foundation of our function
-    73 00000062 83EC08                  	sub esp, 8 ;allocate two 4 byte integer variables
-    74                                  	
-    75                                  	;gonna have two arguments sent there from the stack
-    76 00000065 8B4508                  	mov eax, [ebp + 8] ;put our second argument into eax
-    77 00000068 8B450C                  	mov eax, [ebp + 12] ;put our first argument into eax
-    78                                  	
-    79                                  	
-    80 0000006B 89EC                    	mov esp, ebp ;restore our stack pointer - tremvoe any local variables
-    81 0000006D 5D                      	pop ebp
-    82 0000006E C3                      ret
-    83                                  
+     9                                  	
+    10 00000000 48656C6C6F20576F72-     	string1	db	"Hello World", 0h
+    10 00000009 6C6400             
+    11                                  		.len equ ($ - string1) ;create a length
+    12                                  		
+    13 0000000C 100000002000000030-     		dwArray dd 10h, 20h, 30h, 40h
+    13 00000015 00000040000000     
+    14                                  			.len equ($ - dwArray) / 4
+    15                                  			
+    16 0000001C 436F6D706172655374-     	cmpStr1	db	"CompareStr___111", 0h
+    16 00000025 725F5F5F31313100   
+    17                                  		.len equ ($ - cmpStr1)
+    18 0000002D 436F6D706172655374-     	cmpStr2	db	"CompareStr___222", 0h
+    18 00000036 725F5F5F32323200   
+    19                                  		.len equ ($ - cmpStr2)
+    20                                  SECTION .bss
+    21 00000000 <res 000000FF>          	string2	resb 255 ;resevrse 255 bits for that string
+    22 000000FF <res 00000040>          	dwArray2 resd 16 ;reserve 16 dwords
+    23                                  SECTION     .text
+    24                                  	global      _start
+    25                                       
+    26                                  _start:
+    27 00000000 90                      	nop
+    28                                  	
+    29                                  	;---CLASS PRACTICE---
+    30                                  	; MOVSB - Copies Data found at haddress in ESI to address in EDI
+    31 00000001 BE[00000000]            	mov esi, string1
+    32 00000006 BF[00000000]            	mov edi, string2
+    33 0000000B B90C000000              	mov ecx, string1.len
+    34 00000010 F3A4                    	rep movsb 	;copies string 1 to string 2
+    35                                  				;movsx increments esi and edit, decrements ecx
+    36                                  	
+    37                                  	; MOVSD - Copies Data found at haddress in ESI to address in EDI
+    38 00000012 BE[0C000000]            	mov esi, dwArray
+    39 00000017 BF[FF000000]            	mov edi, dwArray2
+    40 0000001C B904000000              	mov ecx, dwArray.len
+    41 00000021 F3A5                    	rep movsd 	;copies array 1 to array 2
+    42                                  	
+    43                                  	; CMPSB = Compare Signle Byte
+    44                                  	; CMPSW = Compare Single Word
+    45                                  	; CMPSD = Compare Signle Double Word
+    46                                  	;;; ==== NOTICE === ;;;;
+    47 00000023 BE[1C000000]            	mov esi, cmpStr1
+    48 00000028 BF[2D000000]            	mov edi, cmpStr2
+    49 0000002D B911000000              	mov ecx, cmpStr1.len
+    50                                  	;compsb >>>>>>>>> would only compare the first single byte of each cmpStr
+    51 00000032 F3A6                    	repe cmpsb ;will repeat until finds a byte that is  equal between the two cmpStr strings; repeat as long as the bytes are not equal
+    52                                  	
+    53                                  	
+    54                                  	
+    55                                  ;
+    56                                  ;Setup the registers for exit and poke the kernel
+    57                                  Exit: 
+    58 00000034 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
+    59 00000039 BB00000000              	mov		ebx,0						;Return code
+    60 0000003E CD80                    	int		80h							;Poke the kernel
+    61                                  

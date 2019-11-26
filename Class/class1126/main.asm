@@ -12,6 +12,7 @@ SECTION .data
 	byeAct db 	"Bye, have a good day!", 0ah , 0dh, 0h
 	
 
+	oldBottomAddress	dq 		0h
 	
 SECTION .bss
 	;memory reservation goes here
@@ -28,6 +29,20 @@ _start:
 	call Printendl ;print empty line
 	
 	;------------ PROGRAM --------------
+	
+	;obtain current 'bottom' of my program
+	mov rax, 0h							;Sysbreak call
+	mov rdi, 0h							; Return into rax the current bottom of the program
+	syscall								;tickle the kernel
+	mov [oldBototmAddress], rax
+	
+	mov rdi, rax						;Move the bottom address inot rdi
+	add rsi, 100h						;Increase it by 100
+	mov rax, 0h							;Sys_break call
+	syscall								;Tickle the kernel
+	mov [newBottomAddress], rax			;Save the new bottom
+	
+	
 	
 	
 	;----- GOODBYE ---

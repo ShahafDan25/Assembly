@@ -18,6 +18,12 @@ SECTION .data
 SECTION .bss
 	;memory reservation goes here
 	
+	programPath		resq		1
+	argumentOne		resq		1
+	argumentTwo		resq		1
+	argumentThree	resq		1
+	numArguments 	resq		1
+	
 	
 SECTION     .text
 	global  _start
@@ -34,6 +40,24 @@ _start:
 	
 	nop									; start debuggin point
 	;------------ PROGRAM --------------
+	
+	pop rax								;Get the number of arguments and put into rax
+	mov [numArguments], rax				;Sav ethe number of arguments
+	pop rax								;Get the address of the first argument - program path
+	mov [programPath], rax				;Save our 1st argument in a variable
+	pop rax								;get the address of our first argument
+	mov [argumentTwo], rax				;save our 2nd arguyment argument
+	pop rax								;Get the address of the second argument
+	mov [argumentThree], rax			;Save our 3rd agument into a variable
+	
+	
+	
+	
+	;to pass arguments to main:
+	;first argument is the program path
+	;simply go to kdbg main
+	;top bar menu: click execution > arguments > types arguments with spaces to separate
+	
 	
 	;obtain current 'bottom' of my program
 	mov rax, 0ch						;Sysbreak call ;0ch into rax is the code for systeam break call

@@ -15,8 +15,10 @@ SECTION .data
 	totalAct db "Total is: ", 0h
 	valuesAct db "the values given are: ", 0h
 	VarianceAct db "The Variance of these values is: ", 0h
-	ref db 0h
 	PrintMinus db "-", 0h
+	
+	
+	
 	;valuesArray	dq	-512, -3, 245, 800, -88 ;everything should be signed
 	;	.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
 	valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
@@ -36,7 +38,7 @@ SECTION     .text
 _start:
 	;code goes here
 	
-	;--------- WELCOME ---------
+	;============ WELCOME MESSAGE =================
 	call Printendl
 	push lineAct
 	call PrintString
@@ -49,6 +51,13 @@ _start:
 	mov rdx, 0; use register to transfer numbers to total
 	mov rcx, 0 ;clear counter for loops just in case
 	mov rsi ,0
+	
+	
+	;Call the calcvariance function
+	push valuesArray					;push into the stack frame	
+	push valuesArray.len				;push into the stack frame
+	call calcvariance					;call the variable
+	
 	
 	;========= PRINT AND CALCULATE VALUES (also total loop =============
 
@@ -164,7 +173,8 @@ call PrintString
 	
 	push rax
 	call Print64bitNumDecimal
-	;------ GOODBYTE ----
+	
+	;=========== GOODBYE MESSAGE ================
 	call Printendl
 	push goodbyeAct
 	call PrintString
@@ -172,7 +182,7 @@ call PrintString
 	push lineAct
 	call PrintString
 	
-;
+;=============== EXIT ==================
 ;Setup the registers for exit and poke the kernel
 ;Exit: 
 Exit:
@@ -180,7 +190,35 @@ Exit:
 	mov		rdi, 0					;0 = return code
 	syscall							;Poke the kernel
 
+;============== VARIANCE CALCULATOR FUNCTION =================
+calcvariance:
+	push rbp 						;Store the current stack frame
+	mov rbp, rsp					;Preserve esp into ebp for argument reference			
+	
+	;code would go here
+	mov rax, [rbp + 24]
+	;mov rbx, [rax]
+	push rax
+	call Print64bitNumDecimal
+	call Printendl
+	
+	;destroy the stack
+	mov rsp, rbp					;Restore the stack position
+	pop rbp							;Restore ebp's original value in the stack frame
+	
+ret 	
 
-;;TODO:
-;print values of the array
+;============= SPACE FOR CONVENIENCE ==================
+
+
+
+
+
+
+
+
+
+
+
+
 

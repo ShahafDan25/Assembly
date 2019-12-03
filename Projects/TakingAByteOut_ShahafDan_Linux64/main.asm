@@ -15,11 +15,12 @@ SECTION .data
 	totalAct db "Total is: ", 0h
 	valuesAct db "the values given are: ", 0h
 	VarianceAct db "The Variance of these values is: ", 0h
+	ref db 0h
 	PrintMinus db "-", 0h
-	valuesArray	dq	-512, -3, 245, 800, -88 ;everything should be signed
-		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
-	;valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+	;valuesArray	dq	-512, -3, 245, 800, -88 ;everything should be signed
 	;	.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
+	valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
 		
 	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
 	average dq	0h
@@ -117,7 +118,6 @@ _start:
 	push rax
 	call Print64bitNumDecimal
 
-		;------- CHECK MARK -------
 	;======= CALCULATING MEAN DIFFERENCES =============
 	mov rax, 0
 	mov rbx, 0
@@ -125,23 +125,23 @@ _start:
 	mov rcx, 0
 	mov rsi, 0 ;clearing registers, first of all
 	mov rcx, valuesArray.len;set iterator
-	mov rdx, 0
-	mov rdx, [total]
 	MeanDifLoop:
 		; for each value:
 		;1) substract the previosuly calculated mean
 		;2) sqaure the new value
 		;3) add it to varianceTotal
 		mov rax, [valuesArray + rsi] ;move o rax the next value in line
-		bt rdx, 63
-		;jnc cont5 ;positive average
-		;jmp cont5 ;positive average
-		mov rbx, [average]
-		add rax, rbx
-		jmp cont4
-		cont5:
+		clc
+		mov rbx, [total]
+		bt rbx, 63
+		jnc cont0
+		add rax, [average]
+		jmp cont9
+		cont0:
 		sub rax, [average]
-		cont4: ;substract the previously caluated average from the current spoken value stored in rax
+		cont9:
+		
+	
 		imul rax ;multiply rax by rax (squaring it)
 		add [varianceTotal], rax ;add the new values (which much be positive, becauseit was sqaures) to its corresponding variable
 		

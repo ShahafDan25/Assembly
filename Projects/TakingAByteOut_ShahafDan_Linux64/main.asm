@@ -16,7 +16,10 @@ SECTION .data
 	valuesAct db "the values given are: ", 0h
 	VarianceAct db "The Variance of these values is: ", 0h
 	PrintMinus db "-", 0h
-	valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+	;valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+	;	.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
+		
+	valuesArray	dq	-999, 878, 776, -580, -768 ;everything should be signed
 		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
 		
 	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
@@ -56,6 +59,7 @@ _start:
 		
 		;jc negative ;just in carry (meaning if the left most (most significant) bit is 1, then the number is negative)
 		add [total], rax
+		clc
 		bt rax, 63;puts the last bit in the carry flag
 		jnc printIt; if not carry flag, the umbe is positive, just print without negative
 		neg rax
@@ -77,32 +81,40 @@ _start:
 	
 	
 	mov rbx, [total]
-	clc
-	bt rbx, 63 ;place the last bit in the carry flag (to indicated if positiveor not)
-	jnc positiveTotal
-	neg rbx
-	positiveTotal:
 	;======== PRINT TOTAL=========
 	push totalAct
 	call PrintString
+	clc
+	bt rbx, 63
+	jnc cont1
+	push PrintMinus
+	call PrintString
+	neg rbx
+	cont1:
 	push rbx
 	call Print64bitNumDecimal
 
+	mov rax, 0
 	mov rax, [total]
-	mov cx, valuesArray.len;set counter	div valuesArray.len ;divide signed rax (total) by rcx (length), then rax will store our integer average
+	mov rcx, valuesArray.len;set counter	div valuesArray.len ;divide signed rax (total) by rcx (length), then rax will store our integer average
+	clc
+	bt rax, 63
+	jnc cont3 ;positive number
+	neg rax
+	cont3:
 	idiv rcx
-	clc ;clear the carry flag
-	bt rax, 63 ;if the number is negative, store the last bit in the cary flag
-	jc positiveAvg;if the number is positive
-	neg rax ;if the number is not positive *negatuive), negate it to be positive
-	positiveAvg:
 	mov [average], rax
 	;======== PRINT AVERGE ===========
 	call Printendl
 	push avgAct
 	call PrintString
+	jc cont2
+	push PrintMinus
+	call PrintString
+	cont2:
 	push rax
 	call Print64bitNumDecimal
+
 	;;; ASSUME THAT BY NOW WE HAVE THE TOTAL IN TOTAL
 	
 	;======= CALCULATING MEAN DIFFERENCES =============

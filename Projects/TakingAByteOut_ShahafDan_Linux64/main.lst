@@ -551,152 +551,164 @@
     17 000000D4 6573652076616C7565-
     17 000000DD 732069733A2000     
     18 000000E4 2D00                    	PrintMinus db "-", 0h
-    19 000000E6 93FEFFFFFFFFFFFF2E-     	valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
-    19 000000EF FDFFFFFFFFFFFF3702-
-    19 000000F8 00000000000094FCFF-
-    19 00000101 FFFFFFFFFF22FFFFFF-
-    19 0000010A FFFFFFFF           
-    20                                  		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
+    19                                  	;valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+    20                                  	;	.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
     21                                  		
-    22 0000010E 0000000000000000        	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
-    23 00000116 0000000000000000        	average dq	0h
-    24 0000011E 0000000000000000        	varianceTotal dq 0h ;store total of squared values previously to calculating variance
-    25 00000126 0000000000000000        	varianceAverage dq 0h
-    26                                  SECTION .bss
-    27                                  	;reserve memory here
-    28                                  	
-    29                                  	
-    30                                  SECTION     .text
-    31                                  	global  _start
-    32                                       
-    33                                  _start:
-    34                                  	;code goes here
-    35                                  	
-    36                                  	;--------- WELCOME ---------
-    37 00000000 E8(00000000)            	call Printendl
-    38 00000005 68[00000000]            	push lineAct
-    39 0000000A E8(00000000)            	call PrintString
-    40 0000000F 68[22000000]            	push welcomeAct
-    41 00000014 E8(00000000)            	call PrintString 
-    42 00000019 E8(00000000)            	call Printendl
-    43                                  	
-    44 0000001E B800000000              	mov rax, 0
-    45 00000023 BB00000000              	mov rbx, 0
-    46 00000028 BA00000000              	mov rdx, 0; use register to transfer numbers to total
-    47 0000002D B900000000              	mov rcx, 0 ;clear counter for loops just in case
-    48 00000032 BE00000000              	mov rsi ,0
-    49                                  	
-    50                                  	;========= PRINT AND CALCULATE VALUES (also total loop =============
-    51                                  
-    52 00000037 66B90500                	mov cx, valuesArray.len;set counter
-    53                                  	totalLoop:
-    54 0000003B F8                      		clc ;clear the carry flag
-    55 0000003C 488B86[E6000000]        		mov rax, [valuesArray + rsi]
-    56                                  		
-    57                                  		;jc negative ;just in carry (meaning if the left most (most significant) bit is 1, then the number is negative)
-    58 00000043 48010425[0E010000]      		add [total], rax
-    59 0000004B 480FBAE03F              		bt rax, 63;puts the last bit in the carry flag
-    60 00000050 730D                    		jnc printIt; if not carry flag, the umbe is positive, just print without negative
-    61 00000052 48F7D8                  		neg rax
-    62 00000055 68[E4000000]            		push PrintMinus
-    63 0000005A E8(00000000)            		call PrintString
-    64                                  		printIt:
-    65 0000005F 50                      			push rax
-    66 00000060 E8(00000000)            			call Print64bitNumDecimal
-    67 00000065 4883F901                			cmp rcx, 1 ;just so we dont print the last comma
-    68 00000069 7405                    			je next ; if this is the last item, avoid printintg the comma
-    69 0000006B E8(00000000)            			call PrintComma
-    70                                  		next:
-    71 00000070 B800000000              		mov rax, 0 ;clear every loop just in case, I guess
-    72 00000075 4883C608                		add rsi, 8 ;add 8 bit sfor quad word
-    73 00000079 F8                      		clc
-    74 0000007A E2BF                    	loop totalLoop
-    75 0000007C E8(00000000)            	call Printendl
-    76 00000081 E8(00000000)            	call Printendl
-    77                                  	
-    78                                  	
-    79 00000086 488B1C25[0E010000]      	mov rbx, [total]
-    80 0000008E F8                      	clc
-    81 0000008F 480FBAE33F              	bt rbx, 63 ;place the last bit in the carry flag (to indicated if positiveor not)
-    82 00000094 7303                    	jnc positiveTotal
-    83 00000096 48F7DB                  	neg rbx
-    84                                  	positiveTotal:
-    85                                  	;======== PRINT TOTAL=========
-    86 00000099 68[A0000000]            	push totalAct
-    87 0000009E E8(00000000)            	call PrintString
-    88 000000A3 53                      	push rbx
-    89 000000A4 E8(00000000)            	call Print64bitNumDecimal
-    90                                  
-    91 000000A9 488B0425[0E010000]      	mov rax, [total]
-    92 000000B1 66B90500                	mov cx, valuesArray.len;set counter	div valuesArray.len ;divide signed rax (total) by rcx (length), then rax will store our integer average
-    93 000000B5 48F7F9                  	idiv rcx
-    94 000000B8 F8                      	clc ;clear the carry flag
-    95 000000B9 480FBAE03F              	bt rax, 63 ;if the number is negative, store the last bit in the cary flag
-    96 000000BE 7203                    	jc positiveAvg;if the number is positive
-    97 000000C0 48F7D8                  	neg rax ;if the number is not positive *negatuive), negate it to be positive
-    98                                  	positiveAvg:
-    99 000000C3 48890425[16010000]      	mov [average], rax
-   100                                  	;======== PRINT AVERGE ===========
-   101 000000CB E8(00000000)            	call Printendl
-   102 000000D0 68[93000000]            	push avgAct
-   103 000000D5 E8(00000000)            	call PrintString
-   104 000000DA 50                      	push rax
-   105 000000DB E8(00000000)            	call Print64bitNumDecimal
-   106                                  	;;; ASSUME THAT BY NOW WE HAVE THE TOTAL IN TOTAL
-   107                                  	
-   108                                  	;======= CALCULATING MEAN DIFFERENCES =============
-   109 000000E0 B800000000              	mov rax, 0
-   110 000000E5 BB00000000              	mov rbx, 0
-   111 000000EA E8(00000000)            	call Printendl
-   112 000000EF B900000000              	mov rcx, 0
-   113 000000F4 BE00000000              	mov rsi, 0 ;clearing registers, first of all
-   114 000000F9 66B90500                	mov cx, valuesArray.len;set iterator
-   115                                  	MeanDifLoop:
-   116                                  		; for each value:
-   117                                  		;1) substract the previosuly calculated mean
-   118                                  		;2) sqaure the new value
-   119                                  		;3) add it to varianceTotal
-   120 000000FD 488B86[E6000000]        		mov rax, [valuesArray + rsi] ;move o rax the next value in line
-   121                                  		
-   122 00000104 482B0425[16010000]      		sub rax, [average] ;substract the previously caluated average from the current spoken value stored in rax
-   123 0000010C 48F7E8                  		imul rax ;multiply rax by rax (squaring it)
-   124 0000010F 48010425[1E010000]      		add [varianceTotal], rax ;add the new values (which much be positive, becauseit was sqaures) to its corresponding variable
-   125                                  		
-   126 00000117 B800000000              		mov rax, 0 ;clean rax for safety reasons LOL
-   127 0000011C 4883C608                		add rsi, 8;8 for quad words
-   128 00000120 E2DB                    	loop MeanDifLoop
-   129 00000122 E8(00000000)            		call Printendl
-   130                                  
-   131                                  
-   132                                  ;============= PRINT VARIANCE ===============
-   133 00000127 68[C2000000]            push VarianceAct
-   134 0000012C E8(00000000)            call PrintString
-   135 00000131 B900000000              	mov rcx, 0
-   136 00000136 B800000000              	mov rax, 0
-   137 0000013B 488B0425[1E010000]      	mov rax, [varianceTotal]
-   138 00000143 66B90500                	mov cx, valuesArray.len
-   139 00000147 48F7F9                  	idiv rcx ;divide the variance toatl (storedin rax) by rcx
-   140 0000014A 48890425[26010000]      	mov [varianceAverage], rax
-   141                                  	
-   142 00000152 50                      	push rax
-   143 00000153 E8(00000000)            	call Print64bitNumDecimal
-   144                                  	;------ GOODBYTE ----
-   145 00000158 E8(00000000)            	call Printendl
-   146 0000015D 68[7C000000]            	push goodbyeAct
-   147 00000162 E8(00000000)            	call PrintString
-   148 00000167 E8(00000000)            	call Printendl
-   149 0000016C 68[00000000]            	push lineAct
-   150 00000171 E8(00000000)            	call PrintString
-   151                                  	
-   152                                  ;
-   153                                  ;Setup the registers for exit and poke the kernel
-   154                                  ;Exit: 
-   155                                  Exit:
-   156 00000176 B83C000000              	mov		rax, 60					;60 = system exit
-   157 0000017B BF00000000              	mov		rdi, 0					;0 = return code
-   158 00000180 0F05                    	syscall							;Poke the kernel
-   159                                  
-   160                                  
-   161                                  ;;TODO:
-   162                                  ;print values of the array
-   163                                  
+    22 000000E6 19FCFFFFFFFFFFFF6E-     	valuesArray	dq	-999, 878, 776, -580, -768 ;everything should be signed
+    22 000000EF 030000000000000803-
+    22 000000F8 000000000000BCFDFF-
+    22 00000101 FFFFFFFFFF00FDFFFF-
+    22 0000010A FFFFFFFF           
+    23                                  		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
+    24                                  		
+    25 0000010E 0000000000000000        	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
+    26 00000116 0000000000000000        	average dq	0h
+    27 0000011E 0000000000000000        	varianceTotal dq 0h ;store total of squared values previously to calculating variance
+    28 00000126 0000000000000000        	varianceAverage dq 0h
+    29                                  SECTION .bss
+    30                                  	;reserve memory here
+    31                                  	
+    32                                  	
+    33                                  SECTION     .text
+    34                                  	global  _start
+    35                                       
+    36                                  _start:
+    37                                  	;code goes here
+    38                                  	
+    39                                  	;--------- WELCOME ---------
+    40 00000000 E8(00000000)            	call Printendl
+    41 00000005 68[00000000]            	push lineAct
+    42 0000000A E8(00000000)            	call PrintString
+    43 0000000F 68[22000000]            	push welcomeAct
+    44 00000014 E8(00000000)            	call PrintString 
+    45 00000019 E8(00000000)            	call Printendl
+    46                                  	
+    47 0000001E B800000000              	mov rax, 0
+    48 00000023 BB00000000              	mov rbx, 0
+    49 00000028 BA00000000              	mov rdx, 0; use register to transfer numbers to total
+    50 0000002D B900000000              	mov rcx, 0 ;clear counter for loops just in case
+    51 00000032 BE00000000              	mov rsi ,0
+    52                                  	
+    53                                  	;========= PRINT AND CALCULATE VALUES (also total loop =============
+    54                                  
+    55 00000037 66B90500                	mov cx, valuesArray.len;set counter
+    56                                  	totalLoop:
+    57 0000003B F8                      		clc ;clear the carry flag
+    58 0000003C 488B86[E6000000]        		mov rax, [valuesArray + rsi]
+    59                                  		
+    60                                  		;jc negative ;just in carry (meaning if the left most (most significant) bit is 1, then the number is negative)
+    61 00000043 48010425[0E010000]      		add [total], rax
+    62 0000004B F8                      		clc
+    63 0000004C 480FBAE03F              		bt rax, 63;puts the last bit in the carry flag
+    64 00000051 730D                    		jnc printIt; if not carry flag, the umbe is positive, just print without negative
+    65 00000053 48F7D8                  		neg rax
+    66 00000056 68[E4000000]            		push PrintMinus
+    67 0000005B E8(00000000)            		call PrintString
+    68                                  		printIt:
+    69 00000060 50                      			push rax
+    70 00000061 E8(00000000)            			call Print64bitNumDecimal
+    71 00000066 4883F901                			cmp rcx, 1 ;just so we dont print the last comma
+    72 0000006A 7405                    			je next ; if this is the last item, avoid printintg the comma
+    73 0000006C E8(00000000)            			call PrintComma
+    74                                  		next:
+    75 00000071 B800000000              		mov rax, 0 ;clear every loop just in case, I guess
+    76 00000076 4883C608                		add rsi, 8 ;add 8 bit sfor quad word
+    77 0000007A F8                      		clc
+    78 0000007B E2BE                    	loop totalLoop
+    79 0000007D E8(00000000)            	call Printendl
+    80 00000082 E8(00000000)            	call Printendl
+    81                                  	
+    82                                  	
+    83 00000087 488B1C25[0E010000]      	mov rbx, [total]
+    84                                  	;======== PRINT TOTAL=========
+    85 0000008F 68[A0000000]            	push totalAct
+    86 00000094 E8(00000000)            	call PrintString
+    87 00000099 F8                      	clc
+    88 0000009A 480FBAE33F              	bt rbx, 63
+    89 0000009F 730D                    	jnc cont1
+    90 000000A1 68[E4000000]            	push PrintMinus
+    91 000000A6 E8(00000000)            	call PrintString
+    92 000000AB 48F7DB                  	neg rbx
+    93                                  	cont1:
+    94 000000AE 53                      	push rbx
+    95 000000AF E8(00000000)            	call Print64bitNumDecimal
+    96                                  
+    97 000000B4 B800000000              	mov rax, 0
+    98 000000B9 488B0425[0E010000]      	mov rax, [total]
+    99 000000C1 B905000000              	mov rcx, valuesArray.len;set counter	div valuesArray.len ;divide signed rax (total) by rcx (length), then rax will store our integer average
+   100 000000C6 F8                      	clc
+   101 000000C7 480FBAE03F              	bt rax, 63
+   102 000000CC 7303                    	jnc cont3 ;positive number
+   103 000000CE 48F7D8                  	neg rax
+   104                                  	cont3:
+   105 000000D1 48F7F9                  	idiv rcx
+   106 000000D4 48890425[16010000]      	mov [average], rax
+   107                                  	;======== PRINT AVERGE ===========
+   108 000000DC E8(00000000)            	call Printendl
+   109 000000E1 68[93000000]            	push avgAct
+   110 000000E6 E8(00000000)            	call PrintString
+   111 000000EB 720A                    	jc cont2
+   112 000000ED 68[E4000000]            	push PrintMinus
+   113 000000F2 E8(00000000)            	call PrintString
+   114                                  	cont2:
+   115 000000F7 50                      	push rax
+   116 000000F8 E8(00000000)            	call Print64bitNumDecimal
+   117                                  
+   118                                  	;;; ASSUME THAT BY NOW WE HAVE THE TOTAL IN TOTAL
+   119                                  	
+   120                                  	;======= CALCULATING MEAN DIFFERENCES =============
+   121 000000FD B800000000              	mov rax, 0
+   122 00000102 BB00000000              	mov rbx, 0
+   123 00000107 E8(00000000)            	call Printendl
+   124 0000010C B900000000              	mov rcx, 0
+   125 00000111 BE00000000              	mov rsi, 0 ;clearing registers, first of all
+   126 00000116 66B90500                	mov cx, valuesArray.len;set iterator
+   127                                  	MeanDifLoop:
+   128                                  		; for each value:
+   129                                  		;1) substract the previosuly calculated mean
+   130                                  		;2) sqaure the new value
+   131                                  		;3) add it to varianceTotal
+   132 0000011A 488B86[E6000000]        		mov rax, [valuesArray + rsi] ;move o rax the next value in line
+   133                                  		
+   134 00000121 482B0425[16010000]      		sub rax, [average] ;substract the previously caluated average from the current spoken value stored in rax
+   135 00000129 48F7E8                  		imul rax ;multiply rax by rax (squaring it)
+   136 0000012C 48010425[1E010000]      		add [varianceTotal], rax ;add the new values (which much be positive, becauseit was sqaures) to its corresponding variable
+   137                                  		
+   138 00000134 B800000000              		mov rax, 0 ;clean rax for safety reasons LOL
+   139 00000139 4883C608                		add rsi, 8;8 for quad words
+   140 0000013D E2DB                    	loop MeanDifLoop
+   141 0000013F E8(00000000)            		call Printendl
+   142                                  
+   143                                  
+   144                                  ;============= PRINT VARIANCE ===============
+   145 00000144 68[C2000000]            push VarianceAct
+   146 00000149 E8(00000000)            call PrintString
+   147 0000014E B900000000              	mov rcx, 0
+   148 00000153 B800000000              	mov rax, 0
+   149 00000158 488B0425[1E010000]      	mov rax, [varianceTotal]
+   150 00000160 66B90500                	mov cx, valuesArray.len
+   151 00000164 48F7F9                  	idiv rcx ;divide the variance toatl (storedin rax) by rcx
+   152 00000167 48890425[26010000]      	mov [varianceAverage], rax
+   153                                  	
+   154 0000016F 50                      	push rax
+   155 00000170 E8(00000000)            	call Print64bitNumDecimal
+   156                                  	;------ GOODBYTE ----
+   157 00000175 E8(00000000)            	call Printendl
+   158 0000017A 68[7C000000]            	push goodbyeAct
+   159 0000017F E8(00000000)            	call PrintString
+   160 00000184 E8(00000000)            	call Printendl
+   161 00000189 68[00000000]            	push lineAct
+   162 0000018E E8(00000000)            	call PrintString
+   163                                  	
+   164                                  ;
+   165                                  ;Setup the registers for exit and poke the kernel
+   166                                  ;Exit: 
+   167                                  Exit:
+   168 00000193 B83C000000              	mov		rax, 60					;60 = system exit
+   169 00000198 BF00000000              	mov		rdi, 0					;0 = return code
+   170 0000019D 0F05                    	syscall							;Poke the kernel
+   171                                  
+   172                                  
+   173                                  ;;TODO:
+   174                                  ;print values of the array
+   175                                  

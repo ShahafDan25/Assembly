@@ -195,6 +195,8 @@ calcvariance:
 	call Print64bitNumDecimal		;average <<
 	call Printendl					;endl;
 	
+	AVG equ 0h
+	mov AVG, rax
 	;------- CREATE SPACE FOR SQUARED VALUES ARRAY ----------
 	mov rcx, 5						;CREATE SIZE VARIABLE GODDAMNIT
 	addStackSpaceLoop:

@@ -685,120 +685,142 @@
     10 00000018 48617665206120636F-     	byeAct 		db	"Have a cool day", 0ah, 0dh, 0h
     10 00000021 6F6C206461790A0D00 
     11                                  	
-    12 0000002A 456E74657220412773-     	enterA		db 	"Enter A's Value please!", 0ah, 0dh, 0h
-    12 00000033 2056616C756520706C-
-    12 0000003C 65617365210A0D00   
-    13 00000044 456E74657220422773-     	enterB		db 	"Enter B's Value please!", 0ah, 0dh, 0h
-    13 0000004D 2056616C756520706C-
-    13 00000056 65617365210A0D00   
-    14 0000005E 456E74657220432773-     	enterC		db 	"Enter C's Value please!", 0ah, 0dh, 0h
-    14 00000067 2056616C756520706C-
-    14 00000070 65617365210A0D00   
-    15                                  	
-    16 00000078 2828412B4229202A20-     	prompt		db "((A+B) * (B / C)) ** 2  = ", 0h
-    16 00000081 2842202F2043292920-
-    16 0000008A 2A2A203220203D2000 
+    12 0000002A 456E74657220412773-     	enterA		db 	"Enter A's Value (float) please!", 0ah, 0dh, 0h
+    12 00000033 2056616C7565202866-
+    12 0000003C 6C6F61742920706C65-
+    12 00000045 617365210A0D00     
+    13 0000004C 456E74657220422773-     	enterB		db 	"Enter B's Value (float) please!", 0ah, 0dh, 0h
+    13 00000055 2056616C7565202866-
+    13 0000005E 6C6F61742920706C65-
+    13 00000067 617365210A0D00     
+    14 0000006E 456E74657220432773-     	enterC		db 	"Enter C's Value (integer) please!", 0ah, 0dh, 0h
+    14 00000077 2056616C7565202869-
+    14 00000080 6E7465676572292070-
+    14 00000089 6C65617365210A0D00 
+    15 00000092 3B6574732063616C63-     	promptA		db 	";ets calculate: ((A+B) * (B / C)) ** 2", 0ah, 0dh, 0h
+    15 0000009B 756C6174653A202828-
+    15 000000A4 412B4229202A202842-
+    15 000000AD 202F20432929202A2A-
+    15 000000B6 20320A0D00         
+    16 000000BB 2828412B4229202A20-     	prompt		db "((A+B) * (B / C)) ** 2  = ", 0h
+    16 000000C4 2842202F2043292920-
+    16 000000CD 2A2A203220203D2000 
     17                                  	
-    18                                  SECTION .bss
+    18 000000D6 696E707574206E6F74-     	nvp db "input not valid, ending program", 0ah, 0dh, 0h
+    18 000000DF 2076616C69642C2065-
+    18 000000E8 6E64696E672070726F-
+    18 000000F1 6772616D0A0D00     
     19                                  	
-    20 00000000 <res 00000004>          	A resd 1
-    21 00000004 <res 00000004>          	B resd 1
-    22 00000008 <res 00000004>          	C resd 1
-    23 0000000C <res 00000004>          	ApB 	resd	1
-    24 00000010 <res 00000004>          	BdC		resd 	1
-    25 00000014 <res 00000004>          	ABC		resd	1
-    26 00000018 <res 00000004>          	D	resd 	1
-    27                                  SECTION     .text
-    28                                  	global      _start
-    29                                       
-    30                                  _start:
-    31                                  	
-    32                                  	;============ WELCOME============
-    33 00000000 E8(00000000)            	call Printendl;
-    34 00000005 68[00000000]            	push welcomeAct ;prepares to call welcomeAct
-    35 0000000A E8(00000000)            	call PrintString ;prints the welcome act
-    36 0000000F E8(00000000)            	call Printendl;prints an empty line
-    37 00000014 E8(00000000)            	call Printendl
-    38                                  	
-    39                                  	;=============== ASSIGNMENT =============
-    40 00000019 90                      	nop
-    41                                  	
-    42                                  	;-----Print and read first
-    43 0000001A B800000000              	mov eax, 0
-    44 0000001F 68[2A000000]            	push enterA
-    45 00000024 E8(00000000)            	call PrintString
-    46 00000029 E8(00000000)            	call Printendl
-    47 0000002E E8(00000000)            	call InputFloat				;stores input in eax
-    48 00000033 D91D[00000000]          	fstp DWORD [A]
-    49                                  	
-    50                                  	
-    51                                  	
-    52 00000039 B800000000              	mov eax, 0
-    53 0000003E 68[44000000]            	push enterB
-    54 00000043 E8(00000000)            	call PrintString
-    55 00000048 E8(00000000)            	call Printendl
-    56 0000004D E8(00000000)            	call InputFloat				;stores input in eax
-    57 00000052 D91D[04000000]          	fstp DWORD [B]
-    58                                  	
-    59 00000058 B800000000              	mov eax, 0
-    60 0000005D 68[5E000000]            	push enterC
-    61 00000062 E8(00000000)            	call PrintString
-    62 00000067 E8(00000000)            	call Printendl
-    63 0000006C E8(00000000)            	call InputUInt				;stores input in eax
-    64 00000071 A3[08000000]            	mov [C], eax
+    20                                  SECTION .bss
+    21                                  	
+    22 00000000 <res 00000004>          	A resd 1
+    23 00000004 <res 00000004>          	B resd 1
+    24 00000008 <res 00000004>          	C resd 1
+    25 0000000C <res 00000004>          	ApB 	resd	1
+    26 00000010 <res 00000004>          	BdC		resd 	1
+    27 00000014 <res 00000004>          	ABC		resd	1
+    28 00000018 <res 00000004>          	D	resd 	1
+    29                                  SECTION     .text
+    30                                  	global      _start
+    31                                       
+    32                                  _start:
+    33                                  	
+    34                                  	;============ WELCOME============
+    35 00000000 E8(00000000)            	call Printendl;
+    36 00000005 68[00000000]            	push welcomeAct ;prepares to call welcomeAct
+    37 0000000A E8(00000000)            	call PrintString ;prints the welcome act
+    38 0000000F E8(00000000)            	call Printendl;prints an empty line
+    39 00000014 E8(00000000)            	call Printendl
+    40                                  	
+    41 00000019 68[92000000]            	push promptA
+    42 0000001E E8(00000000)            	call PrintString
+    43 00000023 E8(00000000)            	call Printendl
+    44                                  	;=============== ASSIGNMENT =============
+    45 00000028 90                      	nop
+    46                                  	
+    47                                  	;-----Print and read first
+    48 00000029 B800000000              	mov eax, 0
+    49 0000002E 68[2A000000]            	push enterA
+    50 00000033 E8(00000000)            	call PrintString
+    51 00000038 E8(00000000)            	call Printendl
+    52 0000003D E8(00000000)            	call InputFloat				;stores input in eax
+    53 00000042 0F82BA000000            	jc notValid
+    54 00000048 D91D[00000000]          	fstp DWORD [A]
+    55                                  	
+    56                                  	
+    57                                  	
+    58 0000004E B800000000              	mov eax, 0
+    59 00000053 68[4C000000]            	push enterB
+    60 00000058 E8(00000000)            	call PrintString
+    61 0000005D E8(00000000)            	call Printendl
+    62 00000062 E8(00000000)            	call InputFloat				;stores input in eax
+    63 00000067 0F8295000000            	jc notValid
+    64 0000006D D91D[04000000]          	fstp DWORD [B]
     65                                  	
-    66 00000076 D905[00000000]          	fld dword [A]					;push A onto the stack
-    67 0000007C D905[04000000]          	fld dword [B]					;push B onto to second spot in the stack
-    68 00000082 DEC1                    	fadd							;add A + B
-    69 00000084 D91D[0C000000]          	fstp dword [ApB]					;store A + B in ApB
-    70                                  	
-    71                                  	
-    72                                  	
-    73 0000008A D905[04000000]          	fld dword [B]					;St(0) = B
-    74 00000090 DB05[08000000]          	fild dword [C]					;ST(1) = C
-    75 00000096 9B                      	fwait
-    76 00000097 DEF9                    	fdiv 							;St(0) = ST0 / St1 = B / C
-    77 00000099 D91D[10000000]          	fstp dword [BdC]				;store St (0) in BdC
+    66 00000073 B800000000              	mov eax, 0
+    67 00000078 68[6E000000]            	push enterC
+    68 0000007D E8(00000000)            	call PrintString
+    69 00000082 E8(00000000)            	call Printendl
+    70 00000087 E8(00000000)            	call InputUInt				;stores input in eax
+    71 0000008C 7274                    	jc notValid
+    72 0000008E A3[08000000]            	mov [C], eax
+    73                                  	
+    74 00000093 D905[00000000]          	fld dword [A]					;push A onto the stack
+    75 00000099 D905[04000000]          	fld dword [B]					;push B onto to second spot in the stack
+    76 0000009F DEC1                    	fadd							;add A + B
+    77 000000A1 D91D[0C000000]          	fstp dword [ApB]					;store A + B in ApB
     78                                  	
-    79                                  			
-    80 0000009F D905[0C000000]          	fld dword [ApB]					;put in ST0
-    81 000000A5 D905[10000000]          	fld dword [BdC]					;put in ST1
-    82 000000AB DEC9                    	fmul 					;multiply the ApB and BdC
-    83                                  	
-    84 000000AD D91D[14000000]          	fstp dword [ABC]
-    85                                  	
+    79                                  	
+    80                                  	
+    81 000000A7 D905[04000000]          	fld dword [B]					;St(0) = B
+    82 000000AD DB05[08000000]          	fild dword [C]					;ST(1) = C
+    83 000000B3 9B                      	fwait
+    84 000000B4 DEF9                    	fdiv 							;St(0) = ST0 / St1 = B / C
+    85 000000B6 D91D[10000000]          	fstp dword [BdC]				;store St (0) in BdC
     86                                  	
-    87                                  	
-    88 000000B3 D905[14000000]          	fld dword [ABC]
-    89 000000B9 D905[14000000]          	fld dword [ABC]
-    90 000000BF DEC9                    	fmul 								;pushin it to the two upper positions in the stack, multiplyling them
+    87                                  			
+    88 000000BC D905[0C000000]          	fld dword [ApB]					;put in ST0
+    89 000000C2 D905[10000000]          	fld dword [BdC]					;put in ST1
+    90 000000C8 DEC9                    	fmul 					;multiply the ApB and BdC
     91                                  	
-    92                                  						;Squaring it
+    92 000000CA D91D[14000000]          	fstp dword [ABC]
     93                                  	
-    94 000000C1 D91D[18000000]          	fstp dword	[D]				;store the final reult in the final reserved variable
-    95                                  		
-    96                                  		
-    97                                  		
-    98                                  		
-    99 000000C7 68[78000000]            	push prompt
-   100 000000CC E8(00000000)            	call PrintString
-   101 000000D1 8B1D[18000000]          	mov ebx, [D]
-   102 000000D7 53                      	push ebx
-   103 000000D8 6A08                    	push 8
-   104 000000DA E8(00000000)            	call PrintDWFloat			;not sure about how to print it
-   105 000000DF E8(00000000)            	call Printendl
-   106                                  	
-   107                                  	
-   108 000000E4 90                      	nop
-   109                                  	
-   110                                  	;================= GOODBYE ===============
-   111 000000E5 68[18000000]            	push byeAct ;print the goodbye statment
-   112 000000EA E8(00000000)            	call PrintString
-   113 000000EF E8(00000000)            	call Printendl
-   114 000000F4 E8(00000000)            	call Printendl
+    94                                  	
+    95                                  	
+    96 000000D0 D905[14000000]          	fld dword [ABC]
+    97 000000D6 D905[14000000]          	fld dword [ABC]
+    98 000000DC DEC9                    	fmul 								;pushin it to the two upper positions in the stack, multiplyling them
+    99                                  	
+   100                                  						;Squaring it
+   101                                  	
+   102 000000DE D91D[18000000]          	fstp dword	[D]				;store the final reult in the final reserved variable
+   103                                  		
+   104                                  		
+   105                                  		
+   106                                  		
+   107 000000E4 68[BB000000]            	push prompt
+   108 000000E9 E8(00000000)            	call PrintString
+   109 000000EE 8B1D[18000000]          	mov ebx, [D]
+   110 000000F4 53                      	push ebx
+   111 000000F5 6A08                    	push 8
+   112 000000F7 E8(00000000)            	call PrintDWFloat			;not sure about how to print it
+   113 000000FC E8(00000000)            	call Printendl
+   114                                  	
    115                                  	
-   116                                  ;Setup the registers for exit and poke the kernel
-   117                                  Exit: 
-   118 000000F9 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
-   119 000000FE BB00000000              	mov		ebx,0						;Return code
-   120 00000103 CD80                    	int		80h							;Poke the kernel
+   116 00000101 90                      	nop
+   117                                  	
+   118                                  	notValid:
+   119 00000102 68[D6000000]            		push nvp
+   120 00000107 E8(00000000)            		call PrintString
+   121 0000010C E8(00000000)            		call Printendl
+   122                                  	;================= GOODBYE ===============
+   123 00000111 68[18000000]            	push byeAct ;print the goodbye statment
+   124 00000116 E8(00000000)            	call PrintString
+   125 0000011B E8(00000000)            	call Printendl
+   126 00000120 E8(00000000)            	call Printendl
+   127                                  	
+   128                                  ;Setup the registers for exit and poke the kernel
+   129                                  Exit: 
+   130 00000125 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
+   131 0000012A BB00000000              	mov		ebx,0						;Return code
+   132 0000012F CD80                    	int		80h							;Poke the kernel

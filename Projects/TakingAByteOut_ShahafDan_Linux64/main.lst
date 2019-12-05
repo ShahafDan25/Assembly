@@ -734,53 +734,54 @@
    195 000001A7 E8(00000000)            	call Print64bitNumDecimal		;average <<
    196 000001AC E8(00000000)            	call Printendl					;endl;
    197                                  	
-   198                                  	;------- CREATE SPACE FOR SQUARED VALUES ARRAY ----------
-   199 000001B1 B905000000              	mov rcx, 5						;CREATE SIZE VARIABLE GODDAMNIT
-   200                                  	addStackSpaceLoop:
-   201 000001B6 4883EC08                		sub rsp, 8		
-   202 000001BA E2FA                    	loop addStackSpaceLoop
-   203                                  	
-   204                                  	;by now we should have x qw values in the stack
-   205                                  	;--------- CALCULATE THE AVERAGE OF THE NEW ARRAY ----------
-   206 000001BC 4889C2                  	mov rdx, rax					;RDX now holds the values mean (RDX = AVERAGE)
-   207 000001BF B800000000              	mov rax, 0						;clear RAX register
-   208 000001C4 B905000000              	mov rcx, 5						;Do we pass the number of elements as a parameter? - CHANGE
-   209 000001C9 488B7D10                	mov rdi, [rbp + 16]
-   210                                  	varianceArrayLoop:
-   211 000001CD 488B07                  		mov rax, [rdi]				;move to rbx the dereferenced value stored in the rdi pointer
-   212                                  		
-   213 000001D0 7305                    		jnc	notNeg4					;not a negative average
-   214 000001D2 4801D0                  			add rax, rdx
-   215 000001D5 EB03                    		jmp neg4
-   216                                  		notNeg4:
-   217 000001D7 4829D0                  			sub rax, rdx
-   218                                  		neg4:
-   219 000001DA 48F7E8                  		imul rax					;Squar the edited value
-   220 000001DD 50                      		push rax					;move the squared values into the next spot in the stack
-   221 000001DE E8(00000000)            		call Print64bitNumDecimal
-   222 000001E3 E8(00000000)            		call PrintComma
-   223 000001E8 4883C708                		add rdi, 8 					;increase rdi (the iterator)
-   224                                  		
-   225 000001EC B800000000              		mov rax, 0					;go to the next argument in the array, whose address is stored in the rdi pointer
-   226 000001F1 E2DA                    	loop varianceArrayLoop
-   227 000001F3 BB00000000              	mov rbx, 0
-   228 000001F8 BF00000000              	mov rdi, 0
-   229 000001FD 488B7D18                	mov rdi, [rbp + 24]				;move to rsi the address of the variable pushed first to the stack
-   230 00000201 B905000000              	mov rcx, 5						;size of array 
-   231                                  	populateTempLoop:
-   232                                  		
-   233 00000206 BB00000000              		mov rbx, 0
-   234 0000020B 4883C708                		add rdi, 8					;to go to the next quad word (8bytes) in the array, indexed way
-   235 0000020F E2F5                    	loop populateTempLoop
-   236                                  	;=========== DESTROY STACK ==============
-   237 00000211 4889EC                  	mov rsp, rbp					;Restore the stack position
-   238 00000214 5D                      	pop rbp							;Restore ebp's original value in the stack frame
-   239                                  	
-   240 00000215 C3                      ret 	
-   241                                  
-   242                                  ;============= SPACE FOR CONVENIENCE ==================
+   198                                  	AVG equ 0h
+   199                                  	mov AVG, rax
+   199          ******************       error: invalid combination of opcode and operands
+   200                                  	;------- CREATE SPACE FOR SQUARED VALUES ARRAY ----------
+   201 000001B1 B905000000              	mov rcx, 5						;CREATE SIZE VARIABLE GODDAMNIT
+   202                                  	addStackSpaceLoop:
+   203 000001B6 4883EC08                		sub rsp, 8		
+   204 000001BA E2FA                    	loop addStackSpaceLoop
+   205                                  	
+   206                                  	;by now we should have x qw values in the stack
+   207                                  	;--------- CALCULATE THE AVERAGE OF THE NEW ARRAY ----------
+   208 000001BC 4889C2                  	mov rdx, rax					;RDX now holds the values mean (RDX = AVERAGE)
+   209 000001BF B800000000              	mov rax, 0						;clear RAX register
+   210 000001C4 B905000000              	mov rcx, 5						;Do we pass the number of elements as a parameter? - CHANGE
+   211 000001C9 488B7D10                	mov rdi, [rbp + 16]
+   212                                  	varianceArrayLoop:
+   213 000001CD 488B07                  		mov rax, [rdi]				;move to rbx the dereferenced value stored in the rdi pointer
+   214                                  		
+   215 000001D0 7305                    		jnc	notNeg4					;not a negative average
+   216 000001D2 4801D0                  			add rax, rdx
+   217 000001D5 EB03                    		jmp neg4
+   218                                  		notNeg4:
+   219 000001D7 4829D0                  			sub rax, rdx
+   220                                  		neg4:
+   221 000001DA 48F7E8                  		imul rax					;Squar the edited value
+   222 000001DD 50                      		push rax					;move the squared values into the next spot in the stack
+   223 000001DE E8(00000000)            		call Print64bitNumDecimal
+   224 000001E3 E8(00000000)            		call PrintComma
+   225 000001E8 4883C708                		add rdi, 8 					;increase rdi (the iterator)
+   226                                  		
+   227 000001EC B800000000              		mov rax, 0					;go to the next argument in the array, whose address is stored in the rdi pointer
+   228 000001F1 E2DA                    	loop varianceArrayLoop
+   229 000001F3 BB00000000              	mov rbx, 0
+   230 000001F8 BF00000000              	mov rdi, 0
+   231 000001FD 488B7D18                	mov rdi, [rbp + 24]				;move to rsi the address of the variable pushed first to the stack
+   232 00000201 B905000000              	mov rcx, 5						;size of array 
+   233                                  	populateTempLoop:
+   234                                  		
+   235 00000206 BB00000000              		mov rbx, 0
+   236 0000020B 4883C708                		add rdi, 8					;to go to the next quad word (8bytes) in the array, indexed way
+   237 0000020F E2F5                    	loop populateTempLoop
+   238                                  	;=========== DESTROY STACK ==============
+   239 00000211 4889EC                  	mov rsp, rbp					;Restore the stack position
+   240 00000214 5D                      	pop rbp							;Restore ebp's original value in the stack frame
+   241                                  	
+   242 00000215 C3                      ret 	
    243                                  
-   244                                  
+   244                                  ;============= SPACE FOR CONVENIENCE ==================
    245                                  
    246                                  
    247                                  
@@ -792,3 +793,5 @@
    253                                  
    254                                  
    255                                  
+   256                                  
+   257                                  

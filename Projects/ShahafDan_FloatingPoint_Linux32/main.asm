@@ -9,11 +9,13 @@ SECTION .data
 	welcomeAct	db	"Welcome to my program", 0ah, 0dh, 0h
 	byeAct 		db	"Have a cool day", 0ah, 0dh, 0h
 	
-	enterA		db 	"Enter A's Value please!", 0ah, 0dh, 0h
-	enterB		db 	"Enter B's Value please!", 0ah, 0dh, 0h
-	enterC		db 	"Enter C's Value please!", 0ah, 0dh, 0h
-	
+	enterA		db 	"Enter A's Value (float) please!", 0ah, 0dh, 0h
+	enterB		db 	"Enter B's Value (float) please!", 0ah, 0dh, 0h
+	enterC		db 	"Enter C's Value (integer) please!", 0ah, 0dh, 0h
+	promptA		db 	";ets calculate: ((A+B) * (B / C)) ** 2", 0ah, 0dh, 0h
 	prompt		db "((A+B) * (B / C)) ** 2  = ", 0h
+	
+	nvp db "input not valid, ending program", 0ah, 0dh, 0h
 	
 SECTION .bss
 	
@@ -36,6 +38,9 @@ _start:
 	call Printendl;prints an empty line
 	call Printendl
 	
+	push promptA
+	call PrintString
+	call Printendl
 	;=============== ASSIGNMENT =============
 	nop
 	
@@ -45,6 +50,7 @@ _start:
 	call PrintString
 	call Printendl
 	call InputFloat				;stores input in eax
+	jc notValid;lcheck for input validity, if not valid, end porgram
 	fstp DWORD [A]
 	
 	
@@ -54,6 +60,7 @@ _start:
 	call PrintString
 	call Printendl
 	call InputFloat				;stores input in eax
+	jc notValid						;lcheck for input validity, if not valid, end porgram
 	fstp DWORD [B]
 	
 	mov eax, 0
@@ -61,6 +68,7 @@ _start:
 	call PrintString
 	call Printendl
 	call InputUInt				;stores input in eax
+	jc notValid
 	mov [C], eax
 	
 	fld dword [A]					;push A onto the stack
@@ -107,6 +115,10 @@ _start:
 	
 	nop
 	
+	notValid:
+		push nvp
+		call PrintString
+		call Printendl
 	;================= GOODBYE ===============
 	push byeAct ;print the goodbye statment
 	call PrintString

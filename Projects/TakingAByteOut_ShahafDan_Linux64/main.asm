@@ -31,7 +31,8 @@ SECTION .data
 	varianceAverage dq 0h
 SECTION .bss
 	;reserve memory here
-	
+	tempArray resq valuesArray.len
+		.len equ (($ - tempArray) / 8);
 	
 SECTION     .text
 	global  _start
@@ -55,8 +56,10 @@ _start:
 	
 	
 	;Call the calcvariance function
+	push tempArray
 	push valuesArray					;push into the stack frame	
 	;push valuesArray.len				;push into the stack frame
+
 	call calcvariance					;call the variable
 	
 	
@@ -157,6 +160,7 @@ calcvariance:
 	
 	call Printendl					;line spacing
 	
+	
 	;------ Print total----------
 	push totalAct					;Print total prompt
 	call PrintString				;Print it
@@ -191,7 +195,44 @@ calcvariance:
 	call Print64bitNumDecimal		;average <<
 	call Printendl					;endl;
 	
+	;------- CREATE SPACE FOR SQUARED VALUES ARRAY ----------
+	mov rcx, 5						;CREATE SIZE VARIABLE GODDAMNIT
+	addStackSpaceLoop:
+		sub rsp, 8		
+	loop addStackSpaceLoop
 	
+	;by now we should have x qw values in the stack
+	;--------- CALCULATE THE AVERAGE OF THE NEW ARRAY ----------
+	mov rdx, rax					;RDX now holds the values mean (RDX = AVERAGE)
+	mov rax, 0						;clear RAX register
+	mov rcx, 5						;Do we pass the number of elements as a parameter? - CHANGE
+	mov rdi, [rbp + 16]
+	varianceArrayLoop:
+		mov rax, [rdi]				;move to rbx the dereferenced value stored in the rdi pointer
+		
+		jnc	notNeg4					;not a negative average
+			add rax, rdx
+		jmp neg4
+		notNeg4:
+			sub rax, rdx
+		neg4:
+		imul rax					;Squar the edited value
+		push rax					;move the squared values into the next spot in the stack
+		call Print64bitNumDecimal
+		call PrintComma
+		add rdi, 8 					;increase rdi (the iterator)
+		
+		mov rax, 0					;go to the next argument in the array, whose address is stored in the rdi pointer
+	loop varianceArrayLoop
+	mov rbx, 0
+	mov rdi, 0
+	mov rdi, [rbp + 24]				;move to rsi the address of the variable pushed first to the stack
+	mov rcx, 5						;size of array 
+	populateTempLoop:
+		
+		mov rbx, 0
+		add rdi, 8					;to go to the next quad word (8bytes) in the array, indexed way
+	loop populateTempLoop
 	;=========== DESTROY STACK ==============
 	mov rsp, rbp					;Restore the stack position
 	pop rbp							;Restore ebp's original value in the stack frame

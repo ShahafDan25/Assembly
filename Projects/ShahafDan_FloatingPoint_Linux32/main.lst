@@ -756,48 +756,49 @@
     72                                  	
     73 0000008A D905[04000000]          	fld dword [B]					;St(0) = B
     74 00000090 DB05[08000000]          	fild dword [C]					;ST(1) = C
-    75 00000096 DEF9                    	fdiv 							;St(0) = ST0 / St1 = B / C
-    76 00000098 D91D[10000000]          	fstp dword [BdC]				;store St (0) in BdC
-    77                                  	
-    78                                  			
-    79 0000009E D905[0C000000]          	fld dword [ApB]					;put in ST0
-    80 000000A4 D905[10000000]          	fld dword [BdC]					;put in ST1
-    81 000000AA DEC9                    	fmul 					;multiply the ApB and BdC
-    82                                  	
-    83 000000AC D91D[14000000]          	fstp dword [ABC]
-    84                                  	
+    75 00000096 9B                      	fwait
+    76 00000097 DEF9                    	fdiv 							;St(0) = ST0 / St1 = B / C
+    77 00000099 D91D[10000000]          	fstp dword [BdC]				;store St (0) in BdC
+    78                                  	
+    79                                  			
+    80 0000009F D905[0C000000]          	fld dword [ApB]					;put in ST0
+    81 000000A5 D905[10000000]          	fld dword [BdC]					;put in ST1
+    82 000000AB DEC9                    	fmul 					;multiply the ApB and BdC
+    83                                  	
+    84 000000AD D91D[14000000]          	fstp dword [ABC]
     85                                  	
     86                                  	
-    87 000000B2 D905[14000000]          	fld dword [ABC]
-    88 000000B8 D905[14000000]          	fld dword [ABC]
-    89 000000BE DEC9                    	fmul 	
-    90                                  	
-    91                                  						;Squaring it
-    92                                  	
-    93 000000C0 D91D[18000000]          	fstp dword	[D]				;store the final reult in the final reserved variable
-    94                                  		
+    87                                  	
+    88 000000B3 D905[14000000]          	fld dword [ABC]
+    89 000000B9 D905[14000000]          	fld dword [ABC]
+    90 000000BF DEC9                    	fmul 								;pushin it to the two upper positions in the stack, multiplyling them
+    91                                  	
+    92                                  						;Squaring it
+    93                                  	
+    94 000000C1 D91D[18000000]          	fstp dword	[D]				;store the final reult in the final reserved variable
     95                                  		
     96                                  		
     97                                  		
-    98 000000C6 68[78000000]            	push prompt
-    99 000000CB E8(00000000)            	call PrintString
-   100 000000D0 8B1D[18000000]          	mov ebx, [D]
-   101 000000D6 53                      	push ebx
-   102 000000D7 6A08                    	push 8
-   103 000000D9 E8(00000000)            	call PrintDWFloat			;not sure about how to print it
-   104 000000DE E8(00000000)            	call Printendl
-   105                                  	
+    98                                  		
+    99 000000C7 68[78000000]            	push prompt
+   100 000000CC E8(00000000)            	call PrintString
+   101 000000D1 8B1D[18000000]          	mov ebx, [D]
+   102 000000D7 53                      	push ebx
+   103 000000D8 6A08                    	push 8
+   104 000000DA E8(00000000)            	call PrintDWFloat			;not sure about how to print it
+   105 000000DF E8(00000000)            	call Printendl
    106                                  	
-   107 000000E3 90                      	nop
-   108                                  	
-   109                                  	;================= GOODBYE ===============
-   110 000000E4 68[18000000]            	push byeAct ;print the goodbye statment
-   111 000000E9 E8(00000000)            	call PrintString
-   112 000000EE E8(00000000)            	call Printendl
-   113 000000F3 E8(00000000)            	call Printendl
-   114                                  	
-   115                                  ;Setup the registers for exit and poke the kernel
-   116                                  Exit: 
-   117 000000F8 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
-   118 000000FD BB00000000              	mov		ebx,0						;Return code
-   119 00000102 CD80                    	int		80h							;Poke the kernel
+   107                                  	
+   108 000000E4 90                      	nop
+   109                                  	
+   110                                  	;================= GOODBYE ===============
+   111 000000E5 68[18000000]            	push byeAct ;print the goodbye statment
+   112 000000EA E8(00000000)            	call PrintString
+   113 000000EF E8(00000000)            	call Printendl
+   114 000000F4 E8(00000000)            	call Printendl
+   115                                  	
+   116                                  ;Setup the registers for exit and poke the kernel
+   117                                  Exit: 
+   118 000000F9 B801000000              	mov		eax,sys_exit				;What are we going to do? Exit!
+   119 000000FE BB00000000              	mov		ebx,0						;Return code
+   120 00000103 CD80                    	int		80h							;Poke the kernel

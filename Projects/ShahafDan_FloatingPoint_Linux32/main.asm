@@ -72,6 +72,7 @@ _start:
 	
 	fld dword [B]					;St(0) = B
 	fild dword [C]					;ST(1) = C
+	fwait
 	fdiv 							;St(0) = ST0 / St1 = B / C
 	fstp dword [BdC]				;store St (0) in BdC
 	
@@ -86,7 +87,7 @@ _start:
 	
 	fld dword [ABC]
 	fld dword [ABC]
-	fmul 	
+	fmul 								;pushin it to the two upper positions in the stack, multiplyling them
 	
 						;Squaring it
 	

@@ -22,22 +22,29 @@
     22 00000000 90                          nop
     23                                  	
     24                                  	;========== CODE ===========
-    25 00000001 DD05[00000000]          	fld	qword [floatVar1]
-    26 00000007 DD05[08000000]          	fld qword [floatVar2]
-    27 0000000D DD05[10000000]          	fld qword [floatVar3]
-    28                                  	
-    29 00000013 DD1D[00000000]          	fstp	qword	[floatStore]
-    30 00000019 DD1D[00000000]          	fstp	qword	[floatStore]
-    31 0000001F DD1D[00000000]          	fstp	qword	[floatStore]
-    32                                  	
+    25                                  	
+    26                                  	;floatVar1 + (floatVar2 * floatVar3)
+    27                                  	
+    28 00000001 DD05[08000000]          	fld	qword [floatVar2]						;push 2,0 onto the stack
+    29 00000007 DD05[10000000]          	fld qword [floatVar3]						;push 225.023 onto the stack
+    30 0000000D DEC9                    	fmul										;floatVar2 * floatVar3
+    31 0000000F DD05[00000000]          	fld qword [floatVar1]						;push 1.0 onto the stack
+    32 00000015 DEC1                    	fadd										;floatVar1 + (floatVar2 * floatVar3)
     33                                  	
-    34                                  	
-    35 00000025 90                      	nop
-    36                                  	
-    37                                  	;Do not remove/change the lines below here.
-    38                                  	;These exit out of the application and back
-    39                                  	;to linux in an orderly fashion
-    40 00000026 90                      	nop
-    41 00000027 B801000000              	mov eax,1      ; Exit system call value
-    42 0000002C BB00000000              	mov ebx,0      ; Exit return code
-    43 00000031 CD80                    	int 80h        ; Call the kernel
+    34 00000017 DD1D[00000000]          	fstp qword [floatStore]						;store the result in the reserved variable
+    35                                  	
+    36 0000001D DD05[10000000]          	fld qword [floatVar3]						;push 225.023
+    37 00000023 D9FA                    	fsqrt										;sqaure root it
+    38 00000025 D9C1                    	fld											;fld would take (ST(0)) and push it again to the FLU Stack
+    39                                  	
+    40                                  	
+    41                                  	
+    42 00000027 90                      	nop
+    43                                  	
+    44                                  	;Do not remove/change the lines below here.
+    45                                  	;These exit out of the application and back
+    46                                  	;to linux in an orderly fashion
+    47 00000028 90                      	nop
+    48 00000029 B801000000              	mov eax,1      ; Exit system call value
+    49 0000002E BB00000000              	mov ebx,0      ; Exit return code
+    50 00000033 CD80                    	int 80h        ; Call the kernel

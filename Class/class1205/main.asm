@@ -22,13 +22,20 @@ _start:
     nop
 	
 	;========== CODE ===========
-	fld	qword [floatVar1]
-	fld qword [floatVar2]
-	fld qword [floatVar3]
 	
-	fstp	qword	[floatStore]
-	fstp	qword	[floatStore]
-	fstp	qword	[floatStore]
+	;floatVar1 + (floatVar2 * floatVar3)
+	
+	fld	qword [floatVar2]						;push 2,0 onto the stack
+	fld qword [floatVar3]						;push 225.023 onto the stack
+	fmul										;floatVar2 * floatVar3
+	fld qword [floatVar1]						;push 1.0 onto the stack
+	fadd										;floatVar1 + (floatVar2 * floatVar3)
+	
+	fstp qword [floatStore]						;store the result in the reserved variable
+	
+	fld qword [floatVar3]						;push 225.023
+	fsqrt										;sqaure root it
+	fld											; THIS WILL NOT take (ST(0)) and push it again to the FLU Stack
 	
 	
 	

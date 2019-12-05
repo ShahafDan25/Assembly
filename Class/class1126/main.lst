@@ -571,48 +571,52 @@
     53                                  	
     54                                  	
     55                                  	
-    56                                  	
-    57                                  	
-    58                                  	;obtain current 'bottom' of my program
-    59 00000039 B80C000000              	mov rax, 0ch						;Sysbreak call ;0ch into rax is the code for systeam break call
-    60 0000003E BF00000000              	mov rdi, 0h							;Return into rax the current bottom of the program
-    61 00000043 0F05                    	syscall								;tickle the kernel
-    62 00000045 48890425[2F000000]      	mov [oldBottomAddress], rax			;Save the old bottom
-    63                                  	
-    64                                  	
-    65                                  	;Allocate 100h bytes to the memory area
-    66 0000004D 4889C7                  	mov rdi, rax						;Move the bottom address inot rdi
-    67 00000050 4881C700010000          	add rdi, 100h						;Increase it by 100
-    68 00000057 B80C000000              	mov rax, 0ch							;Sys_break call
-    69 0000005C 0F05                    	syscall								;Tickle the kernel
-    70 0000005E 4883F800                	cmp rax, 0							;Did the realloction work? (reallocation of memory)
-    71 00000062 7C2C                    	jl allocationError					;Jump to that label (flag....) if rax holds a negative number
-    72 00000064 48890425[37000000]      	mov [newBottomAddress], rax			;Save the new bottom
-    73                                  	
-    74 0000006C B900010000              	mov rcx, 100h						;Let's fill our newly allocated memory with 0ah
-    75 00000071 488B3425[2F000000]      	mov rsi, [oldBottomAddress]			;Addres sof our old last bytewhich is the first new byte of our
-    76                                  	PhilLoop:							;Allocated memory loop
-    77 00000079 C6060A                  		mov  [rsi], BYTE 0ah					;put an 'a' there
-    78 0000007C 48FFC6                  		inc rsi							;Go to the next memory location
-    79 0000007F E2F8                    	Loop PhilLoop						;Loop it
-    80                                  	
-    81                                  	;Restore our orginal memory data (deete the previously allocated memory)
-    82 00000081 B80C000000              	mov rax, 0ch						;sys_brk call
-    83 00000086 488B3C25[2F000000]      	mov rdi, [oldBottomAddress]			;our original memory bottom
-    84 0000008E 0F05                    	syscall
-    85                                  	
-    86                                  	allocationError:					; allocation did not go as planned flag / label
-    87 00000090 90                      	nop 								;1 byte break
-    88                                  	
-    89                                  	;----- GOODBYE ---
-    90 00000091 68[17000000]            	push byeAct
-    91 00000096 E8(00000000)            	call PrintString
-    92 0000009B E8(00000000)            	call Printendl
-    93                                  ;
-    94                                  ;Setup the registers for exit and poke the kernel
-    95                                  ;Exit: 
-    96                                  Exit:
-    97 000000A0 B83C000000              	mov		rax, 60					;60 = system exit
-    98 000000A5 BF00000000              	mov		rdi, 0					;0 = return code
-    99 000000AA 0F05                    	syscall							;Poke the kernel
-   100                                  
+    56                                  	;to pass arguments to main:
+    57                                  	;first argument is the program path
+    58                                  	;simply go to kdbg main
+    59                                  	;top bar menu: click execution > arguments > types arguments with spaces to separate
+    60                                  	
+    61                                  	
+    62                                  	;obtain current 'bottom' of my program
+    63 00000039 B80C000000              	mov rax, 0ch						;Sysbreak call ;0ch into rax is the code for systeam break call
+    64 0000003E BF00000000              	mov rdi, 0h							;Return into rax the current bottom of the program
+    65 00000043 0F05                    	syscall								;tickle the kernel
+    66 00000045 48890425[2F000000]      	mov [oldBottomAddress], rax			;Save the old bottom
+    67                                  	
+    68                                  	
+    69                                  	;Allocate 100h bytes to the memory area
+    70 0000004D 4889C7                  	mov rdi, rax						;Move the bottom address inot rdi
+    71 00000050 4881C700010000          	add rdi, 100h						;Increase it by 100
+    72 00000057 B80C000000              	mov rax, 0ch							;Sys_break call
+    73 0000005C 0F05                    	syscall								;Tickle the kernel
+    74 0000005E 4883F800                	cmp rax, 0							;Did the realloction work? (reallocation of memory)
+    75 00000062 7C2C                    	jl allocationError					;Jump to that label (flag....) if rax holds a negative number
+    76 00000064 48890425[37000000]      	mov [newBottomAddress], rax			;Save the new bottom
+    77                                  	
+    78 0000006C B900010000              	mov rcx, 100h						;Let's fill our newly allocated memory with 0ah
+    79 00000071 488B3425[2F000000]      	mov rsi, [oldBottomAddress]			;Addres sof our old last bytewhich is the first new byte of our
+    80                                  	PhilLoop:							;Allocated memory loop
+    81 00000079 C6060A                  		mov  [rsi], BYTE 0ah					;put an 'a' there
+    82 0000007C 48FFC6                  		inc rsi							;Go to the next memory location
+    83 0000007F E2F8                    	Loop PhilLoop						;Loop it
+    84                                  	
+    85                                  	;Restore our orginal memory data (deete the previously allocated memory)
+    86 00000081 B80C000000              	mov rax, 0ch						;sys_brk call
+    87 00000086 488B3C25[2F000000]      	mov rdi, [oldBottomAddress]			;our original memory bottom
+    88 0000008E 0F05                    	syscall
+    89                                  	
+    90                                  	allocationError:					; allocation did not go as planned flag / label
+    91 00000090 90                      	nop 								;1 byte break
+    92                                  	
+    93                                  	;----- GOODBYE ---
+    94 00000091 68[17000000]            	push byeAct
+    95 00000096 E8(00000000)            	call PrintString
+    96 0000009B E8(00000000)            	call Printendl
+    97                                  ;
+    98                                  ;Setup the registers for exit and poke the kernel
+    99                                  ;Exit: 
+   100                                  Exit:
+   101 000000A0 B83C000000              	mov		rax, 60					;60 = system exit
+   102 000000A5 BF00000000              	mov		rdi, 0					;0 = return code
+   103 000000AA 0F05                    	syscall							;Poke the kernel
+   104                                  

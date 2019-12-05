@@ -9,7 +9,7 @@
 SECTION .data
 	; put your variables below
 	lineAct db "===============================", 0ah ,0dh, 0h
-	welcomeAct db "Hello World, Assignment #7:", 0ah, 0dh, "We will now calculate the variance of the following values" , 0ah, 0dh, 0h
+	welcomeAct db "Hello World, Assignment #8:", 0ah, 0dh, "We will now calculate the variance of the following values" , 0ah, 0dh, 0h
 	goodbyeAct db "Bye, have a good one", 0ah, 0dh, 0h
 	avgAct db "Average is: ", 0h
 	totalAct db "Total is: ", 0h
@@ -19,10 +19,11 @@ SECTION .data
 	
 	
 	
-	;valuesArray	dq	-512, -3, 245, 800, -88 ;everything should be signed
-	;	.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
-	valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+	valuesArray	dq	-512, -3, 245, 800, -88 ;everything should be signed
 		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
+	;valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+	;	.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
+		
 		
 	total	dq	0h; set total to zero, we will use total / length to calculate he average (mean)
 	average dq	0h
@@ -55,77 +56,13 @@ _start:
 	
 	;Call the calcvariance function
 	push valuesArray					;push into the stack frame	
-	push valuesArray.len				;push into the stack frame
+	;push valuesArray.len				;push into the stack frame
 	call calcvariance					;call the variable
 	
 	
 	;========= PRINT AND CALCULATE VALUES (also total loop =============
 
-	mov cx, valuesArray.len;set counter
-	totalLoop:
-		clc ;clear the carry flag
-		mov rax, [valuesArray + rsi]
-		
-		;jc negative ;just in carry (meaning if the left most (most significant) bit is 1, then the number is negative)
-		add [total], rax
-		clc
-		bt rax, 63;puts the last bit in the carry flag
-		jnc printIt; if not carry flag, the umbe is positive, just print without negative
-		neg rax
-		push PrintMinus
-		call PrintString
-		printIt:
-			push rax
-			call Print64bitNumDecimal
-			cmp rcx, 1 ;just so we dont print the last comma
-			je next ; if this is the last item, avoid printintg the comma
-			call PrintComma
-		next:
-		mov rax, 0 ;clear every loop just in case, I guess
-		add rsi, 8 ;add 8 bit sfor quad word
-		clc
-	loop totalLoop
-	call Printendl
-	call Printendl
 	
-	
-	mov rbx, [total]
-	;======== PRINT TOTAL=========
-	push totalAct
-	call PrintString
-	clc
-	bt rbx, 63
-	jnc cont1
-	push PrintMinus
-	call PrintString
-	neg rbx
-	cont1:
-	push rbx
-	call Print64bitNumDecimal
-
-	mov rax, 0
-	mov rax, [total]
-	mov rcx, valuesArray.len;set counter	div valuesArray.len ;divide signed rax (total) by rcx (length), then rax will store our integer average
-	clc
-	bt rax, 63
-	jnc cont3 ;positive number
-	neg rax
-	cont3:
-	idiv rcx
-	mov [average], rax
-	;======== PRINT AVERGE ===========
-	call Printendl
-	push avgAct
-	call PrintString
-	clc
-	mov rbx, [total]
-	bt rbx, 63
-	jnc cont2
-	push PrintMinus
-	call PrintString
-	cont2:
-	push rax
-	call Print64bitNumDecimal
 
 	;======= CALCULATING MEAN DIFFERENCES =============
 	mov rax, 0
@@ -192,17 +129,70 @@ Exit:
 
 ;============== VARIANCE CALCULATOR FUNCTION =================
 calcvariance:
+	;=========CREATE THE STACK============
 	push rbp 						;Store the current stack frame
 	mov rbp, rsp					;Preserve esp into ebp for argument reference			
+	mov rbx, 0						;we will store the total in rbx for now
+	;========= STACK ACTION CODE ============
+	mov rdi, [rbp + 16]				;push the address of the sampleArray stored in rbp + 16 to a pointer variable
+	mov rcx, 5						;Do we pass the number of elements as a parameter? - CHANGE
+	loopie:
+		mov rax, [rdi]				;move to rax the dereferenced value stored in the rdi pointer
+		clc							;clear carry flag, we will use it to detect negative values
+		bt rax, 63					;use bt to store the most SIGNificant bit in the carry flag
+		jnc notNeg					;if carry flag os 0: not negative
+		neg rax	
+		sub rbx, rax				;substract the value from the total
+		push PrintMinus				;print a minus if the vaue is negative
+		call PrintString
+		jmp neg
+		notNeg:						; conitnue code here if the value is not negative
+		add rbx, rax				;add the value to the total
+		neg:						;continue code here if thevalue IS negative
+		push rax					;prepare to print
+		call Print64bitNumDecimal	;Print values
+		call PrintComma				;Print a coma
+		add rdi, 8 					;go to the next argument in the array, whose address is stored in the rdi pointer
+	loop loopie
 	
-	;code would go here
-	mov rax, [rbp + 24]
-	;mov rbx, [rax]
-	push rax
-	call Print64bitNumDecimal
+	call Printendl					;line spacing
+	
+	;------ Print total----------
+	push totalAct					;Print total prompt
+	call PrintString				;Print it
+	clc								;Clear he carry flag: will be used to determine sign of total
+	bt rbx, 63						;get the SIGNficiant bit of the total (storedin rbx)
+	jnc notNeg2						;jump if not negative
+	neg rbx							;but if it negative, re-negate it
+	push PrintMinus					;and also print a minux sign
+	call PrintString				; Print it
+	notNeg2:						;But, if the total (in rbx) is not negative:
+	push rbx						;Prepare printing total
+	call Print64bitNumDecimal		; print total
 	call Printendl
 	
-	;destroy the stack
+	
+	;----------Calculate average----------
+	;carry still holds the negation value!
+	mov rax, 0						;clear rax
+	mov rax, rbx
+	mov rcx, 5						;now rax holds the total
+	idiv rcx						;divide rax with 5 - CHANGE TO A LENGTH VARIABLE
+	
+	push avgAct						;prepare to print average act
+	call PrintString				;print it
+	clc								;Clear carry
+	bt rax, 63						;check SIGNificant bit	
+	jnc notNeg3						;if the number is negative {
+	push PrintMinus					;print a minus
+	call PrintString				;}
+	notNeg3:						;else {...}	
+	push rax						;cout <<
+	call Print64bitNumDecimal		;average <<
+	call Printendl					;endl;
+	
+	
+	;=========== DESTROY STACK ==============
 	mov rsp, rbp					;Restore the stack position
 	pop rbp							;Restore ebp's original value in the stack frame
 	

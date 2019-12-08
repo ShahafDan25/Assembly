@@ -541,135 +541,102 @@
     26 00000024 7308                    		jnc notNeg					;if carry flag os 0: not negative
     27 00000026 48F7D8                  		neg rax	
     28 00000029 4829C3                  		sub rbx, rax				;substract the value from the total
-    29                                  		
-    30                                  		
-    31                                  		;------- PRINT MINUSSS-----------
-    32                                  		
-    33 0000002C EB03                    		jmp neg
-    34                                  		notNeg:						; conitnue code here if the value is not negative
-    35 0000002E 4801C3                  		add rbx, rax				;add the value to the total
-    36                                  		neg:	
-    37                                  
-    38 00000031 50                      		push rax					;prepare to print
-    39 00000032 E8(00000000)            		call Print64bitNumDecimal	;Print values
-    40 00000037 4883F901                		cmp rcx, 1
-    41 0000003B 7405                    		je lastOne
-    42 0000003D E8(00000000)            		call PrintComma				;Print a coma
-    43                                  		lastOne:
-    44 00000042 4883C708                		add rdi, 8
-    45 00000046 E2D3                    	loop loopie
-    46                                  	
-    47 00000048 E8(00000000)            	call Printendl					;line spacing
-    48                                  	
+    29 0000002C EB03                    		jmp neg
+    30                                  		notNeg:						; conitnue code here if the value is not negative
+    31 0000002E 4801C3                  		add rbx, rax				;add the value to the total
+    32                                  		neg:	
+    33 00000031 4883C708                		add rdi, 8
+    34 00000035 E2E4                    	loop loopie
+    35                                  	
+    36 00000037 E8(00000000)            	call Printendl					;line spacing
+    37                                  	
+    38                                  	
+    39                                  
+    40 0000003C 4889DA                  	mov rdx, rbx					;preserve a value: determine sign of total
+    41 0000003F F8                      	clc								;Clear he carry flag: will be used to determine sign of total
+    42 00000040 480FBAE33F              	bt rbx, 63						;get the SIGNficiant bit of the total (storedin rbx)
+    43 00000045 7303                    	jnc notNeg2						;jump if not negative
+    44 00000047 48F7DB                  	neg rbx							;but if it negative, re-negate it
+    45                                  	notNeg2:						;But, if the total (in rbx) is not negative:
+    46                                  
+    47                                  
+    48                                  
     49                                  	
-    50                                  	;------ Print total----------
-    51                                  	;push totalAct					;Print total prompt
-    52                                  	;call PrintString				;Print it
-    53 0000004D 4889DA                  	mov rdx, rbx
-    54 00000050 F8                      	clc								;Clear he carry flag: will be used to determine sign of total
-    55 00000051 480FBAE33F              	bt rbx, 63						;get the SIGNficiant bit of the total (storedin rbx)
-    56 00000056 7303                    	jnc notNeg2						;jump if not negative
-    57 00000058 48F7DB                  	neg rbx							;but if it negative, re-negate it
-    58                                  	;push PrintMinus					;and also print a minux sign
-    59                                  	;call PrintString				; Print it
-    60                                  	notNeg2:						;But, if the total (in rbx) is not negative:
-    61 0000005B 53                      	push rbx						;Prepare printing total
-    62 0000005C E8(00000000)            	call Print64bitNumDecimal		; print total
-    63 00000061 E8(00000000)            	call Printendl
-    64                                  
-    65                                  
-    66                                  	
-    67                                  	;----------Calculate average----------
-    68                                  	;carry still holds the negation value!
-    69 00000066 B800000000              	mov rax, 0						;clear rax
-    70 0000006B 4889D8                  	mov rax, rbx					;now rax holds the total
-    71 0000006E 488B4D18                	mov rcx, [rbp + 24]				;now rcx holds valuesArray.len
-    72 00000072 BB00000000              	mov rbx, 0
-    73 00000077 4889D3                  	mov rbx, rdx
-    74 0000007A 99                      	cdq								;Expand to avoid floating point exception
-    75 0000007B 48F7F9                  	idiv rcx						;divide rax with 5 - CHANGE TO A LENGTH VARIABLE
-    76                                  	
-    77                                  	
-    78                                  	;push avgAct						;prepare to print average act
-    79                                  	;call PrintString				;print it
-    80 0000007E F8                      	clc
-    81 0000007F 480FBAE33F              	bt rbx, 63					;check SIGNificant bit	
-    82 00000084 7300                    	jnc notNeg3					;if the number is negative {
-    83                                  	;push PrintMinus					;print a minus
-    84                                  	;call PrintString				;}
-    85                                  	notNeg3:						;else {...}	
-    86 00000086 50                      	push rax						;cout <<
-    87 00000087 E8(00000000)            	call Print64bitNumDecimal		;average <<
-    88 0000008C E8(00000000)            	call Printendl					;endl;
-    89                                  	
-    90                                  	;sub rsp, 8						;create enough room for an average 
-    91 00000091 50                      	push rax						;rax (average(abs)) is now in the stack in RBP - 8 ;automatically does rsp - 8
-    92 00000092 B800000000              	mov rax, 0
-    93                                  	
-    94 00000097 BE00000000              	mov rsi, 0
-    95                                  						;create enough room for a pointer for another array
-    96                                  	;call Printendl
-    97                                  	;push PrintMinus
-    98                                  	;call PrintString
-    99                                  	;call Printendl
-   100                                  	;by now we should have x qw values in the stack
-   101                                  	;--------- CALCULATE THE AVERAGE OF THE NEW ARRAY ----------
-   102 0000009C 488B55F8                	mov rdx, [rbp - 8]					;RDX now holds the values mean (RDX = AVERAGE)
-   103 000000A0 B800000000              	mov rax, 0	
-   104 000000A5 BF00000000              	mov rdi, 0					;clear RAX register
-   105 000000AA 488B4D18                	mov rcx, [rbp + 24]						;Do we pass the number of elements as a parameter? - CHANGE
-   106 000000AE 488B7D10                	mov rdi, [rbp + 16]
-   107                                  	varianceArrayLoop:
-   108                                  		;sub rsp, 8					;create space for one more values in the array
-   109 000000B2 488B07                  		mov rax, [rdi]				;move to rbx the dereferenced value stored in the rdi pointer
-   110 000000B5 488B55F8                		mov rdx, [rbp - 8]
-   111 000000B9 F8                      		clc
-   112 000000BA 480FBAE33F              		bt rbx, 63
-   113 000000BF 7305                    		jnc	pos						;not a negative
-   114                                  			;neg rax
-   115 000000C1 4801D0                  			add rax, rdx				;if negaative, substract and take absolute value
-   116 000000C4 EB03                    		jmp posCont
-   117                                  		pos:
-   118 000000C6 4829D0                  			sub rax, rdx			;subtract the average in RDX from the current rax value
-   119                                  		posCont:
-   120                                  		
-   121 000000C9 48F7E8                  		imul rax					;Squar the edited value, does something to rdx everytime, so we have to reassign the value to rdx
-   122 000000CC 4883EC08                		sub rsp, 8					;create stack room for 8 more bits
-   123 000000D0 48890424                		mov QWORD [rsp], rax
-   124                                  		
-   125 000000D4 4883C708                		add rdi, 8 					;increase rdi (the iterator)
-   126                                  		
-   127 000000D8 B800000000              		mov rax, 0					;go to the next argument in the array, whose address is stored in the rdi pointer
-   128 000000DD E2D3                    	loop varianceArrayLoop
-   129                                  	
-   130                                  	;----- CALCULATE AVERAGE OF SQUARED VALUES
-   131 000000DF B900000000              	mov rcx, 0
-   132 000000E4 488B4D18                	mov rcx, [rbp + 24]				;the number of elementsin the original array passed to the function
-   133 000000E8 B800000000              	mov rax, 0						;RBX is going to hold our total
-   134 000000ED 4889E2                  	mov rdx, rsp
-   135                                  	
-   136                                  	loopom:
-   137                                  	
-   138 000000F0 480302                  	add rax, [rdx]					;calculate the average (whihc must be positive) of the squared values
-   139 000000F3 4883C208                	add rdx, 8
-   140 000000F7 4883C608                	add rsi, 8
-   141 000000FB E2F3                    	loop loopom
-   142 000000FD B900000000              	mov rcx, 0
-   143 00000102 488B4D18                	mov rcx, [rbp + 24]
-   144                                  	
-   145 00000106 99                      	cdq									;Exapnd into RAX:RDX to avoid floating point exception
-   146                                  	
-   147 00000107 48F7F9                  	idiv rcx
-   148                                  	
-   149                                  	push VarianceAct
-   149          ******************       error: symbol `VarianceAct' undefined
-   150 0000010A E8(00000000)            	call PrintString
-   151                                  								;Divide by the number of elements
-   152 0000010F 50                      	push rax							;
-   153 00000110 E8(00000000)            	call Print64bitNumDecimal
-   154 00000115 E8(00000000)            	call Printendl
-   155                                  	;=========== DESTROY STACK ==============
-   156 0000011A 4889EC                  	mov rsp, rbp					;Restore the stack position
-   157 0000011D 5D                      	pop rbp							;Restore ebp's original value in the stack frame
-   158                                  	
-   159 0000011E C3                      ret 	
+    50                                  	;----------Calculate average----------
+    51                                  	;carry still holds the negation value!
+    52 0000004A B800000000              	mov rax, 0						;clear rax
+    53 0000004F 4889D8                  	mov rax, rbx					;now rax holds the total
+    54 00000052 488B4D18                	mov rcx, [rbp + 24]				;now rcx holds valuesArray.len
+    55 00000056 BB00000000              	mov rbx, 0
+    56 0000005B 4889D3                  	mov rbx, rdx
+    57 0000005E 99                      	cdq								;Expand to avoid floating point exception
+    58 0000005F 48F7F9                  	idiv rcx						;divide rax with 5 - CHANGE TO A LENGTH VARIABLE
+    59                                  	
+    60                                  	
+    61                                  
+    62 00000062 F8                      	clc
+    63 00000063 480FBAE33F              	bt rbx, 63					;check SIGNificant bit	
+    64 00000068 7300                    	jnc notNeg3					;if the number is negative {
+    65                                  	notNeg3:						;else {...}	
+    66 0000006A 50                      	push rax						;rax (average(abs)) is now in the stack in RBP - 8 ;automatically does rsp - 8
+    67 0000006B B800000000              	mov rax, 0
+    68                                  	
+    69 00000070 BE00000000              	mov rsi, 0
+    70                                  	;--------- CALCULATE THE AVERAGE OF THE NEW ARRAY ----------
+    71 00000075 488B55F8                	mov rdx, [rbp - 8]					;RDX now holds the values mean (RDX = AVERAGE)
+    72 00000079 B800000000              	mov rax, 0	
+    73 0000007E BF00000000              	mov rdi, 0					;clear RAX register
+    74 00000083 488B4D18                	mov rcx, [rbp + 24]						;Do we pass the number of elements as a parameter? - CHANGE
+    75 00000087 488B7D10                	mov rdi, [rbp + 16]
+    76                                  	varianceArrayLoop:
+    77                                  		;sub rsp, 8					;create space for one more values in the array
+    78 0000008B 488B07                  		mov rax, [rdi]				;move to rbx the dereferenced value stored in the rdi pointer
+    79 0000008E 488B55F8                		mov rdx, [rbp - 8]
+    80 00000092 F8                      		clc
+    81 00000093 480FBAE33F              		bt rbx, 63
+    82 00000098 7305                    		jnc	pos						;not a negative
+    83 0000009A 4801D0                  			add rax, rdx				;if negaative, substract and take absolute value
+    84 0000009D EB03                    		jmp posCont
+    85                                  		pos:
+    86 0000009F 4829D0                  			sub rax, rdx			;subtract the average in RDX from the current rax value
+    87                                  		posCont:
+    88                                  		
+    89 000000A2 48F7E8                  		imul rax					;Squar the edited value, does something to rdx everytime, so we have to reassign the value to rdx
+    90 000000A5 4883EC08                		sub rsp, 8					;create stack room for 8 more bits
+    91 000000A9 48890424                		mov QWORD [rsp], rax
+    92                                  		
+    93 000000AD 4883C708                		add rdi, 8 					;increase rdi (the iterator)
+    94                                  		
+    95 000000B1 B800000000              		mov rax, 0					;go to the next argument in the array, whose address is stored in the rdi pointer
+    96 000000B6 E2D3                    	loop varianceArrayLoop
+    97                                  	
+    98                                  	;----- CALCULATE AVERAGE OF SQUARED VALUES
+    99 000000B8 B900000000              	mov rcx, 0
+   100 000000BD 488B4D18                	mov rcx, [rbp + 24]				;the number of elementsin the original array passed to the function
+   101 000000C1 B800000000              	mov rax, 0						;RBX is going to hold our total
+   102 000000C6 4889E2                  	mov rdx, rsp
+   103                                  	
+   104                                  	loopom:
+   105                                  	
+   106 000000C9 480302                  	add rax, [rdx]					;calculate the average (whihc must be positive) of the squared values
+   107 000000CC 4883C208                	add rdx, 8
+   108 000000D0 4883C608                	add rsi, 8
+   109 000000D4 E2F3                    	loop loopom
+   110 000000D6 B900000000              	mov rcx, 0
+   111 000000DB 488B4D18                	mov rcx, [rbp + 24]
+   112                                  	
+   113 000000DF 99                      	cdq									;Exapnd into RAX:RDX to avoid floating point exception
+   114                                  	
+   115 000000E0 48F7F9                  	idiv rcx
+   116                                  	
+   117                                  	;push VarianceAct
+   118                                  	;call PrintString
+   119                                  								;Divide by the number of elements
+   120                                  	;push rax							;
+   121                                  	;call Print64bitNumDecimal
+   122                                  	;call Printendl
+   123                                  	;=========== DESTROY STACK ==============
+   124 000000E3 4889EC                  	mov rsp, rbp					;Restore the stack position
+   125 000000E6 5D                      	pop rbp							;Restore ebp's original value in the stack frame
+   126                                  	
+   127 000000E7 C3                      ret 								;returns RAX to the main _start part of the program

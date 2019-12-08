@@ -19,10 +19,10 @@ SECTION .data
 	PrintMinus db "-", 0h
 	
 	
-	valuesArray	dq	-512, -3, 245, 800, -88 ;everything should be signed
-		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
-	;valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+	;valuesArray	dq	-512, -3, 245, 800, -88 ;everything should be signed
 	;	.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
+	valuesArray	dq	-365, -722, 567, -876, -222 ;everything should be signed
+		.len equ (($ - valuesArray) /8 );divide by 8 because we are using quad word
 		
 SECTION .bss
 	
@@ -55,6 +55,42 @@ _start:
 	call calcvariance					;call the variable
 		
 	
+	;RAX HOLDS THE VARIANCE VALUE
+	
+	;Print the values, then the variance
+	;that means: DO NOT TOUCH RAX
+	;---- LOOP TO PRINT NUMBERS ----
+	mov rbx, 0; will hold our current value
+	mov rsi, 0
+	mov rcx, valuesArray.len
+	printArray:
+		clc
+		mov rbx, [valuesArray + rsi]
+		bt rbx, 63
+		jnc printIt
+			neg rbx
+			push PrintMinus
+			call PrintString
+		printIt:
+			push rbx
+			call Print64bitNumDecimal
+			cmp rcx, 1
+			je next
+			call PrintComma
+		next:
+			mov rbx, 0
+			add rsi, 8
+	loop printArray
+	
+	
+	call Printendl
+	call Printendl							;Print some empty space
+	
+	push VarianceAct
+	call PrintString
+	push rax
+	call Print64bitNumDecimal
+	call Printendl
 	;=========== GOODBYE MESSAGE ================
 	call Printendl
 	push goodbyeAct
@@ -75,14 +111,6 @@ Exit:
 
 ;============= SPACE FOR CONVENIENCE ==================
 
-
-
-
-;//// TODO
-
-;3. dont forget to pop unused values
-;4. Print Prompts and Minuses
-;5 Leave as many comments as possible
 
 
 

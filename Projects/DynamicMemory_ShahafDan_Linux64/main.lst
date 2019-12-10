@@ -588,7 +588,7 @@
     30 000001FE <res 00000001>          	numArgs 			resb 	1				; reserve one byte for how many variable are entered to main
     31 000001FF <res 00000008>          	argument			resq		1
     32 00000207 <res 00000078>          	totalBytes			resq	15
-    33                                  	
+    33 0000027F <res 00000001>          	encKey 				resb 	1
     34                                  	
     35                                  	
     36                                  	
@@ -622,13 +622,13 @@
     64 00000035 68[57000000]            	push moreArgsAct
     65 0000003A E8(00000000)            	call PrintString
     66 0000003F E8(00000000)            	call Printendl
-    67 00000044 E921010000              	jmp Exit
+    67 00000044 E948010000              	jmp Exit
     68                                  	
     69                                  	lessArgs:
     70 00000049 68[9C000000]            	push lessArgsAct
     71 0000004E E8(00000000)            	call PrintString
     72 00000053 E8(00000000)            	call Printendl
-    73 00000058 E90D010000              	jmp Exit
+    73 00000058 E934010000              	jmp Exit
     74                                  	
     75                                  	goodNumberArgs:									;the number of arguments pass is two which is okay
     76 0000005D 68[E3000000]            	push goodArgsAct
@@ -650,7 +650,7 @@
     92 00000096 BAA4010000              	mov rdx, 0644o
     93 0000009B 0F05                    	syscall											;Tickle the Kernel
     94 0000009D 4883F800                	cmp rax, 0h
-    95 000000A1 0F8C8F000000            	jl	failedOpening
+    95 000000A1 0F8CB6000000            	jl	failedOpening
     96 000000A7 68[34010000]            	push successInputFile
     97 000000AC E8(00000000)            	call PrintString
     98                                  	
@@ -662,65 +662,79 @@
    104 000000C3 BAA4010000              	mov rdx, 0644o
    105 000000C8 0F05                    	syscall											;Tickle the Kernel
    106 000000CA 4883F800                	cmp rax, 0h
-   107 000000CE 7C66                    	jl	failedOpening
-   108 000000D0 68[34010000]            	push successInputFile
-   109 000000D5 E8(00000000)            	call PrintString
+   107 000000CE 0F8C89000000            	jl	failedOpening
+   108 000000D4 68[34010000]            	push successInputFile
+   109 000000D9 E8(00000000)            	call PrintString
    110                                  	
-   111                                  	;------------------- PART 4) notify the user of the action ---------------
-   112 000000DA 68[80010000]            	push programActionAct							;push display
-   113 000000DF E8(00000000)            	call PrintString								;display
-   114 000000E4 488B0425[00000000]      	mov rax, [inputFileAddress]						;prepare to print the name of the input file
-   115 000000EC 50                      	push rax										;push it
-   116 000000ED E8(00000000)            	call PrintString								;display it
-   117 000000F2 68[99010000]            	push programActionAct2							;push continous display
-   118 000000F7 E8(00000000)            	call PrintString								;display
-   119 000000FC B800000000              	mov rax, 0										;clear it just in case
-   120 00000101 488B0425[FF000000]      	mov rax, [outputFileAddress]					;prepare to print the name of the output file
-   121 00000109 50                      	push rax										;push it
-   122 0000010A E8(00000000)            	call PrintString								; print it
-   123 0000010F E8(00000000)            	call Printendl									;Empty line
-   124                                  	
-   125                                  	;----------------- PART 5) Dynamically allocate 0ffffh bytes ------------
-   126                                  	;stage: get current break address, store it in currentBreak and in iniital break;
-   127 00000114 B82D000000              	mov rax, 45										;System call break
-   128 00000119 BB00000000              	mov rbx, 0										;invalid address
-   129 0000011E 0F05                    	syscall 										;poke the kernel
-   130 00000120 4889C2                  	mov rdx, rax									;store the current address in RDX
-   131                                  	
-   132 00000123 B82D000000              	mov rax, 45										;system break
-   133 00000128 4889D3                  	mov rbx, rdx									;put the current break address in RBX too
-   134 0000012B 4881C3FFFF0000          	add rbx, 0ffffh									;allocate (dynamically) 0ffffh bytes
-   135 00000132 0F05                    	syscall											;Poke the kernel (now additional 0ffffh in the heap)
-   136                                  	
-   137                                  	
-   138                                  	
-   139                                  	;----------------- Failed Opening File ---------------
-   140 00000134 EB34                    	jmp Exit
-   141                                  	failedOpening:
-   142 00000136 68[09010000]            		push failedFileAct
-   143 0000013B E8(00000000)            		call PrintString
-   144 00000140 E8(00000000)            		call Printendl
-   145 00000145 EB23                    	jmp Exit
-   146                                  	
-   147                                  	;=================== GOODBYE MESSAGE =====================
-   148 00000147 E8(00000000)            	call Printendl
-   149 0000014C 68[40000000]            	push byeAct
-   150 00000151 E8(00000000)            	call PrintString
-   151 00000156 E8(00000000)            	call Printendl
-   152 0000015B 68[00000000]            	push lineAct
-   153 00000160 E8(00000000)            	call PrintString
-   154 00000165 E8(00000000)            	call Printendl
-   155                                  
-   156                                  ;
-   157                                  ;Setup the registers for exit and poke the kernel
-   158                                  ;Exit: 
-   159                                  Exit:
-   160 0000016A B83C000000              	mov		rax, 60					;60 = system exit
-   161 0000016F BF00000000              	mov		rdi, 0					;0 = return code
-   162 00000174 0F05                    	syscall							;Poke the kernel
-   163                                  
-   164                                  
-   165                                  ;=================== TO DO LIST ======================
-   166                                  ; check if the file exists ---- https://gist.github.com/Archenoth/5380671
-   167                                  
-   168                                  
+   111                                  	;------ MINI PART: ask the user for an encryption key----------
+   112 000000DE 68[AF010000]            	push encKeyAct
+   113 000000E3 E8(00000000)            	call PrintString
+   114 000000E8 E8(00000000)            	call Printendl
+   115 000000ED E8(00000000)            	call ReadText									;store input ket in rax
+   116 000000F2 48890425[7F020000]      	mov [encKey], rax
+   117                                  	
+   118                                  	
+   119                                  	;------------------- PART 4) notify the user of the action ---------------
+   120 000000FA 68[80010000]            	push programActionAct							;push display
+   121 000000FF E8(00000000)            	call PrintString								;display
+   122 00000104 488B0425[00000000]      	mov rax, [inputFileAddress]						;prepare to print the name of the input file
+   123 0000010C 50                      	push rax										;push it
+   124 0000010D E8(00000000)            	call PrintString								;display it
+   125 00000112 68[99010000]            	push programActionAct2							;push continous display
+   126 00000117 E8(00000000)            	call PrintString								;display
+   127 0000011C B800000000              	mov rax, 0										;clear it just in case
+   128 00000121 488B0425[FF000000]      	mov rax, [outputFileAddress]					;prepare to print the name of the output file
+   129 00000129 50                      	push rax										;push it
+   130 0000012A E8(00000000)            	call PrintString								; print it
+   131 0000012F E8(00000000)            	call Printendl									;Empty line
+   132                                  	
+   133                                  	;----------------- PART 5) Dynamically allocate 0ffffh bytes ------------
+   134                                  	;stage: get current break address, store it in currentBreak and in iniital break;
+   135 00000134 B82D000000              	mov rax, 45										;System call break
+   136 00000139 BB00000000              	mov rbx, 0										;invalid address
+   137 0000013E 0F05                    	syscall 										;poke the kernel
+   138 00000140 4889C2                  	mov rdx, rax									;store the current address in RDX
+   139                                  	
+   140 00000143 B82D000000              	mov rax, 45										;system break
+   141 00000148 4889D3                  	mov rbx, rdx									;put the current break address in RBX too
+   142 0000014B 4881C3FFFF0000          	add rbx, 0ffffh									;allocate (dynamically) 0ffffh bytes
+   143 00000152 0F05                    	syscall											;Poke the kernel (now additional 0ffffh in the heap)
+   144                                  	
+   145                                  	;-------- PART 6) Loop: read 0ffffh bytes from the file into the allocated memory ------------
+   146 00000154 B9FFFF0000              	mov rcx, 0ffffh
+   147                                  	; RDX still holds the break in memory for the allocated 0ffffh bytes - might create a variable later
+   148                                  	readFileLoop:
+   149                                  		
+   150 00000159 E2FE                    	loop readFileLoop
+   151                                  	
+   152                                  	
+   153                                  	;----------------- Failed Opening File ---------------
+   154 0000015B EB34                    	jmp Exit
+   155                                  	failedOpening:
+   156 0000015D 68[09010000]            		push failedFileAct
+   157 00000162 E8(00000000)            		call PrintString
+   158 00000167 E8(00000000)            		call Printendl
+   159 0000016C EB23                    	jmp Exit
+   160                                  	
+   161                                  	;=================== GOODBYE MESSAGE =====================
+   162 0000016E E8(00000000)            	call Printendl
+   163 00000173 68[40000000]            	push byeAct
+   164 00000178 E8(00000000)            	call PrintString
+   165 0000017D E8(00000000)            	call Printendl
+   166 00000182 68[00000000]            	push lineAct
+   167 00000187 E8(00000000)            	call PrintString
+   168 0000018C E8(00000000)            	call Printendl
+   169                                  
+   170                                  ;
+   171                                  ;Setup the registers for exit and poke the kernel
+   172                                  ;Exit: 
+   173                                  Exit:
+   174 00000191 B83C000000              	mov		rax, 60					;60 = system exit
+   175 00000196 BF00000000              	mov		rdi, 0					;0 = return code
+   176 0000019B 0F05                    	syscall							;Poke the kernel
+   177                                  
+   178                                  
+   179                                  ;=================== TO DO LIST ======================
+   180                                  ; check if the file exists ---- https://gist.github.com/Archenoth/5380671
+   181                                  
+   182                                  

@@ -30,7 +30,7 @@ SECTION .bss
 	numArgs 			resb 	1				; reserve one byte for how many variable are entered to main
 	argument			resq		1
 	totalBytes			resq	15
-	
+	encKey 				resb 	1
 	
 	
 	
@@ -108,6 +108,14 @@ _start:
 	push successInputFile
 	call PrintString
 	
+	;------ MINI PART: ask the user for an encryption key----------
+	push encKeyAct
+	call PrintString
+	call Printendl
+	call ReadText									;store input ket in rax
+	mov [encKey], rax
+	
+	
 	;------------------- PART 4) notify the user of the action ---------------
 	push programActionAct							;push display
 	call PrintString								;display
@@ -134,6 +142,12 @@ _start:
 	add rbx, 0ffffh									;allocate (dynamically) 0ffffh bytes
 	syscall											;Poke the kernel (now additional 0ffffh in the heap)
 	
+	;-------- PART 6) Loop: read 0ffffh bytes from the file into the allocated memory ------------
+	mov rcx, 0ffffh
+	; RDX still holds the break in memory for the allocated 0ffffh bytes - might create a variable later
+	readFileLoop:
+		
+	loop readFileLoop
 	
 	
 	;----------------- Failed Opening File ---------------

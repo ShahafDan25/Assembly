@@ -21,7 +21,7 @@ SECTION .data
 		.len equ ($ - endl)
 	programActionAct	db	"Copying From the Source ", 0h
 	programActionAct2	db	", to the destination ", 0h
-
+	encKeyAct			db		"Please enter the encryption key", 0ah, 0dh, 0h
 
 SECTION .bss
 	;reserve memory here
@@ -85,22 +85,27 @@ _start:
 	mov rax, 0										;clear the rax register
 	
 	;-------------------- PART 2) open inputFile ------------------
-	mov rax, 5h										;open for read
-	mov rbx, [inputFileAddress]						;the nam of the file
-	mov rcx, 0h										;Read only
-	int 80h											;Tickle the Kernel
-	jnc	failedOpening								;if error opening the file, carry flag is turned on
+	
+	mov rax, 2h										;sys_open
+	mov rdi, QWORD [inputFileAddress]				;rdi holds the address of the file
+	mov rsi, 0										;Read/Write permission only
+	mov rdx, 0644o
+	syscall											;Tickle the Kernel
+	cmp rax, 0h
+	jl	failedOpening
 	push successInputFile
 	call PrintString
 	
 	
 	;-------------------- PART 3) open outputFile ------------------
-	mov rax, 8h										;open for write
-	mov rbx, outputFileAddress						;the nam of the file
-	mov rcx, 1b6h										;Read only
-	int 80h											;Tickle the Kernel
-	jnc	failedOpening								;if error opening the file, carry flag is turned on
-	push successOutputFile
+	mov rax, 2h										;sys_open
+	mov rdi, QWORD [outputFileAddress]				;rdi holds the address of the file
+	mov rsi, 0										;Read/Write permission only
+	mov rdx, 0644o
+	syscall											;Tickle the Kernel
+	cmp rax, 0h
+	jl	failedOpening
+	push successInputFile
 	call PrintString
 	
 	;------------------- PART 4) notify the user of the action ---------------
@@ -152,6 +157,6 @@ Exit:
 
 
 ;=================== TO DO LIST ======================
-
+; check if the file exists ---- https://gist.github.com/Archenoth/5380671
 
 

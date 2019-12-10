@@ -622,13 +622,13 @@
     64 00000035 68[57000000]            	push moreArgsAct
     65 0000003A E8(00000000)            	call PrintString
     66 0000003F E8(00000000)            	call Printendl
-    67 00000044 E9FD000000              	jmp Exit
+    67 00000044 E921010000              	jmp Exit
     68                                  	
     69                                  	lessArgs:
     70 00000049 68[9C000000]            	push lessArgsAct
     71 0000004E E8(00000000)            	call PrintString
     72 00000053 E8(00000000)            	call Printendl
-    73 00000058 E9E9000000              	jmp Exit
+    73 00000058 E90D010000              	jmp Exit
     74                                  	
     75                                  	goodNumberArgs:									;the number of arguments pass is two which is okay
     76 0000005D 68[E3000000]            	push goodArgsAct
@@ -650,71 +650,77 @@
     92 00000096 BAA4010000              	mov rdx, 0644o
     93 0000009B 0F05                    	syscall											;Tickle the Kernel
     94 0000009D 4883F800                	cmp rax, 0h
-    95 000000A1 7C6F                    	jl	failedOpening
-    96 000000A3 68[34010000]            	push successInputFile
-    97 000000A8 E8(00000000)            	call PrintString
+    95 000000A1 0F8C8F000000            	jl	failedOpening
+    96 000000A7 68[34010000]            	push successInputFile
+    97 000000AC E8(00000000)            	call PrintString
     98                                  	
     99                                  	
    100                                  	;-------------------- PART 3) open outputFile ------------------
-   101 000000AD B802000000              	mov rax, 2h										;sys_open
-   102 000000B2 488B3C25[FF000000]      	mov rdi, QWORD [outputFileAddress]				;rdi holds the address of the file
-   103 000000BA BE00000000              	mov rsi, 0										;Read/Write permission only
-   104 000000BF BAA4010000              	mov rdx, 0644o
-   105 000000C4 0F05                    	syscall											;Tickle the Kernel
-   106 000000C6 4883F800                	cmp rax, 0h
-   107 000000CA 7C46                    	jl	failedOpening
-   108 000000CC 68[34010000]            	push successInputFile
-   109 000000D1 E8(00000000)            	call PrintString
+   101 000000B1 B802000000              	mov rax, 2h										;sys_open
+   102 000000B6 488B3C25[FF000000]      	mov rdi, QWORD [outputFileAddress]				;rdi holds the address of the file
+   103 000000BE BE00000000              	mov rsi, 0										;Read/Write permission only
+   104 000000C3 BAA4010000              	mov rdx, 0644o
+   105 000000C8 0F05                    	syscall											;Tickle the Kernel
+   106 000000CA 4883F800                	cmp rax, 0h
+   107 000000CE 7C66                    	jl	failedOpening
+   108 000000D0 68[34010000]            	push successInputFile
+   109 000000D5 E8(00000000)            	call PrintString
    110                                  	
    111                                  	;------------------- PART 4) notify the user of the action ---------------
-   112 000000D6 68[80010000]            	push programActionAct							;push display
-   113 000000DB E8(00000000)            	call PrintString								;display
-   114 000000E0 488B0425[00000000]      	mov rax, [inputFileAddress]						;prepare to print the name of the input file
-   115 000000E8 50                      	push rax										;push it
-   116 000000E9 E8(00000000)            	call PrintString								;display it
-   117 000000EE 68[99010000]            	push programActionAct2							;push continous display
-   118 000000F3 E8(00000000)            	call PrintString								;display
-   119 000000F8 B800000000              	mov rax, 0										;clear it just in case
-   120 000000FD 488B0425[FF000000]      	mov rax, [outputFileAddress]					;prepare to print the name of the output file
-   121 00000105 50                      	push rax										;push it
-   122 00000106 E8(00000000)            	call PrintString								; print it
-   123 0000010B E8(00000000)            	call Printendl									;Empty line
+   112 000000DA 68[80010000]            	push programActionAct							;push display
+   113 000000DF E8(00000000)            	call PrintString								;display
+   114 000000E4 488B0425[00000000]      	mov rax, [inputFileAddress]						;prepare to print the name of the input file
+   115 000000EC 50                      	push rax										;push it
+   116 000000ED E8(00000000)            	call PrintString								;display it
+   117 000000F2 68[99010000]            	push programActionAct2							;push continous display
+   118 000000F7 E8(00000000)            	call PrintString								;display
+   119 000000FC B800000000              	mov rax, 0										;clear it just in case
+   120 00000101 488B0425[FF000000]      	mov rax, [outputFileAddress]					;prepare to print the name of the output file
+   121 00000109 50                      	push rax										;push it
+   122 0000010A E8(00000000)            	call PrintString								; print it
+   123 0000010F E8(00000000)            	call Printendl									;Empty line
    124                                  	
    125                                  	;----------------- PART 5) Dynamically allocate 0ffffh bytes ------------
-   126                                  	
-   127                                  	
-   128                                  	
-   129                                  	
-   130                                  	
+   126                                  	;stage: get current break address, store it in currentBreak and in iniital break;
+   127 00000114 B82D000000              	mov rax, 45										;System call break
+   128 00000119 BB00000000              	mov rbx, 0										;invalid address
+   129 0000011E 0F05                    	syscall 										;poke the kernel
+   130 00000120 4889C2                  	mov rdx, rax									;store the current address in RDX
    131                                  	
-   132                                  	
-   133                                  	;----------------- Failed Opening File ---------------
-   134 00000110 EB34                    	jmp Exit
-   135                                  	failedOpening:
-   136 00000112 68[09010000]            		push failedFileAct
-   137 00000117 E8(00000000)            		call PrintString
-   138 0000011C E8(00000000)            		call Printendl
-   139 00000121 EB23                    	jmp Exit
-   140                                  	
-   141                                  	;=================== GOODBYE MESSAGE =====================
-   142 00000123 E8(00000000)            	call Printendl
-   143 00000128 68[40000000]            	push byeAct
-   144 0000012D E8(00000000)            	call PrintString
-   145 00000132 E8(00000000)            	call Printendl
-   146 00000137 68[00000000]            	push lineAct
-   147 0000013C E8(00000000)            	call PrintString
-   148 00000141 E8(00000000)            	call Printendl
-   149                                  
-   150                                  ;
-   151                                  ;Setup the registers for exit and poke the kernel
-   152                                  ;Exit: 
-   153                                  Exit:
-   154 00000146 B83C000000              	mov		rax, 60					;60 = system exit
-   155 0000014B BF00000000              	mov		rdi, 0					;0 = return code
-   156 00000150 0F05                    	syscall							;Poke the kernel
-   157                                  
-   158                                  
-   159                                  ;=================== TO DO LIST ======================
-   160                                  ; check if the file exists ---- https://gist.github.com/Archenoth/5380671
-   161                                  
-   162                                  
+   132 00000123 B82D000000              	mov rax, 45										;system break
+   133 00000128 4889D3                  	mov rbx, rdx									;put the current break address in RBX too
+   134 0000012B 4881C3FFFF0000          	add rbx, 0ffffh									;allocate (dynamically) 0ffffh bytes
+   135 00000132 0F05                    	syscall											;Poke the kernel (now additional 0ffffh in the heap)
+   136                                  	
+   137                                  	
+   138                                  	
+   139                                  	;----------------- Failed Opening File ---------------
+   140 00000134 EB34                    	jmp Exit
+   141                                  	failedOpening:
+   142 00000136 68[09010000]            		push failedFileAct
+   143 0000013B E8(00000000)            		call PrintString
+   144 00000140 E8(00000000)            		call Printendl
+   145 00000145 EB23                    	jmp Exit
+   146                                  	
+   147                                  	;=================== GOODBYE MESSAGE =====================
+   148 00000147 E8(00000000)            	call Printendl
+   149 0000014C 68[40000000]            	push byeAct
+   150 00000151 E8(00000000)            	call PrintString
+   151 00000156 E8(00000000)            	call Printendl
+   152 0000015B 68[00000000]            	push lineAct
+   153 00000160 E8(00000000)            	call PrintString
+   154 00000165 E8(00000000)            	call Printendl
+   155                                  
+   156                                  ;
+   157                                  ;Setup the registers for exit and poke the kernel
+   158                                  ;Exit: 
+   159                                  Exit:
+   160 0000016A B83C000000              	mov		rax, 60					;60 = system exit
+   161 0000016F BF00000000              	mov		rdi, 0					;0 = return code
+   162 00000174 0F05                    	syscall							;Poke the kernel
+   163                                  
+   164                                  
+   165                                  ;=================== TO DO LIST ======================
+   166                                  ; check if the file exists ---- https://gist.github.com/Archenoth/5380671
+   167                                  
+   168                                  

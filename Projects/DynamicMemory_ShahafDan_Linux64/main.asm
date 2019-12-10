@@ -123,10 +123,16 @@ _start:
 	call Printendl									;Empty line
 	
 	;----------------- PART 5) Dynamically allocate 0ffffh bytes ------------
+	;stage: get current break address, store it in currentBreak and in iniital break;
+	mov rax, 45										;System call break
+	mov rbx, 0										;invalid address
+	syscall 										;poke the kernel
+	mov rdx, rax									;store the current address in RDX
 	
-	
-	
-	
+	mov rax, 45										;system break
+	mov rbx, rdx									;put the current break address in RBX too
+	add rbx, 0ffffh									;allocate (dynamically) 0ffffh bytes
+	syscall											;Poke the kernel (now additional 0ffffh in the heap)
 	
 	
 	

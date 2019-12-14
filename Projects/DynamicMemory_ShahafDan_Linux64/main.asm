@@ -13,29 +13,33 @@ SECTION .data
 	byeAct db "Bye, have a good one", 0ah, 0dh, 0h
 	moreArgsAct db "You have entered too many arguments, Please call the program again", 0ah, 0dh, 0h
 	lessArgsAct db "You have not entered enough arguments, Please call the program again", 0ah, 0dh, 0h
-	goodArgsAct db "Good, you entered only 2 parameters", 0ah, 0dh, 0h
 	failedFileAct	db	"Could not open the file, ending program.", 0ah, 0dh, 0h
-	successInputFile db 	"Succesfully opened the input file", 0ah, 0dh, 0h
-	successOutputFile db 	"Succesfully opened the output file", 0ah, 0dh, 0h
 	programActionAct	db	"Copying From the Source ", 0h
 	programActionAct2	db	", to the destination ", 0h
 	encKeyAct			db		"Please enter the encryption key", 0ah, 0dh, 0h
-	encKeyLength		db 		0h						;create key length to read
+	totalBytes			db		0h
+	totalBytesAct		db		"-------- Total Bytes Encrypted: ", 0h
+		.len equ ($ - totalBytesAct)
+	allocError			db		"There was a provlem allocating memoery", 0ah, 0dh, 0h
 	
-
+	debug1 db "1", 0h
+	debug2 db "2", 0h
+	
 SECTION .bss
-	;reserve memory here
+	;================ RESERVED MEMORY BELOW =================
 	inputFileAddress	resb 	255
 	outputFileAddress	resb 	255
 	numArgs 			resb 	1				; reserve one byte for how many variable are entered to main
 	argument			resq	1
-	totalBytes			resq	15
 	encKey 				resb 	255
 		.len equ ($ - encKey) / 1				;used later for ReadText
 	originalFile		resq 	1
 	breakTracker		resq	1
 	currentBreak		resq	1
-	
+	tempName			resb 	255
+	encKeyLength		resq	1
+	travCount			resq	1
+	bigTotalBytes		resq	15	
 SECTION     .text
 	global  _start
      
@@ -53,6 +57,21 @@ _start:
 	
 	;================== ASSIGNMENT ===========================
 	;-------- PART 1)  get address from the command line ------------
+	nop
+
+	mov rax, 0ch
+	mov rdi, 0
+	syscall
+	mov [breakTracker], rax							;move the beginning to the first break tracker
+	
+	mov rdi, rax
+	add rdi, 0ffffh									;add 0ffffh to rdi (dynamic array)
+	mov rax, 0ch
+	syscall											;Poke the kernel
+	cmp rax, 0
+	jl Exit
+	mov [currentBreak], rax
+
 	pop rax											;put the number of arguments its rax
 	mov [numArgs], rax								;save it in numArgs
 	sub rax, 1
@@ -61,157 +80,198 @@ _start:
 	jg moreArgs
 	je goodNumberArgs
 	
-	moreArgs:
+	moreArgs:										;Print prompt of too many arguments 
 	push moreArgsAct
-	call PrintString
+	call PrintText
 	call Printendl
 	jmp Exit
 	
-	lessArgs:
+	lessArgs:										;Print prompt of too little arguments
 	push lessArgsAct
 	call PrintString
 	call Printendl
 	jmp Exit
 	
 	goodNumberArgs:									;the number of arguments pass is two which is okay
-	push goodArgsAct
-	call PrintString
-	call Printendl
 	
 	pop rax											; so it will now hold the address of the main program entirely, pop twice
 	pop rax											;rax will now store in the inputFile data
 	mov [originalFile], rax
 	pop rax
 	mov [outputFileAddress], rax					;move into a variance the address of the output file
+	mov [tempName], rax
 	mov rax, 0										;clear the rax register
-	
 	;-------------------- PART 2) open inputFile ------------------
 	
 	mov rax, 2h										;sys_open
-	mov rdi, QWORD [originalFile]				;rdi holds the address of the file
-	mov rsi, 0										;Read/Write permission only
-	mov rdx, 0
+	mov rdi, QWORD [originalFile]					;rdi holds the address of the file
+	mov rsi, 442h									;Read/Write permission only
+	mov rdx, 2h										
 	syscall											;Tickle the Kernel
 	cmp rax, 0h
-	jl	failedOpening
+	jl	failedOpening								;File did not open
 	mov [inputFileAddress], rax
-	push successInputFile
-	call PrintString
-	
-	
-	;-------------------- PART 3) open outputFile ------------------
-	mov rax, 54h									;get rid of previous copies
-	mov rdi, QWORD [outputFileAddress]				;rdi holds the address of the file
-	syscall
-	;------------ delete any other files with this name, create a new one to encrypt to
+	mov rax, 0h
+
+	mov rax, 54h									;get rid of any previous versions a file with that could have
+	mov rdi, [outputFileAddress]					;
+	syscall											;Poke the kernel
+	;------------ PART 3) delete any other files with this name, create a new one to encrypt to
 	mov rax, 55h									;Create a new file
 	mov rdi, QWORD [outputFileAddress]
-	mov rsi, 777o									;Thanks for the internet
+	mov rsi, 666o									;Thanks for the internet
 	mov rcx, 0h										;clear RCX completely
 	syscall											;Tickle the Kernel
 	cmp rax, 0h
 	jl	failedOpening
 	mov [outputFileAddress], rax					;if managed to open: bring RAX to that variable
-	push successInputFile
-	call PrintString
-	
+
 	;------ MINI PART: ask the user for an encryption key----------
 	push encKeyAct
 	call PrintString
-	call Printendl
-	push encKey
-	push encKey.len
+
+	push encKey										;push the variable to store user input in
+	push encKey.len									;push its length
 	call ReadText									;store input key in encKey
 	sub rax, 1
 	mov [encKeyLength], rax							;ReadText returns in rax the length of the input
-	
+
 	
 	
 	;------------------- PART 4) notify the user of the action ---------------
+	call Printendl
 	push programActionAct							;push display
 	call PrintString								;display
-	mov rax, [originalFile]						;prepare to print the name of the input file
+	mov rax, [originalFile]							;prepare to print the name of the input file
 	push rax										;push it
 	call PrintString								;display it
 	push programActionAct2							;push continous display
 	call PrintString								;display
-	mov rax, 0										;clear it just in case
-	mov rax, [outputFileAddress]					;prepare to print the name of the output file
-	push rax										;push it
+	xor rbx, rbx									;clear it just in case
+	mov rbx, [tempName]								;prepare to print the name of the output file
+	push rbx										;push it
 	call PrintString								; print it
 	call Printendl									;Empty line
+	call Printendl
 	
-	;----------------- PART 5) Dynamically allocate 0ffffh bytes ------------
-	;stage: get current break address, store it in currentBreak and in iniital break;
-	mov rax, 45h									;System call break
-	mov rdi, 0h										;invalid address
-	syscall 										;poke the kernel
-	mov [breakTracker], rax									;store the current address in RDX
-	;stage: allocate 0ffffh bytes of memory from the break
-	mov rdi, rax									;old break in file's data to rdi
-	add rdi, 0ffffh									;Add the amountetd wanted dynamic memory to the last break in the file (in RDI)	
-	mov rax, 45h									;sys_break
-	syscall											;execute orders by the system
-	;cmp rax, 0										;allocate (dynamically) 0ffffh bytes
-	mov [currentBreak], rax							;not currentBreak has our new location of the break
+	nop												;for kdbg debugging purposes (1 byte)
 	
 	
-	;-------- PART 6) Loop: read 0ffffh bytes from the file into the allocated memory ------------
-	;mov rcx, 0ffffh
-	; RDX still holds the break in memory for the allocated 0ffffh bytes - might create a variable later
+	;---------------------- OPENING THE FILE ----------------------------
+	mov rax, 2h												;open the file first
+	mov rdi, [tempName]										;temp name is used to store the outputfile address that we may have detroyed
+	mov rsi, 0442h
+	mov rdx, 2h
+	syscall
+	cmp rax, 0
+	jl failedOpening										;poke the kernel with the needed conditions
+
 	readFileLoop:									;flag, not a loop
-		mov rax, 0h
-		mov rdi, [inputFileAddress]
-		mov rsi, [breakTracker]
-		mov rdx, 0ffffh
-		syscall										;Poke the kernel
-		mov rcx, rax
-		dec rcx										;next byte
-		mov r8, rax
-		mov rdi, 0
+	;----------------- PART 5) Dynamically allocate 0ffffh bytes -----------
 		mov rax, 0
+		mov rdi, [inputFileAddress]							;move to rdi the name of the input file
+		mov rsi, [breakTracker]								;move to rsi the last point in the memory tracked
+		mov rdx, 0ffffh										;rdx to be the next value to be allocated
+		syscall												;poke the kernel
+		cmp rax, 0											;compare rax to zero (returned from syscall)
+		jl allocationError
+		mov [totalBytes], rax								;move it to the total bytes to keep track of it
+		
+		
+	;-------- PART 6) Loop: read 0ffffh bytes from the file into the allocated memory ------------
+		mov rsi, 0											;
+		mov rsi, encKey										;move the encryptiong key address to rsi
+		mov rax, 0
+		mov al, BYTE [encKeyLength]							;one byte at a time, move to rax
+		mov rdi, 0								
+		mov rdi, [breakTracker]								;move again to rdi the brak tracker
 		mov rbx, 0
+		mov rcx, 0
+		mov rcx, [totalBytes]								;look throguh the amount of bytes read
 		
+		
+	;--------------- PART 7) Encrypt the file read data found -------------------
 		encryptLoop:
-			mov bl, [breakTracker + rdi]
-			xor bl, [encKey + rax]					;ancrypt using xor
-			mov [breakTracker + rdi], bl
-			
-			add rdi, 1								;next byte
-			add rax, 1								;next byte
-			
-			push rbx
-			mov rcx, 0
-			mov rbx, 0
-			mov rbx, [encKeyLength]
-			div rbx
-			mov rax, rdx
-			pop rbx									;Restore RBX's value
-			
-			
-		loop encryptLoop
+		cmp rax, [encKeyLength]							;Compare rax with the length of he key
+		jl pushIt
+		mov rax, 0										;if it is not less than, then move it back to zero
+		mov rsi, encKey
 		
-		mov rax, 1h									;write to file
+		pushIt:
+			mov bl, [rdi]								;move to rbx the last point in the memory (breakTracker)
+			xor bl, [rsi]								;encrypt it using xor
+			mov [rdi], bl								;move the encrypted value into that point in memory that we had in rdi (creating the encrpted copy)
+
+			add rsi, 1									;increase all three (to go to the next byte)
+			add rax, 1
+			add rdi, 1
+
+		loop encryptLoop
+			
+	
+;---------------- PART 8) TRACK NUMBER OF BYTES READ, COPY ENCRYPTED VERSION TO THE OUTPUT FILE  -----------------------------
+												
+		mov rax, [totalBytes]
+		add [bigTotalBytes], rax								;keep track of the TOTAL TOTAL byte transferred
+		xor rax, rax											;clear rax
+		
+		
+		
+		mov rax, 1
 		mov rdi, [outputFileAddress]
 		mov rsi, [breakTracker]
-		mov rdx, r8
-		syscall										;poke the kernel with the needed conditions
+		xor rdx, rdx									; clean rdx
+		mov rdx, [totalBytes]
+		syscall													;Poke the kernel
+		cmp rax, 0
+		jl failedOpening
+		cmp rdx, 0ffffh											;compare rdx to 0ffffh
+		jl cont2												;LOOP EXIT CONDITION: exit the loop if less than 0ffffh
+		jmp readFileLoop										;else execute again
 		
-		add r8, 0							
-		cmp r8, 0ffffh								;check if we are done reading/encrypting from the file
-		jne Exit
-		jmp readFileLoop
-		
-
+	cont2:
+	;------------------- PART 9) close files, show total bytes -------------------
+	xor rcx, rcx
+	mov rcx, totalBytesAct.len
+	sub rcx, 1
+	push totalBytesAct
+	push rcx
+	call PrintText
+	xor rax, rax									;clear rax
+	mov rax, [bigTotalBytes]
+	push rax
+	call Print64bitNumDecimal
 	
+	;------- MEMORY DEALLOCATION ( PART 10) -----------------------
+	mov rax, 0ch
+	mov rsi, [breakTracker]
+	syscall
 	
+	;----------------- CLOSE INPUT AND OUTPUT FILES ------------
+	mov rax, 3h
+	mov rbx, originalFile
+	syscall
+	
+	mov rax, 3h
+	mov rbx, outputFileAddress
+	syscall
 	;----------------- Failed Opening File ---------------
-	jmp Exit
+	jmp exitit
+	allocationError:
+		push allocError
+		call PrintString
+		call Printendl
+	jmp exitit
 	failedOpening:
 		push failedFileAct
 		call PrintString
 		call Printendl
-	jmp Exit
+	jmp exitit
+	
+	
+	
+	exitit:
+	
 	
 	;=================== GOODBYE MESSAGE =====================
 	call Printendl
@@ -232,6 +292,5 @@ Exit:
 
 
 ;=================== TO DO LIST ======================
-; check if the file exists ---- https://gist.github.com/Archenoth/5380671
-
+;; EMPTY WOOHOO
 

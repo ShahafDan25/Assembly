@@ -549,247 +549,307 @@
     15 000000C9 2063616C6C20746865-
     15 000000D2 2070726F6772616D20-
     15 000000DB 616761696E0A0D00   
-    16 000000E3 476F6F642C20796F75-     	goodArgsAct db "Good, you entered only 2 parameters", 0ah, 0dh, 0h
-    16 000000EC 20656E746572656420-
-    16 000000F5 6F6E6C792032207061-
-    16 000000FE 72616D65746572730A-
-    16 00000107 0D00               
-    17 00000109 436F756C64206E6F74-     	failedFileAct	db	"Could not open the file, ending program.", 0ah, 0dh, 0h
-    17 00000112 206F70656E20746865-
-    17 0000011B 2066696C652C20656E-
-    17 00000124 64696E672070726F67-
-    17 0000012D 72616D2E0A0D00     
-    18 00000134 53756363657366756C-     	successInputFile db 	"Succesfully opened the input file", 0ah, 0dh, 0h
-    18 0000013D 6C79206F70656E6564-
-    18 00000146 2074686520696E7075-
-    18 0000014F 742066696C650A0D00 
-    19 00000158 53756363657366756C-     	successOutputFile db 	"Succesfully opened the output file", 0ah, 0dh, 0h
-    19 00000161 6C79206F70656E6564-
-    19 0000016A 20746865206F757470-
-    19 00000173 75742066696C650A0D-
-    19 0000017C 00                 
-    20 0000017D 436F7079696E672046-     	programActionAct	db	"Copying From the Source ", 0h
-    20 00000186 726F6D207468652053-
-    20 0000018F 6F757263652000     
-    21 00000196 2C20746F2074686520-     	programActionAct2	db	", to the destination ", 0h
-    21 0000019F 64657374696E617469-
-    21 000001A8 6F6E2000           
-    22 000001AC 506C6561736520656E-     	encKeyAct			db		"Please enter the encryption key", 0ah, 0dh, 0h
-    22 000001B5 746572207468652065-
-    22 000001BE 6E6372797074696F6E-
-    22 000001C7 206B65790A0D00     
-    23 000001CE 00                      	encKeyLength		db 		0h						;create key length to read
+    16 000000E3 436F756C64206E6F74-     	failedFileAct	db	"Could not open the file, ending program.", 0ah, 0dh, 0h
+    16 000000EC 206F70656E20746865-
+    16 000000F5 2066696C652C20656E-
+    16 000000FE 64696E672070726F67-
+    16 00000107 72616D2E0A0D00     
+    17 0000010E 436F7079696E672046-     	programActionAct	db	"Copying From the Source ", 0h
+    17 00000117 726F6D207468652053-
+    17 00000120 6F757263652000     
+    18 00000127 2C20746F2074686520-     	programActionAct2	db	", to the destination ", 0h
+    18 00000130 64657374696E617469-
+    18 00000139 6F6E2000           
+    19 0000013D 506C6561736520656E-     	encKeyAct			db		"Please enter the encryption key", 0ah, 0dh, 0h
+    19 00000146 746572207468652065-
+    19 0000014F 6E6372797074696F6E-
+    19 00000158 206B65790A0D00     
+    20 0000015F 00                      	totalBytes			db		0h
+    21 00000160 2D2D2D2D2D2D2D2D20-     	totalBytesAct		db		"-------- Total Bytes Encrypted: ", 0h
+    21 00000169 546F74616C20427974-
+    21 00000172 657320456E63727970-
+    21 0000017B 7465643A2000       
+    22                                  		.len equ ($ - totalBytesAct)
+    23 00000181 546865726520776173-     	allocError			db		"There was a provlem allocating memoery", 0ah, 0dh, 0h
+    23 0000018A 20612070726F766C65-
+    23 00000193 6D20616C6C6F636174-
+    23 0000019C 696E67206D656D6F65-
+    23 000001A5 72790A0D00         
     24                                  	
-    25                                  
-    26                                  SECTION .bss
-    27                                  	;reserve memory here
-    28 00000000 <res 000000FF>          	inputFileAddress	resb 	255
-    29 000000FF <res 000000FF>          	outputFileAddress	resb 	255
-    30 000001FE <res 00000001>          	numArgs 			resb 	1				; reserve one byte for how many variable are entered to main
-    31 000001FF <res 00000008>          	argument			resq	1
-    32 00000207 <res 00000078>          	totalBytes			resq	15
-    33 0000027F <res 000000FF>          	encKey 				resb 	255
-    34                                  		.len equ ($ - encKey) / 1				;used later for ReadText
-    35 0000037E <res 00000008>          	originalFile		resq 	1
-    36 00000386 <res 00000008>          	breakTracker		resq	1
-    37 0000038E <res 00000008>          	currentBreak		resq	1
-    38                                  	
-    39                                  SECTION     .text
-    40                                  	global  _start
-    41                                       
-    42                                  _start:
-    43                                  	;code goes here
-    44                                  	
-    45                                  	;=============== WELCOME MESSAGE ================
-    46 00000000 E8(00000000)            	call Printendl
-    47 00000005 68[00000000]            	push lineAct
-    48 0000000A E8(00000000)            	call PrintString
-    49 0000000F 68[22000000]            	push welcomeAct
-    50 00000014 E8(00000000)            	call PrintString 
-    51 00000019 E8(00000000)            	call Printendl
-    52                                  	
-    53                                  	
-    54                                  	;================== ASSIGNMENT ===========================
-    55                                  	;-------- PART 1)  get address from the command line ------------
-    56 0000001E 58                      	pop rax											;put the number of arguments its rax
-    57 0000001F 48890425[FE010000]      	mov [numArgs], rax								;save it in numArgs
-    58 00000027 4883E801                	sub rax, 1
-    59 0000002B 4883F802                	cmp rax, 2										;compare it to 2 arguments
-    60 0000002F 7C18                    	jl lessArgs
-    61 00000031 7F02                    	jg moreArgs
-    62 00000033 7428                    	je goodNumberArgs
-    63                                  	
-    64                                  	moreArgs:
-    65 00000035 68[57000000]            	push moreArgsAct
-    66 0000003A E8(00000000)            	call PrintString
-    67 0000003F E8(00000000)            	call Printendl
-    68 00000044 E911020000              	jmp Exit
-    69                                  	
-    70                                  	lessArgs:
-    71 00000049 68[9C000000]            	push lessArgsAct
-    72 0000004E E8(00000000)            	call PrintString
-    73 00000053 E8(00000000)            	call Printendl
-    74 00000058 E9FD010000              	jmp Exit
-    75                                  	
-    76                                  	goodNumberArgs:									;the number of arguments pass is two which is okay
-    77 0000005D 68[E3000000]            	push goodArgsAct
-    78 00000062 E8(00000000)            	call PrintString
-    79 00000067 E8(00000000)            	call Printendl
-    80                                  	
-    81 0000006C 58                      	pop rax											; so it will now hold the address of the main program entirely, pop twice
-    82 0000006D 58                      	pop rax											;rax will now store in the inputFile data
-    83 0000006E 48890425[7E030000]      	mov [originalFile], rax
-    84 00000076 58                      	pop rax
-    85 00000077 48890425[FF000000]      	mov [outputFileAddress], rax					;move into a variance the address of the output file
-    86 0000007F B800000000              	mov rax, 0										;clear the rax register
-    87                                  	
-    88                                  	;-------------------- PART 2) open inputFile ------------------
-    89                                  	
-    90 00000084 B802000000              	mov rax, 2h										;sys_open
-    91 00000089 488B3C25[7E030000]      	mov rdi, QWORD [originalFile]				;rdi holds the address of the file
-    92 00000091 BE00000000              	mov rsi, 0										;Read/Write permission only
-    93 00000096 BA00000000              	mov rdx, 0
-    94 0000009B 0F05                    	syscall											;Tickle the Kernel
-    95 0000009D 4883F800                	cmp rax, 0h
-    96 000000A1 0F8C7F010000            	jl	failedOpening
-    97 000000A7 48890425[00000000]      	mov [inputFileAddress], rax
-    98 000000AF 68[34010000]            	push successInputFile
-    99 000000B4 E8(00000000)            	call PrintString
-   100                                  	
-   101                                  	
-   102                                  	;-------------------- PART 3) open outputFile ------------------
-   103 000000B9 B854000000              	mov rax, 54h									;get rid of previous copies
-   104 000000BE 488B3C25[FF000000]      	mov rdi, QWORD [outputFileAddress]				;rdi holds the address of the file
-   105 000000C6 0F05                    	syscall
-   106                                  	;------------ delete any other files with this name, create a new one to encrypt to
-   107 000000C8 B855000000              	mov rax, 55h									;Create a new file
-   108 000000CD 488B3C25[FF000000]      	mov rdi, QWORD [outputFileAddress]
-   109 000000D5 BEFF010000              	mov rsi, 777o									;Thanks for the internet
-   110 000000DA B900000000              	mov rcx, 0h										;clear RCX completely
-   111 000000DF 0F05                    	syscall											;Tickle the Kernel
-   112 000000E1 4883F800                	cmp rax, 0h
-   113 000000E5 0F8C3B010000            	jl	failedOpening
-   114 000000EB 48890425[FF000000]      	mov [outputFileAddress], rax					;if managed to open: bring RAX to that variable
-   115 000000F3 68[34010000]            	push successInputFile
-   116 000000F8 E8(00000000)            	call PrintString
-   117                                  	
-   118                                  	;------ MINI PART: ask the user for an encryption key----------
-   119 000000FD 68[AC010000]            	push encKeyAct
-   120 00000102 E8(00000000)            	call PrintString
-   121 00000107 E8(00000000)            	call Printendl
-   122 0000010C 68[7F020000]            	push encKey
-   123 00000111 68FF000000              	push encKey.len
-   124 00000116 E8(00000000)            	call ReadText									;store input key in encKey
-   125 0000011B 4883E801                	sub rax, 1
-   126 0000011F 48890425[CE010000]      	mov [encKeyLength], rax							;ReadText returns in rax the length of the input
-   127                                  	
-   128                                  	
-   129                                  	
-   130                                  	;------------------- PART 4) notify the user of the action ---------------
-   131 00000127 68[7D010000]            	push programActionAct							;push display
-   132 0000012C E8(00000000)            	call PrintString								;display
-   133 00000131 488B0425[7E030000]      	mov rax, [originalFile]						;prepare to print the name of the input file
-   134 00000139 50                      	push rax										;push it
-   135 0000013A E8(00000000)            	call PrintString								;display it
-   136 0000013F 68[96010000]            	push programActionAct2							;push continous display
-   137 00000144 E8(00000000)            	call PrintString								;display
-   138 00000149 B800000000              	mov rax, 0										;clear it just in case
-   139 0000014E 488B0425[FF000000]      	mov rax, [outputFileAddress]					;prepare to print the name of the output file
-   140 00000156 50                      	push rax										;push it
-   141 00000157 E8(00000000)            	call PrintString								; print it
-   142 0000015C E8(00000000)            	call Printendl									;Empty line
-   143                                  	
-   144                                  	;----------------- PART 5) Dynamically allocate 0ffffh bytes ------------
-   145                                  	;stage: get current break address, store it in currentBreak and in iniital break;
-   146 00000161 B845000000              	mov rax, 45h									;System call break
-   147 00000166 BF00000000              	mov rdi, 0h										;invalid address
-   148 0000016B 0F05                    	syscall 										;poke the kernel
-   149 0000016D 48890425[86030000]      	mov [breakTracker], rax									;store the current address in RDX
-   150                                  	;stage: allocate 0ffffh bytes of memory from the break
-   151 00000175 4889C7                  	mov rdi, rax									;old break in file's data to rdi
-   152 00000178 4881C7FFFF0000          	add rdi, 0ffffh									;Add the amountetd wanted dynamic memory to the last break in the file (in RDI)	
-   153 0000017F B845000000              	mov rax, 45h									;sys_break
-   154 00000184 0F05                    	syscall											;execute orders by the system
-   155                                  	;cmp rax, 0										;allocate (dynamically) 0ffffh bytes
-   156 00000186 48890425[8E030000]      	mov [currentBreak], rax							;not currentBreak has our new location of the break
-   157                                  	
+    25 000001AA 3100                    	debug1 db "1", 0h
+    26 000001AC 3200                    	debug2 db "2", 0h
+    27                                  	
+    28                                  SECTION .bss
+    29                                  	;================ RESERVED MEMORY BELOW =================
+    30 00000000 <res 000000FF>          	inputFileAddress	resb 	255
+    31 000000FF <res 000000FF>          	outputFileAddress	resb 	255
+    32 000001FE <res 00000001>          	numArgs 			resb 	1				; reserve one byte for how many variable are entered to main
+    33 000001FF <res 00000008>          	argument			resq	1
+    34 00000207 <res 000000FF>          	encKey 				resb 	255
+    35                                  		.len equ ($ - encKey) / 1				;used later for ReadText
+    36 00000306 <res 00000008>          	originalFile		resq 	1
+    37 0000030E <res 00000008>          	breakTracker		resq	1
+    38 00000316 <res 00000008>          	currentBreak		resq	1
+    39 0000031E <res 000000FF>          	tempName			resb 	255
+    40 0000041D <res 00000008>          	encKeyLength		resq	1
+    41 00000425 <res 00000008>          	travCount			resq	1
+    42 0000042D <res 00000078>          	bigTotalBytes		resq	15	
+    43                                  SECTION     .text
+    44                                  	global  _start
+    45                                       
+    46                                  _start:
+    47                                  	;code goes here
+    48                                  	
+    49                                  	;=============== WELCOME MESSAGE ================
+    50 00000000 E8(00000000)            	call Printendl
+    51 00000005 68[00000000]            	push lineAct
+    52 0000000A E8(00000000)            	call PrintString
+    53 0000000F 68[22000000]            	push welcomeAct
+    54 00000014 E8(00000000)            	call PrintString 
+    55 00000019 E8(00000000)            	call Printendl
+    56                                  	
+    57                                  	
+    58                                  	;================== ASSIGNMENT ===========================
+    59                                  	;-------- PART 1)  get address from the command line ------------
+    60 0000001E 90                      	nop
+    61                                  
+    62 0000001F B80C000000              	mov rax, 0ch
+    63 00000024 BF00000000              	mov rdi, 0
+    64 00000029 0F05                    	syscall
+    65 0000002B 48890425[0E030000]      	mov [breakTracker], rax							;move the beginning to the first break tracker
+    66                                  	
+    67 00000033 4889C7                  	mov rdi, rax
+    68 00000036 4881C7FFFF0000          	add rdi, 0ffffh									;add 0ffffh to rdi (dynamic array)
+    69 0000003D B80C000000              	mov rax, 0ch
+    70 00000042 0F05                    	syscall											;Poke the kernel
+    71 00000044 4883F800                	cmp rax, 0
+    72 00000048 0F8CDA020000            	jl Exit
+    73 0000004E 48890425[16030000]      	mov [currentBreak], rax
+    74                                  
+    75 00000056 58                      	pop rax											;put the number of arguments its rax
+    76 00000057 48890425[FE010000]      	mov [numArgs], rax								;save it in numArgs
+    77 0000005F 4883E801                	sub rax, 1
+    78 00000063 4883F802                	cmp rax, 2										;compare it to 2 arguments
+    79 00000067 7C18                    	jl lessArgs
+    80 00000069 7F02                    	jg moreArgs
+    81 0000006B 7428                    	je goodNumberArgs
+    82                                  	
+    83                                  	moreArgs:										;Print prompt of too many arguments 
+    84 0000006D 68[57000000]            	push moreArgsAct
+    85 00000072 E8(00000000)            	call PrintText
+    86 00000077 E8(00000000)            	call Printendl
+    87 0000007C E9A7020000              	jmp Exit
+    88                                  	
+    89                                  	lessArgs:										;Print prompt of too little arguments
+    90 00000081 68[9C000000]            	push lessArgsAct
+    91 00000086 E8(00000000)            	call PrintString
+    92 0000008B E8(00000000)            	call Printendl
+    93 00000090 E993020000              	jmp Exit
+    94                                  	
+    95                                  	goodNumberArgs:									;the number of arguments pass is two which is okay
+    96                                  	
+    97 00000095 58                      	pop rax											; so it will now hold the address of the main program entirely, pop twice
+    98 00000096 58                      	pop rax											;rax will now store in the inputFile data
+    99 00000097 48890425[06030000]      	mov [originalFile], rax
+   100 0000009F 58                      	pop rax
+   101 000000A0 48890425[FF000000]      	mov [outputFileAddress], rax					;move into a variance the address of the output file
+   102 000000A8 48890425[1E030000]      	mov [tempName], rax
+   103 000000B0 B800000000              	mov rax, 0										;clear the rax register
+   104                                  	;-------------------- PART 2) open inputFile ------------------
+   105                                  	
+   106 000000B5 B802000000              	mov rax, 2h										;sys_open
+   107 000000BA 488B3C25[06030000]      	mov rdi, QWORD [originalFile]					;rdi holds the address of the file
+   108 000000C2 BE42040000              	mov rsi, 442h									;Read/Write permission only
+   109 000000C7 BA02000000              	mov rdx, 2h										
+   110 000000CC 0F05                    	syscall											;Tickle the Kernel
+   111 000000CE 4883F800                	cmp rax, 0h
+   112 000000D2 0F8C1C020000            	jl	failedOpening								;File did not open
+   113 000000D8 48890425[00000000]      	mov [inputFileAddress], rax
+   114 000000E0 B800000000              	mov rax, 0h
+   115                                  
+   116 000000E5 B854000000              	mov rax, 54h									;get rid of any previous versions a file with that could have
+   117 000000EA 488B3C25[FF000000]      	mov rdi, [outputFileAddress]					;
+   118 000000F2 0F05                    	syscall											;Poke the kernel
+   119                                  	;------------ PART 3) delete any other files with this name, create a new one to encrypt to
+   120 000000F4 B855000000              	mov rax, 55h									;Create a new file
+   121 000000F9 488B3C25[FF000000]      	mov rdi, QWORD [outputFileAddress]
+   122 00000101 BEB6010000              	mov rsi, 666o									;Thanks for the internet
+   123 00000106 B900000000              	mov rcx, 0h										;clear RCX completely
+   124 0000010B 0F05                    	syscall											;Tickle the Kernel
+   125 0000010D 4883F800                	cmp rax, 0h
+   126 00000111 0F8CDD010000            	jl	failedOpening
+   127 00000117 48890425[FF000000]      	mov [outputFileAddress], rax					;if managed to open: bring RAX to that variable
+   128                                  
+   129                                  	;------ MINI PART: ask the user for an encryption key----------
+   130 0000011F 68[3D010000]            	push encKeyAct
+   131 00000124 E8(00000000)            	call PrintString
+   132                                  
+   133 00000129 68[07020000]            	push encKey										;push the variable to store user input in
+   134 0000012E 68FF000000              	push encKey.len									;push its length
+   135 00000133 E8(00000000)            	call ReadText									;store input key in encKey
+   136 00000138 4883E801                	sub rax, 1
+   137 0000013C 48890425[1D040000]      	mov [encKeyLength], rax							;ReadText returns in rax the length of the input
+   138                                  
+   139                                  	
+   140                                  	
+   141                                  	;------------------- PART 4) notify the user of the action ---------------
+   142 00000144 E8(00000000)            	call Printendl
+   143 00000149 68[0E010000]            	push programActionAct							;push display
+   144 0000014E E8(00000000)            	call PrintString								;display
+   145 00000153 488B0425[06030000]      	mov rax, [originalFile]							;prepare to print the name of the input file
+   146 0000015B 50                      	push rax										;push it
+   147 0000015C E8(00000000)            	call PrintString								;display it
+   148 00000161 68[27010000]            	push programActionAct2							;push continous display
+   149 00000166 E8(00000000)            	call PrintString								;display
+   150 0000016B 4831DB                  	xor rbx, rbx									;clear it just in case
+   151 0000016E 488B1C25[1E030000]      	mov rbx, [tempName]								;prepare to print the name of the output file
+   152 00000176 53                      	push rbx										;push it
+   153 00000177 E8(00000000)            	call PrintString								; print it
+   154 0000017C E8(00000000)            	call Printendl									;Empty line
+   155 00000181 E8(00000000)            	call Printendl
+   156                                  	
+   157 00000186 90                      	nop												;for kdbg debugging purposes (1 byte)
    158                                  	
-   159                                  	;-------- PART 6) Loop: read 0ffffh bytes from the file into the allocated memory ------------
-   160                                  	;mov rcx, 0ffffh
-   161                                  	; RDX still holds the break in memory for the allocated 0ffffh bytes - might create a variable later
-   162                                  	readFileLoop:									;flag, not a loop
-   163 0000018E B800000000              		mov rax, 0h
-   164 00000193 488B3C25[00000000]      		mov rdi, [inputFileAddress]
-   165 0000019B 488B3425[86030000]      		mov rsi, [breakTracker]
-   166 000001A3 BAFFFF0000              		mov rdx, 0ffffh
-   167 000001A8 0F05                    		syscall										;Poke the kernel
-   168 000001AA 4889C1                  		mov rcx, rax
-   169 000001AD 48FFC9                  		dec rcx										;next byte
-   170 000001B0 4989C0                  		mov r8, rax
-   171 000001B3 BF00000000              		mov rdi, 0
-   172 000001B8 B800000000              		mov rax, 0
-   173 000001BD BB00000000              		mov rbx, 0
-   174                                  		
-   175                                  		encryptLoop:
-   176 000001C2 8A9F[86030000]          			mov bl, [breakTracker + rdi]
-   177 000001C8 3298[7F020000]          			xor bl, [encKey + rax]					;ancrypt using xor
-   178 000001CE 889F[86030000]          			mov [breakTracker + rdi], bl
-   179                                  			
-   180 000001D4 4883C701                			add rdi, 1								;next byte
-   181 000001D8 4883C001                			add rax, 1								;next byte
-   182                                  			
-   183 000001DC 53                      			push rbx
-   184 000001DD B900000000              			mov rcx, 0
-   185 000001E2 BB00000000              			mov rbx, 0
-   186 000001E7 488B1C25[CE010000]      			mov rbx, [encKeyLength]
-   187 000001EF 48F7F3                  			div rbx
-   188 000001F2 4889D0                  			mov rax, rdx
-   189 000001F5 5B                      			pop rbx									;Restore RBX's value
-   190                                  			
-   191                                  			
-   192 000001F6 E2CA                    		loop encryptLoop
-   193                                  		
-   194 000001F8 B801000000              		mov rax, 1h									;write to file
-   195 000001FD 488B3C25[FF000000]      		mov rdi, [outputFileAddress]
-   196 00000205 488B3425[86030000]      		mov rsi, [breakTracker]
-   197 0000020D 4C89C2                  		mov rdx, r8
-   198 00000210 0F05                    		syscall										;poke the kernel with the needed conditions
+   159                                  	
+   160                                  	;---------------------- OPENING THE FILE ----------------------------
+   161 00000187 B802000000              	mov rax, 2h												;open the file first
+   162 0000018C 488B3C25[1E030000]      	mov rdi, [tempName]										;temp name is used to store the outputfile address that we may have detroyed
+   163 00000194 BE42040000              	mov rsi, 0442h
+   164 00000199 BA02000000              	mov rdx, 2h
+   165 0000019E 0F05                    	syscall
+   166 000001A0 4883F800                	cmp rax, 0
+   167 000001A4 0F8C4A010000            	jl failedOpening										;poke the kernel with the needed conditions
+   168                                  
+   169                                  	readFileLoop:									;flag, not a loop
+   170                                  	;----------------- PART 5) Dynamically allocate 0ffffh bytes -----------
+   171 000001AA B800000000              		mov rax, 0
+   172 000001AF 488B3C25[00000000]      		mov rdi, [inputFileAddress]							;move to rdi the name of the input file
+   173 000001B7 488B3425[0E030000]      		mov rsi, [breakTracker]								;move to rsi the last point in the memory tracked
+   174 000001BF BAFFFF0000              		mov rdx, 0ffffh										;rdx to be the next value to be allocated
+   175 000001C4 0F05                    		syscall												;poke the kernel
+   176 000001C6 4883F800                		cmp rax, 0											;compare rax to zero (returned from syscall)
+   177 000001CA 0F8C13010000            		jl allocationError
+   178 000001D0 48890425[5F010000]      		mov [totalBytes], rax								;move it to the total bytes to keep track of it
+   179                                  		
+   180                                  		
+   181                                  	;-------- PART 6) Loop: read 0ffffh bytes from the file into the allocated memory ------------
+   182 000001D8 BE00000000              		mov rsi, 0											;
+   183 000001DD 48BE-                   		mov rsi, encKey										;move the encryptiong key address to rsi
+   183 000001DF [0702000000000000] 
+   184 000001E7 B800000000              		mov rax, 0
+   185 000001EC 8A0425[1D040000]        		mov al, BYTE [encKeyLength]							;one byte at a time, move to rax
+   186 000001F3 BF00000000              		mov rdi, 0								
+   187 000001F8 488B3C25[0E030000]      		mov rdi, [breakTracker]								;move again to rdi the brak tracker
+   188 00000200 BB00000000              		mov rbx, 0
+   189 00000205 B900000000              		mov rcx, 0
+   190 0000020A 488B0C25[5F010000]      		mov rcx, [totalBytes]								;look throguh the amount of bytes read
+   191                                  		
+   192                                  		
+   193                                  	;--------------- PART 7) Encrypt the file read data found -------------------
+   194                                  		encryptLoop:
+   195 00000212 483B0425[1D040000]      		cmp rax, [encKeyLength]							;Compare rax with the length of he key
+   196 0000021A 7C0F                    		jl pushIt
+   197 0000021C B800000000              		mov rax, 0										;if it is not less than, then move it back to zero
+   198 00000221 48BE-                   		mov rsi, encKey
+   198 00000223 [0702000000000000] 
    199                                  		
-   200 00000212 4983C000                		add r8, 0							
-   201 00000216 4981F8FFFF0000          		cmp r8, 0ffffh								;check if we are done reading/encrypting from the file
-   202 0000021D 753B                    		jne Exit
-   203 0000021F E96AFFFFFF              		jmp readFileLoop
-   204                                  		
-   205                                  
-   206                                  	
-   207                                  	
-   208                                  	;----------------- Failed Opening File ---------------
-   209 00000224 EB34                    	jmp Exit
-   210                                  	failedOpening:
-   211 00000226 68[09010000]            		push failedFileAct
-   212 0000022B E8(00000000)            		call PrintString
-   213 00000230 E8(00000000)            		call Printendl
-   214 00000235 EB23                    	jmp Exit
-   215                                  	
-   216                                  	;=================== GOODBYE MESSAGE =====================
-   217 00000237 E8(00000000)            	call Printendl
-   218 0000023C 68[40000000]            	push byeAct
-   219 00000241 E8(00000000)            	call PrintString
-   220 00000246 E8(00000000)            	call Printendl
-   221 0000024B 68[00000000]            	push lineAct
-   222 00000250 E8(00000000)            	call PrintString
-   223 00000255 E8(00000000)            	call Printendl
-   224                                  
-   225                                  ;
-   226                                  ;Setup the registers for exit and poke the kernel
-   227                                  ;Exit: 
-   228                                  Exit:
-   229 0000025A B83C000000              	mov		rax, 60					;60 = system exit
-   230 0000025F BF00000000              	mov		rdi, 0					;0 = return code
-   231 00000264 0F05                    	syscall							;Poke the kernel
-   232                                  
-   233                                  
-   234                                  ;=================== TO DO LIST ======================
-   235                                  ; check if the file exists ---- https://gist.github.com/Archenoth/5380671
-   236                                  
-   237                                  
+   200                                  		pushIt:
+   201 0000022B 8A1F                    			mov bl, [rdi]								;move to rbx the last point in the memory (breakTracker)
+   202 0000022D 321E                    			xor bl, [rsi]								;encrypt it using xor
+   203 0000022F 881F                    			mov [rdi], bl								;move the encrypted value into that point in memory that we had in rdi (creating the encrpted copy)
+   204                                  
+   205 00000231 4883C601                			add rsi, 1									;increase all three (to go to the next byte)
+   206 00000235 4883C001                			add rax, 1
+   207 00000239 4883C701                			add rdi, 1
+   208                                  
+   209 0000023D E2D3                    		loop encryptLoop
+   210                                  			
+   211                                  	
+   212                                  ;---------------- PART 8) TRACK NUMBER OF BYTES READ, COPY ENCRYPTED VERSION TO THE OUTPUT FILE  -----------------------------
+   213                                  												
+   214 0000023F 488B0425[5F010000]      		mov rax, [totalBytes]
+   215 00000247 48010425[2D040000]      		add [bigTotalBytes], rax								;keep track of the TOTAL TOTAL byte transferred
+   216 0000024F 4831C0                  		xor rax, rax											;clear rax
+   217                                  		
+   218                                  		
+   219                                  		
+   220 00000252 B801000000              		mov rax, 1
+   221 00000257 488B3C25[FF000000]      		mov rdi, [outputFileAddress]
+   222                                  		;mov rsi, rbx		;move to rsi again the trace of the memory
+   223 0000025F 488B3425[0E030000]      		mov rsi, [breakTracker]
+   224 00000267 4831D2                  		xor rdx, rdx									; clean rdx
+   225 0000026A 488B1425[5F010000]      		mov rdx, [totalBytes]
+   226 00000272 0F05                    		syscall													;Poke the kernel
+   227 00000274 4883F800                		cmp rax, 0
+   228 00000278 7C7A                    		jl failedOpening
+   229 0000027A 4881FAFFFF0000          		cmp rdx, 0ffffh											;compare rdx to ffffh
+   230 00000281 7C05                    		jl cont2
+   231 00000283 E922FFFFFF              		jmp readFileLoop
+   232                                  		
+   233                                  	cont2:
+   234                                  	;------------------- PART 9) close files, show total bytes -------------------
+   235 00000288 4831C9                  	xor rcx, rcx
+   236 0000028B B921000000              	mov rcx, totalBytesAct.len
+   237 00000290 4883E901                	sub rcx, 1
+   238 00000294 68[60010000]            	push totalBytesAct
+   239 00000299 51                      	push rcx
+   240 0000029A E8(00000000)            	call PrintText
+   241 0000029F 4831C0                  	xor rax, rax									;clear rax
+   242 000002A2 488B0425[2D040000]      	mov rax, [bigTotalBytes]
+   243 000002AA 50                      	push rax
+   244 000002AB E8(00000000)            	call Print64bitNumDecimal
+   245                                  	
+   246                                  	;------- MEMORY DEALLOCATION ( PART 10) -----------------------
+   247 000002B0 B80C000000              	mov rax, 0ch
+   248 000002B5 488B3425[0E030000]      	mov rsi, [breakTracker]
+   249 000002BD 0F05                    	syscall
+   250                                  	
+   251                                  	;----------------- CLOSE INPUT AND OUTPUT FILES ------------
+   252 000002BF B803000000              	mov rax, 3h
+   253 000002C4 48BB-                   	mov rbx, originalFile
+   253 000002C6 [0603000000000000] 
+   254 000002CE 0F05                    	syscall
+   255                                  	
+   256 000002D0 B803000000              	mov rax, 3h
+   257 000002D5 48BB-                   	mov rbx, outputFileAddress
+   257 000002D7 [FF00000000000000] 
+   258 000002DF 0F05                    	syscall
+   259                                  	;----------------- Failed Opening File ---------------
+   260 000002E1 EB22                    	jmp exitit
+   261                                  	allocationError:
+   262 000002E3 68[81010000]            		push allocError
+   263 000002E8 E8(00000000)            		call PrintString
+   264 000002ED E8(00000000)            		call Printendl
+   265 000002F2 EB11                    	jmp exitit
+   266                                  	failedOpening:
+   267 000002F4 68[E3000000]            		push failedFileAct
+   268 000002F9 E8(00000000)            		call PrintString
+   269 000002FE E8(00000000)            		call Printendl
+   270 00000303 EB00                    	jmp exitit
+   271                                  	
+   272                                  	
+   273                                  	
+   274                                  	exitit:
+   275                                  	
+   276                                  	
+   277                                  	;=================== GOODBYE MESSAGE =====================
+   278 00000305 E8(00000000)            	call Printendl
+   279 0000030A 68[40000000]            	push byeAct
+   280 0000030F E8(00000000)            	call PrintString
+   281 00000314 E8(00000000)            	call Printendl
+   282 00000319 68[00000000]            	push lineAct
+   283 0000031E E8(00000000)            	call PrintString
+   284 00000323 E8(00000000)            	call Printendl
+   285                                  
+   286                                  ;
+   287                                  ;Setup the registers for exit and poke the kernel
+   288                                  ;Exit: 
+   289                                  Exit:
+   290 00000328 B83C000000              	mov		rax, 60					;60 = system exit
+   291 0000032D BF00000000              	mov		rdi, 0					;0 = return code
+   292 00000332 0F05                    	syscall							;Poke the kernel
+   293                                  
+   294                                  
+   295                                  ;=================== TO DO LIST ======================
+   296                                  ;; EMPTY WOOHOO
+   297                                  

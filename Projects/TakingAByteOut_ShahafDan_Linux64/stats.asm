@@ -26,41 +26,24 @@ calcvariance:
 		jnc notNeg					;if carry flag os 0: not negative
 		neg rax	
 		sub rbx, rax				;substract the value from the total
-		
-		
-		;------- PRINT MINUSSS-----------
-		
 		jmp neg
 		notNeg:						; conitnue code here if the value is not negative
 		add rbx, rax				;add the value to the total
 		neg:	
-
-		push rax					;prepare to print
-		call Print64bitNumDecimal	;Print values
-		cmp rcx, 1
-		je lastOne
-		call PrintComma				;Print a coma
-		lastOne:
 		add rdi, 8
 	loop loopie
 	
 	call Printendl					;line spacing
 	
 	
-	;------ Print total----------
-	;push totalAct					;Print total prompt
-	;call PrintString				;Print it
-	mov rdx, rbx
+
+	mov rdx, rbx					;preserve a value: determine sign of total
 	clc								;Clear he carry flag: will be used to determine sign of total
 	bt rbx, 63						;get the SIGNficiant bit of the total (storedin rbx)
 	jnc notNeg2						;jump if not negative
 	neg rbx							;but if it negative, re-negate it
-	;push PrintMinus					;and also print a minux sign
-	;call PrintString				; Print it
 	notNeg2:						;But, if the total (in rbx) is not negative:
-	push rbx						;Prepare printing total
-	call Print64bitNumDecimal		; print total
-	call Printendl
+
 
 
 	
@@ -75,29 +58,15 @@ calcvariance:
 	idiv rcx						;divide rax with 5 - CHANGE TO A LENGTH VARIABLE
 	
 	
-	;push avgAct						;prepare to print average act
-	;call PrintString				;print it
+
 	clc
 	bt rbx, 63					;check SIGNificant bit	
 	jnc notNeg3					;if the number is negative {
-	;push PrintMinus					;print a minus
-	;call PrintString				;}
 	notNeg3:						;else {...}	
-	push rax						;cout <<
-	call Print64bitNumDecimal		;average <<
-	call Printendl					;endl;
-	
-	;sub rsp, 8						;create enough room for an average 
 	push rax						;rax (average(abs)) is now in the stack in RBP - 8 ;automatically does rsp - 8
 	mov rax, 0
 	
 	mov rsi, 0
-						;create enough room for a pointer for another array
-	;call Printendl
-	;push PrintMinus
-	;call PrintString
-	;call Printendl
-	;by now we should have x qw values in the stack
 	;--------- CALCULATE THE AVERAGE OF THE NEW ARRAY ----------
 	mov rdx, [rbp - 8]					;RDX now holds the values mean (RDX = AVERAGE)
 	mov rax, 0	
@@ -111,7 +80,6 @@ calcvariance:
 		clc
 		bt rbx, 63
 		jnc	pos						;not a negative
-			;neg rax
 			add rax, rdx				;if negaative, substract and take absolute value
 		jmp posCont
 		pos:
@@ -146,14 +114,14 @@ calcvariance:
 	
 	idiv rcx
 	
-	push VarianceAct
-	call PrintString
+	;push VarianceAct
+	;call PrintString
 								;Divide by the number of elements
-	push rax							;
-	call Print64bitNumDecimal
-	call Printendl
+	;push rax							;
+	;call Print64bitNumDecimal
+	;call Printendl
 	;=========== DESTROY STACK ==============
 	mov rsp, rbp					;Restore the stack position
 	pop rbp							;Restore ebp's original value in the stack frame
 	
-ret 	
+ret 								;returns RAX to the main _start part of the program

@@ -775,81 +775,80 @@
    219                                  		
    220 00000252 B801000000              		mov rax, 1
    221 00000257 488B3C25[FF000000]      		mov rdi, [outputFileAddress]
-   222                                  		;mov rsi, rbx		;move to rsi again the trace of the memory
-   223 0000025F 488B3425[0E030000]      		mov rsi, [breakTracker]
-   224 00000267 4831D2                  		xor rdx, rdx									; clean rdx
-   225 0000026A 488B1425[5F010000]      		mov rdx, [totalBytes]
-   226 00000272 0F05                    		syscall													;Poke the kernel
-   227 00000274 4883F800                		cmp rax, 0
-   228 00000278 7C7A                    		jl failedOpening
-   229 0000027A 4881FAFFFF0000          		cmp rdx, 0ffffh											;compare rdx to ffffh
-   230 00000281 7C05                    		jl cont2
-   231 00000283 E922FFFFFF              		jmp readFileLoop
-   232                                  		
-   233                                  	cont2:
-   234                                  	;------------------- PART 9) close files, show total bytes -------------------
-   235 00000288 4831C9                  	xor rcx, rcx
-   236 0000028B B921000000              	mov rcx, totalBytesAct.len
-   237 00000290 4883E901                	sub rcx, 1
-   238 00000294 68[60010000]            	push totalBytesAct
-   239 00000299 51                      	push rcx
-   240 0000029A E8(00000000)            	call PrintText
-   241 0000029F 4831C0                  	xor rax, rax									;clear rax
-   242 000002A2 488B0425[2D040000]      	mov rax, [bigTotalBytes]
-   243 000002AA 50                      	push rax
-   244 000002AB E8(00000000)            	call Print64bitNumDecimal
-   245                                  	
-   246                                  	;------- MEMORY DEALLOCATION ( PART 10) -----------------------
-   247 000002B0 B80C000000              	mov rax, 0ch
-   248 000002B5 488B3425[0E030000]      	mov rsi, [breakTracker]
-   249 000002BD 0F05                    	syscall
-   250                                  	
-   251                                  	;----------------- CLOSE INPUT AND OUTPUT FILES ------------
-   252 000002BF B803000000              	mov rax, 3h
-   253 000002C4 48BB-                   	mov rbx, originalFile
-   253 000002C6 [0603000000000000] 
-   254 000002CE 0F05                    	syscall
-   255                                  	
-   256 000002D0 B803000000              	mov rax, 3h
-   257 000002D5 48BB-                   	mov rbx, outputFileAddress
-   257 000002D7 [FF00000000000000] 
-   258 000002DF 0F05                    	syscall
-   259                                  	;----------------- Failed Opening File ---------------
-   260 000002E1 EB22                    	jmp exitit
-   261                                  	allocationError:
-   262 000002E3 68[81010000]            		push allocError
-   263 000002E8 E8(00000000)            		call PrintString
-   264 000002ED E8(00000000)            		call Printendl
-   265 000002F2 EB11                    	jmp exitit
-   266                                  	failedOpening:
-   267 000002F4 68[E3000000]            		push failedFileAct
-   268 000002F9 E8(00000000)            		call PrintString
-   269 000002FE E8(00000000)            		call Printendl
-   270 00000303 EB00                    	jmp exitit
+   222 0000025F 488B3425[0E030000]      		mov rsi, [breakTracker]
+   223 00000267 4831D2                  		xor rdx, rdx									; clean rdx
+   224 0000026A 488B1425[5F010000]      		mov rdx, [totalBytes]
+   225 00000272 0F05                    		syscall													;Poke the kernel
+   226 00000274 4883F800                		cmp rax, 0
+   227 00000278 7C7A                    		jl failedOpening
+   228 0000027A 4881FAFFFF0000          		cmp rdx, 0ffffh											;compare rdx to 0ffffh
+   229 00000281 7C05                    		jl cont2												;LOOP EXIT CONDITION: exit the loop if less than 0ffffh
+   230 00000283 E922FFFFFF              		jmp readFileLoop										;else execute again
+   231                                  		
+   232                                  	cont2:
+   233                                  	;------------------- PART 9) close files, show total bytes -------------------
+   234 00000288 4831C9                  	xor rcx, rcx
+   235 0000028B B921000000              	mov rcx, totalBytesAct.len
+   236 00000290 4883E901                	sub rcx, 1
+   237 00000294 68[60010000]            	push totalBytesAct
+   238 00000299 51                      	push rcx
+   239 0000029A E8(00000000)            	call PrintText
+   240 0000029F 4831C0                  	xor rax, rax									;clear rax
+   241 000002A2 488B0425[2D040000]      	mov rax, [bigTotalBytes]
+   242 000002AA 50                      	push rax
+   243 000002AB E8(00000000)            	call Print64bitNumDecimal
+   244                                  	
+   245                                  	;------- MEMORY DEALLOCATION ( PART 10) -----------------------
+   246 000002B0 B80C000000              	mov rax, 0ch
+   247 000002B5 488B3425[0E030000]      	mov rsi, [breakTracker]
+   248 000002BD 0F05                    	syscall
+   249                                  	
+   250                                  	;----------------- CLOSE INPUT AND OUTPUT FILES ------------
+   251 000002BF B803000000              	mov rax, 3h
+   252 000002C4 48BB-                   	mov rbx, originalFile
+   252 000002C6 [0603000000000000] 
+   253 000002CE 0F05                    	syscall
+   254                                  	
+   255 000002D0 B803000000              	mov rax, 3h
+   256 000002D5 48BB-                   	mov rbx, outputFileAddress
+   256 000002D7 [FF00000000000000] 
+   257 000002DF 0F05                    	syscall
+   258                                  	;----------------- Failed Opening File ---------------
+   259 000002E1 EB22                    	jmp exitit
+   260                                  	allocationError:
+   261 000002E3 68[81010000]            		push allocError
+   262 000002E8 E8(00000000)            		call PrintString
+   263 000002ED E8(00000000)            		call Printendl
+   264 000002F2 EB11                    	jmp exitit
+   265                                  	failedOpening:
+   266 000002F4 68[E3000000]            		push failedFileAct
+   267 000002F9 E8(00000000)            		call PrintString
+   268 000002FE E8(00000000)            		call Printendl
+   269 00000303 EB00                    	jmp exitit
+   270                                  	
    271                                  	
    272                                  	
-   273                                  	
-   274                                  	exitit:
+   273                                  	exitit:
+   274                                  	
    275                                  	
-   276                                  	
-   277                                  	;=================== GOODBYE MESSAGE =====================
-   278 00000305 E8(00000000)            	call Printendl
-   279 0000030A 68[40000000]            	push byeAct
-   280 0000030F E8(00000000)            	call PrintString
-   281 00000314 E8(00000000)            	call Printendl
-   282 00000319 68[00000000]            	push lineAct
-   283 0000031E E8(00000000)            	call PrintString
-   284 00000323 E8(00000000)            	call Printendl
-   285                                  
-   286                                  ;
-   287                                  ;Setup the registers for exit and poke the kernel
-   288                                  ;Exit: 
-   289                                  Exit:
-   290 00000328 B83C000000              	mov		rax, 60					;60 = system exit
-   291 0000032D BF00000000              	mov		rdi, 0					;0 = return code
-   292 00000332 0F05                    	syscall							;Poke the kernel
+   276                                  	;=================== GOODBYE MESSAGE =====================
+   277 00000305 E8(00000000)            	call Printendl
+   278 0000030A 68[40000000]            	push byeAct
+   279 0000030F E8(00000000)            	call PrintString
+   280 00000314 E8(00000000)            	call Printendl
+   281 00000319 68[00000000]            	push lineAct
+   282 0000031E E8(00000000)            	call PrintString
+   283 00000323 E8(00000000)            	call Printendl
+   284                                  
+   285                                  ;
+   286                                  ;Setup the registers for exit and poke the kernel
+   287                                  ;Exit: 
+   288                                  Exit:
+   289 00000328 B83C000000              	mov		rax, 60					;60 = system exit
+   290 0000032D BF00000000              	mov		rdi, 0					;0 = return code
+   291 00000332 0F05                    	syscall							;Poke the kernel
+   292                                  
    293                                  
-   294                                  
-   295                                  ;=================== TO DO LIST ======================
-   296                                  ;; EMPTY WOOHOO
-   297                                  
+   294                                  ;=================== TO DO LIST ======================
+   295                                  ;; EMPTY WOOHOO
+   296                                  

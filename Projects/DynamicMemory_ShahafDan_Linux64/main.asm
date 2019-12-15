@@ -1,6 +1,8 @@
 ;
 ;Example program to execute 64-bit functions in Linux
-;
+;Shahaf Dan
+;Assembly Fall 2019
+
 
 ;
 ;Include our external functions library functions

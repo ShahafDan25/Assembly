@@ -168,6 +168,8 @@ _start:
 	cmp rax, 0
 	jl failedOpening										;poke the kernel with the needed conditions
 
+
+
 	readFileLoop:									;flag, not a loop
 	;----------------- PART 5) Dynamically allocate 0ffffh bytes -----------
 		mov rax, 0
@@ -179,7 +181,7 @@ _start:
 		jl allocationError
 		mov [totalBytes], rax								;move it to the total bytes to keep track of it
 		
-		
+
 	;-------- PART 6) Loop: read 0ffffh bytes from the file into the allocated memory ------------
 		mov rsi, 0											;
 		mov rsi, encKey										;move the encryptiong key address to rsi
@@ -190,8 +192,7 @@ _start:
 		mov rbx, 0
 		mov rcx, 0
 		mov rcx, [totalBytes]								;look throguh the amount of bytes read
-		
-		
+
 	;--------------- PART 7) Encrypt the file read data found -------------------
 		encryptLoop:
 		cmp rax, [encKeyLength]							;Compare rax with the length of he key
@@ -209,7 +210,8 @@ _start:
 			add rdi, 1
 
 		loop encryptLoop
-			
+					
+
 	
 ;---------------- PART 8) TRACK NUMBER OF BYTES READ, COPY ENCRYPTED VERSION TO THE OUTPUT FILE  -----------------------------
 												
@@ -295,4 +297,5 @@ Exit:
 
 ;=================== TO DO LIST ======================
 ;; EMPTY WOOHOO
+
 
